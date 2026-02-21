@@ -3,7 +3,7 @@
 # This template file has been automatically created at the following
 # path since Ghostty couldn't find any existing config files on your system:
 #
-#   /Users/yuya/Library/Application Support/com.mitchellh.ghostty/config
+#   /Users/yuya.makiyama/Library/Application Support/com.mitchellh.ghostty/config
 #
 # The template does not set any default options, since Ghostty ships
 # with sensible defaults for all options. Users should only need to set
@@ -50,4 +50,15 @@
 
 background-opacity = 0.8
 macos-option-as-alt = left
-font-size = 14
+unfocused-split-fill = #888888
+confirm-close-surface = false
+working-directory = inherit
+window-inherit-working-directory = true
+font-family = Jetbrains Mono Nerd Font
+
+keybind = ctrl+e=equalize_splits
+keybind = alt+command+left=previous_tab
+keybind = alt+command+right=next_tab
+keybind = command+z=text:\x1f
+keybind = command+shift+z=text:\x1b[90~
+keybind = command+enter=ignore
