@@ -53,6 +53,7 @@ macos-option-as-alt = left
 unfocused-split-fill = #888888
 confirm-close-surface = false
 working-directory = inherit
+shell-integration = none
 window-inherit-working-directory = true
 font-family = Jetbrains Mono Nerd Font
 
