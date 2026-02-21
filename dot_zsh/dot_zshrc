@@ -1,4 +1,4 @@
-cd $HOME
+[[ "$PWD" = "/" ]] && cd $HOME
 
 plugins=(git)
 
