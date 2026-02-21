@@ -1,5 +1,5 @@
 ---
-name: todo
+name: nb
 description: Manages TODO in `nb` CLI. You must use this skill when the user says something like "add TODO to nb".
 disable-model-invocation: true
 ---
