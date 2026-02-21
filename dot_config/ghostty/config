@@ -58,8 +58,16 @@ window-inherit-working-directory = true
 font-family = Jetbrains Mono Nerd Font
 
 keybind = ctrl+e=equalize_splits
-keybind = alt+command+left=previous_tab
-keybind = alt+command+right=next_tab
 keybind = command+z=text:\x1f
 keybind = command+shift+z=text:\x1b[90~
 keybind = command+enter=ignore
+
+# Forward Cmd keys to tmux as escape sequences
+keybind = command+d=text:\x1b[100~
+keybind = command+shift+d=text:\x1b[101~
+keybind = command+w=text:\x1b[102~
+keybind = command+t=text:\x1b[103~
+keybind = alt+command+left=text:\x1b[104~
+keybind = alt+command+right=text:\x1b[105~
+keybind = alt+command+up=text:\x1b[106~
+keybind = alt+command+down=text:\x1b[107~
