@@ -1,0 +1,222 @@
+{
+    "window.commandCenter": true,
+    "workbench.colorTheme": "Default Dark Modern",
+    "material-icon-theme.activeIconPack": "nest",
+    "files.autoSave": "afterDelay",
+    "editor.renderWhitespace": "all",
+    "editor.wordWrap": "on",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "[cpp]": {
+        "editor.wordBasedSuggestions": "off"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[yaml]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "[graphql]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "eslint.debug": true,
+    "editor.find.autoFindInSelection": "multiline",
+    "editor.gotoLocation.multipleImplementations": "peek",
+    "editor.minimap.enabled": true,
+    "editor.suggestSelection": "first",
+    "editor.tabSize": 2,
+    "emmet.showAbbreviationSuggestions": false,
+    "eslint.enable": true,
+    "eslint.format.enable": true,
+    "eslint.lintTask.enable": true,
+    "eslint.run": "onSave",
+    "eslint.validate": [
+        "html",
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact"
+    ],
+    "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false,
+    "files.associations": {
+        "*.css": "postcss"
+    },
+    "files.insertFinalNewline": true,
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/.hg/store/**": true,
+        "**/*.gen.ts": true,
+        "**/queries.ts": true,
+        "**/.trunk/*actions/": true,
+        "**/.trunk/*logs/": true,
+        "**/.trunk/*notifications/": true,
+        "**/.trunk/*out/": true,
+        "**/.trunk/*plugins/": true
+    },
+    "git.autofetch": true,
+    "git.ignoreLimitWarning": true,
+    "gitlens.advanced.messages": {
+        "suppressLineUncommittedWarning": true
+    },
+    "gitlens.codeLens.enabled": false,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "workbench.startupEditor": "newUntitledFile",
+    "workbench.editorAssociations": {
+        "*.ipynb": "jupyter-notebook"
+    },
+    "editor.foldingMaximumRegions": 10000,
+    "editor.unicodeHighlight.allowedLocales": {
+        "zh-hant": true
+    },
+    "git.openRepositoryInParentFolders": "always",
+    "editor.accessibilitySupport": "off",
+    "editor.inlineSuggest.enabled": true,
+    "editor.stickyScroll.enabled": true,
+    "editor.minimap.showSlider": "always",
+    "workbench.editor.enablePreview": false,
+    "editor.wordSeparators": "`~!@#$%^&*()=+[{]}\\|;:'\",.<>/?",
+    "workbench.colorCustomizations": {
+        "editorCursor.foreground": "#e6e6e6",
+    },
+    "editor.cursorStyle": "block",
+    "window.zoomLevel": -0.5,
+    "accessibility.signals.lineHasError": {
+        "sound": "off"
+    },
+    "accessibility.signals.lineHasFoldedArea": {
+        "sound": "off"
+    },
+    "accessibility.signals.lineHasBreakpoint": {
+        "sound": "off"
+    },
+    "accessibility.signals.lineHasInlineSuggestion": {
+        "sound": "off"
+    },
+    "accessibility.signals.terminalQuickFix": {
+        "sound": "off"
+    },
+    "accessibility.signals.onDebugBreak": {
+        "sound": "off"
+    },
+    "accessibility.signals.noInlayHints": {
+        "sound": "off"
+    },
+    "accessibility.signals.taskCompleted": {
+        "sound": "off"
+    },
+    "accessibility.signals.taskFailed": {
+        "sound": "off"
+    },
+    "accessibility.signals.terminalCommandFailed": {
+        "sound": "off"
+    },
+    "accessibility.signals.notebookCellCompleted": {
+        "sound": "off"
+    },
+    "accessibility.signals.notebookCellFailed": {
+        "sound": "off"
+    },
+    "accessibility.signals.diffLineInserted": {
+        "sound": "off"
+    },
+    "accessibility.signals.diffLineDeleted": {
+        "sound": "off"
+    },
+    "accessibility.signals.diffLineModified": {
+        "sound": "off"
+    },
+    "search.exclude": {
+        "**/.git": true,
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/.tamashii": true,
+        "**/.cache": true
+    },
+    "[dockerfile]": {
+        "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+    },
+    "explorer.confirmPasteNative": false,
+    "cSpell.userWords": [
+        "dataform",
+        "datamart",
+        "dinii",
+        "metabase"
+    ],
+    "editor.fontSize": 12.5,
+    "files.exclude": {
+        "**/.trunk/*actions/": true,
+        "**/.trunk/*logs/": true,
+        "**/.trunk/*notifications/": true,
+        "**/.trunk/*out/": true,
+        "**/.trunk/*plugins/": true
+    },
+    "cursor.cpp.disabledLanguages": [
+        "markdown",
+        "scminput"
+    ],
+    "database-client.autoSync": true,
+    "security.promptForLocalFileProtocolHandling": false,
+    "workbench.iconTheme": "material-icon-theme",
+    "cursor-retrieval.canAttemptGithubLogin": false,
+    "terminal.integrated.scrollback": 100000000,
+    "workbench.view.showQuietly": {
+        "workbench.panel.output": true,
+    },
+    "typescript.preferGoToSourceDefinition": true,
+    "javascript.preferGoToSourceDefinition": true,
+    "explorer.autoReveal": true,
+    "explorer.autoRevealExclude": {
+        "**/node_modules": false,
+    },
+    "cursor.composer.textSizeScale": 1.3,
+    "cursorStats.usageAlertThresholds": [
+        75,
+        90,
+        100,
+        50
+    ],
+    "git.suggestSmartCommit": false,
+    "terminal.integrated.enableMultiLinePasteWarning": "never",
+    "geminicodeassist.displayInlineContextHint": false,
+    "[dockercompose]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "[github-actions-workflow]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "[sql]": {
+        "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
+    },
+    "git.replaceTagsWhenPull": true,
+    // "biome.suggestInstallingGlobally": false,
+}
