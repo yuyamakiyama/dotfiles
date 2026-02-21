@@ -1,0 +1,41 @@
+
+plugins=(git)
+
+autoload -Uz compinit
+compinit
+
+eval "$(fnm env --use-on-cd --shell zsh)"
+eval "$(pyenv init -)"
+eval "$(ssh-agent -s)"
+
+source $HOME/.zsh/.zprezto/init.zsh
+source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $HOME/.zsh/configs/alias.zsh
+source $HOME/.zsh/configs/work.zsh
+source $HOME/.zsh/configs/git.zsh
+source $HOME/.zsh/configs/fzf.zsh
+source $HOME/.zsh/configs/bindkey.zsh
+source $HOME/.bun/_bun
+source $HOME/google-cloud-sdk/path.zsh.inc
+source $HOME/google-cloud-sdk/completion.zsh.inc
+source $HOME/.local/bin/env
+
+export HISTFILE=$HOME/.zsh/.zsh_history
+export HISTSIZE=100000
+export SAVEHIST=100000
+
+export PATH="$PATH:/usr/local/bin"
+export PATH=$PATH:"$HOME/google-cloud-sdk/bin"
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"
+export BUM_INSTALL="$HOME/.bum"
+export PATH="$BUM_INSTALL/bin:$PATH"
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home"
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export PATH="$PATH:$ANDROID_HOME/emulator"
+export PATH="$PATH:$ANDROID_HOME/platform-tools"
+
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
