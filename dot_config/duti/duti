@@ -1,0 +1,11 @@
+# Default file associations
+# Format: app_id UTI role
+# Roles: all, viewer, editor, shell, none
+
+# Cursor (com.todesktop.230313mzl4w4u92)
+com.todesktop.230313mzl4w4u92 public.xml all
+com.todesktop.230313mzl4w4u92 public.json all
+com.todesktop.230313mzl4w4u92 public.yaml all
+com.todesktop.230313mzl4w4u92 public.plain-text all
+com.todesktop.230313mzl4w4u92 net.daringfireball.markdown all
+com.todesktop.230313mzl4w4u92 public.comma-separated-values-text all

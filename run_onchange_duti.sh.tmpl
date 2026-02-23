@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Apply default file associations using duti
+# Config hash: {{ include "dot_config/duti/duti" | sha256sum }}
+
+if command -v duti &>/dev/null; then
+  duti ~/.config/duti/duti
+  echo "duti: file associations applied"
+else
+  echo "duti: not installed, skipping"
+fi
