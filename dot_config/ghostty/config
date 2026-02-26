@@ -66,10 +66,12 @@ keybind = shift+enter=text:\x0a
 # \x02 = Ctrl+b (tmux prefix)
 # Windows (tabs)
 keybind = super+t=text:\x02t
-keybind = super+shift+]=text:\x02n
-keybind = super+shift+[=text:\x02p
-keybind = ctrl+tab=text:\x02n
-keybind = ctrl+shift+tab=text:\x02p
+# Pane switching (Ctrl+Tab)
+keybind = ctrl+tab=text:\x02]
+keybind = ctrl+shift+tab=text:\x02[
+# Window switching (Ctrl+Cmd+Tab)
+keybind = ctrl+super+tab=text:\x02n
+keybind = ctrl+shift+super+tab=text:\x02p
 keybind = super+alt+w=text:\x02W
 keybind = super+b=text:\x02,
 keybind = super+digit_1=unbind
@@ -99,9 +101,14 @@ keybind = super+shift+enter=text:\x02Z
 keybind = ctrl+equal=unbind
 keybind = ctrl+equal=text:\x02e
 
-# Navigate panes (Cmd+[/])
-keybind = super+]=text:\x02]
-keybind = super+[=text:\x02[
+# Navigate windows/tabs (Cmd+Alt+Arrow)
+# NOTE: macOS menu shortcuts "Show Previous/Next Tab" must be disabled via:
+#   defaults write com.mitchellh.ghostty NSUserKeyEquivalents -dict-add "Show Previous Tab" "@^~\UF702" "Show Next Tab" "@^~\UF703"
+keybind = super+alt+arrow_left=text:\x02p
+keybind = super+alt+arrow_right=text:\x02n
+
+# Clear (Cmd+K)
+keybind = super+k=text:\x02C
 
 # Resize panes
 keybind = super+ctrl+arrow_left=text:\x02H
