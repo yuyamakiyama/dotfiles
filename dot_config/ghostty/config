@@ -48,7 +48,8 @@
 # # Just for example:
 # resize-overlay-duration = 4s 200ms
 
-background-opacity = 0.8
+background = #3a3a3a
+background-opacity = 0.2
 macos-option-as-alt = left
 unfocused-split-fill = #888888
 confirm-close-surface = false
@@ -110,8 +111,8 @@ keybind = super+alt+arrow_right=text:\x02n
 # Clear (Cmd+K)
 keybind = super+k=text:\x02C
 
-# Resize panes
-keybind = super+ctrl+arrow_left=text:\x02H
-keybind = super+ctrl+arrow_right=text:\x02L
-keybind = super+ctrl+arrow_up=text:\x02K
-keybind = super+ctrl+arrow_down=text:\x02J
+# Resize panes (sends custom CSI sequence, tmux binds in root table)
+keybind = super+shift+arrow_left=csi:1;99D
+keybind = super+shift+arrow_right=csi:1;99C
+keybind = super+shift+arrow_up=csi:1;99A
+keybind = super+shift+arrow_down=csi:1;99B
