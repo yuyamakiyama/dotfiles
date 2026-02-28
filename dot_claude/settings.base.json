@@ -1,0 +1,73 @@
+{
+  "env": {
+    "CLAUDE_CODE_ENABLE_TASKS": "true",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(nb list*)",
+      "Bash(nb show*)",
+      "Bash(nb search*)",
+      "Bash(nb todos*)",
+      "Bash(nb todo add*)",
+      "Bash(nb do*)",
+      "Bash(nb undo*)",
+      "Bash(nb edit*)",
+      "Bash(nb add*)",
+      "Bash(nb index reconcile*)"
+    ],
+    "deny": []
+  },
+  "model": "opus",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "You are a Bash command safety checker. Evaluate the following tool input and decide whether to allow or block it.\n\nTool input:\n$ARGUMENTS\n\nAuto-ALLOW list — immediately respond {\"ok\": true} without further analysis:\n- Commands starting with `SLACK_BOT_TOKEN=\"$SLACK_BOT_TOKEN\" bun ~/.claude/scripts/slack/slack-api.ts`\n\nRules — ALLOW by default. Only BLOCK if the command does one of the following:\n1. Recursive force deletion of broad paths (e.g. `rm -rf /`, `rm -rf ~`, `rm -rf .`)\n2. Force-pushes to main/master branches (`git push --force origin main`)\n3. Hard resets that discard work (`git reset --hard` without clear intent)\n4. Drops or truncates database tables (`DROP TABLE`, `TRUNCATE`) on REMOTE or PRODUCTION databases. ALLOW these operations if the target is clearly a local database (localhost, 127.0.0.1, local Docker container, or psql/docker exec against a local PostgreSQL server).\n5. Overwrites critical system files (`> /etc/...`, `dd if=... of=/dev/...`)\n6. Runs curl/wget output directly into shell (`curl ... | sh`, `wget ... -O - | bash`)\n\nEverything else — including rm of specific files, git operations, package installs, test runs, linting, builds, and general development commands — is SAFE and should be ALLOWED.\n\nRespond ONLY with JSON: {\"ok\": true} to allow, or {\"ok\": false, \"reason\": \"brief explanation\"} to block.",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'POST-COMPACT REMINDER: (1) Use bun, never npm. (2) bun typecheck output: ignore AuditLogs errors. (3) Branch naming: feat/ or fix/ prefix required. (4) Always run bun format before commit. (5) Current sprint: vacancy trigger config + reservation URL insert.'"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bunx -y ccstatusline@latest",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "todo-enforcer@harness": false,
+    "comment-checker@harness": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true
+  },
+  "language": "english",
+  "skipDangerousModePermissionPrompt": true,
+  "teammateMode": "tmux"
+}
