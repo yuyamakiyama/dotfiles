@@ -31,6 +31,28 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'POST-COMPACT REMINDER: (1) Use bun, never npm. (2) bun typecheck output: ignore AuditLogs errors. (3) Branch naming: feat/ or fix/ prefix required. (4) Always run bun format before commit. (5) Current sprint: vacancy trigger config + reservation URL insert.'"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
@@ -42,9 +64,14 @@
     "todo-enforcer@harness": false,
     "comment-checker@harness": true,
     "typescript-lsp@claude-plugins-official": true,
-    "dinii-kpi@dinii-tools": true
+    "dinii-kpi@dinii-tools": true,
+    "deep-plan@dinii-tools": true,
+    "code-simplifier@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "customer-insights@dinii-tools": true,
+    "my-insights@dinii-tools": true
   },
   "language": "english",
-  "teammateMode": "tmux",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "teammateMode": "tmux"
 }
