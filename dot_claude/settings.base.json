@@ -64,9 +64,6 @@
     "todo-enforcer@harness": false,
     "comment-checker@harness": true,
     "typescript-lsp@claude-plugins-official": true,
-{{- range .workPlugins }}
-    "{{ .name }}": true,
-{{- end }}
     "code-simplifier@claude-plugins-official": true,
     "playwright@claude-plugins-official": true
   },
