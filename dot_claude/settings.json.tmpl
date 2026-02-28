@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "You are a Bash command safety checker. Evaluate the following tool input and decide whether to allow or block it.\n\nTool input:\n$ARGUMENTS\n\nAuto-ALLOW list \u2014 immediately respond {\"ok\": true} without further analysis:\n- Commands starting with `SLACK_BOT_TOKEN=\"$SLACK_BOT_TOKEN\" bun ~/.claude/scripts/slack/slack-api.ts`\n\nRules \u2014 ALLOW by default. Only BLOCK if the command does one of the following:\n1. Recursive force deletion of broad paths (e.g. `rm -rf /`, `rm -rf ~`, `rm -rf .`)\n2. Force-pushes to main/master branches (`git push --force origin main`)\n3. Hard resets that discard work (`git reset --hard` without clear intent)\n4. Drops or truncates database tables (`DROP TABLE`, `TRUNCATE`) on REMOTE or PRODUCTION databases. ALLOW these operations if the target is clearly a local database (localhost, 127.0.0.1, local Docker container, or psql/docker exec against a local PostgreSQL server).\n5. Overwrites critical system files (`> /etc/...`, `dd if=... of=/dev/...`)\n6. Runs curl/wget output directly into shell (`curl ... | sh`, `wget ... -O - | bash`)\n\nEverything else \u2014 including rm of specific files, git operations, package installs, test runs, linting, builds, and general development commands \u2014 is SAFE and should be ALLOWED.\n\nRespond ONLY with JSON: {\"ok\": true} to allow, or {\"ok\": false, \"reason\": \"brief explanation\"} to block.",
+            "prompt": "You are a Bash command safety checker. Evaluate the following tool input and decide whether to allow or block it.\n\nTool input:\n$ARGUMENTS\n\nAuto-ALLOW list — immediately respond {\"ok\": true} without further analysis:\n- Commands starting with `SLACK_BOT_TOKEN=\"$SLACK_BOT_TOKEN\" bun ~/.claude/scripts/slack/slack-api.ts`\n\nRules — ALLOW by default. Only BLOCK if the command does one of the following:\n1. Recursive force deletion of broad paths (e.g. `rm -rf /`, `rm -rf ~`, `rm -rf .`)\n2. Force-pushes to main/master branches (`git push --force origin main`)\n3. Hard resets that discard work (`git reset --hard` without clear intent)\n4. Drops or truncates database tables (`DROP TABLE`, `TRUNCATE`) on REMOTE or PRODUCTION databases. ALLOW these operations if the target is clearly a local database (localhost, 127.0.0.1, local Docker container, or psql/docker exec against a local PostgreSQL server).\n5. Overwrites critical system files (`> /etc/...`, `dd if=... of=/dev/...`)\n6. Runs curl/wget output directly into shell (`curl ... | sh`, `wget ... -O - | bash`)\n\nEverything else — including rm of specific files, git operations, package installs, test runs, linting, builds, and general development commands — is SAFE and should be ALLOWED.\n\nRespond ONLY with JSON: {\"ok\": true} to allow, or {\"ok\": false, \"reason\": \"brief explanation\"} to block.",
             "timeout": 30
           }
         ]
@@ -64,6 +64,9 @@
     "todo-enforcer@harness": false,
     "comment-checker@harness": true,
     "typescript-lsp@claude-plugins-official": true,
+{{- range .workPlugins }}
+    "{{ .name }}": true,
+{{- end }}
     "code-simplifier@claude-plugins-official": true,
     "playwright@claude-plugins-official": true
   },
