@@ -53,6 +53,26 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmux claude-hook stop; afplay /System/Library/Sounds/Glass.aiff"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmux claude-hook notification; afplay /System/Library/Sounds/Blow.aiff"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
