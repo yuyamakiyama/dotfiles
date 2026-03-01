@@ -1,53 +1,3 @@
-# This is the configuration file for Ghostty.
-#
-# This template file has been automatically created at the following
-# path since Ghostty couldn't find any existing config files on your system:
-#
-#   /Users/yuya.makiyama/Library/Application Support/com.mitchellh.ghostty/config
-#
-# The template does not set any default options, since Ghostty ships
-# with sensible defaults for all options. Users should only need to set
-# options that they want to change from the default.
-#
-# Run `ghostty +show-config --default --docs` to view a list of
-# all available config options and their default values.
-#
-# Additionally, each config option is also explained in detail
-# on Ghostty's website, at https://ghostty.org/docs/config.
-#
-# Ghostty can reload the configuration while running by using the menu
-# options or the bound key (default: Command + Shift + comma on macOS and
-# Control + Shift + comma on other platforms). Not all config options can be
-# reloaded while running; some only apply to new windows and others may require
-# a full restart to take effect.
-
-# Config syntax crash course
-# ==========================
-# # The config file consists of simple key-value pairs,
-# # separated by equals signs.
-# font-family = Iosevka
-# window-padding-x = 2
-#
-# # Spacing around the equals sign does not matter.
-# # All of these are identical:
-# key=value
-# key= value
-# key =value
-# key = value
-#
-# # Any line beginning with a # is a comment. It's not possible to put
-# # a comment after a config option, since it would be interpreted as a
-# # part of the value. For example, this will have a value of "#123abc":
-# background = #123abc
-#
-# # Empty values are used to reset config keys to default.
-# key =
-#
-# # Some config options have unique syntaxes for their value,
-# # which is explained in the docs for that config option.
-# # Just for example:
-# resize-overlay-duration = 4s 200ms
-
 background = #3a3a3a
 background-opacity = 0.2
 macos-option-as-alt = left
@@ -57,62 +7,12 @@ working-directory = inherit
 shell-integration = none
 window-inherit-working-directory = true
 font-family = Jetbrains Mono Nerd Font
+font-family-codepoint-map = U+3000-9FFF=HackGen Console NF
 
 keybind = command+z=text:\x1f
 keybind = command+shift+z=text:\x1b[90~
 keybind = command+enter=ignore
 keybind = shift+enter=text:\x0a
 
-# Ghostty → tmux passthrough (Cmd+key sends Ctrl+b prefix + key)
-# \x02 = Ctrl+b (tmux prefix)
-# Windows (tabs)
-keybind = super+t=text:\x02t
-# Pane switching (Ctrl+Tab)
-keybind = ctrl+tab=text:\x02]
-keybind = ctrl+shift+tab=text:\x02[
-# Window switching (Ctrl+Cmd+Tab)
-keybind = ctrl+super+tab=text:\x02n
-keybind = ctrl+shift+super+tab=text:\x02p
-keybind = super+alt+w=text:\x02W
-keybind = super+b=text:\x02,
-keybind = super+digit_1=unbind
-keybind = super+digit_2=unbind
-keybind = super+digit_3=unbind
-keybind = super+digit_4=unbind
-keybind = super+digit_5=unbind
-keybind = super+digit_6=unbind
-keybind = super+digit_7=unbind
-keybind = super+digit_8=unbind
-keybind = super+digit_9=unbind
-keybind = super+1=text:\x021
-keybind = super+2=text:\x022
-keybind = super+3=text:\x023
-keybind = super+4=text:\x024
-keybind = super+5=text:\x025
-keybind = super+6=text:\x026
-keybind = super+7=text:\x027
-keybind = super+8=text:\x028
-keybind = super+9=text:\x029
-
-# Panes (splits)
-keybind = super+d=text:\x02d
-keybind = super+shift+d=text:\x02D
-keybind = super+w=text:\x02w
-keybind = super+shift+enter=text:\x02Z
-keybind = ctrl+equal=unbind
-keybind = ctrl+equal=text:\x02e
-
-# Navigate windows/tabs (Cmd+Alt+Arrow)
-# NOTE: macOS menu shortcuts "Show Previous/Next Tab" must be disabled via:
-#   defaults write com.mitchellh.ghostty NSUserKeyEquivalents -dict-add "Show Previous Tab" "@^~\UF702" "Show Next Tab" "@^~\UF703"
-keybind = super+alt+arrow_left=text:\x02p
-keybind = super+alt+arrow_right=text:\x02n
-
-# Clear (Cmd+K)
-keybind = super+k=text:\x02C
-
-# Resize panes (sends custom CSI sequence, tmux binds in root table)
-keybind = super+shift+arrow_left=csi:1;99D
-keybind = super+shift+arrow_right=csi:1;99C
-keybind = super+shift+arrow_up=csi:1;99A
-keybind = super+shift+arrow_down=csi:1;99B
+# Clear screen + scrollback (Cmd+K)
+keybind = super+k=text:\x1b[2J\x1b[3J\x1b[H
