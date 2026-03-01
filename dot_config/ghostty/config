@@ -7,7 +7,7 @@ working-directory = inherit
 shell-integration = none
 window-inherit-working-directory = true
 font-family = Jetbrains Mono Nerd Font
-font-family-codepoint-map = U+3000-9FFF=HackGen Console NF
+font-family-codepoint-map = U+3000-9FFF=Noto Sans CJK JP
 
 keybind = command+z=text:\x1f
 keybind = command+shift+z=text:\x1b[90~
