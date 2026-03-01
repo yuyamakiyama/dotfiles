@@ -9,3 +9,11 @@ com.todesktop.230313mzl4w4u92 public.yaml all
 com.todesktop.230313mzl4w4u92 public.plain-text all
 com.todesktop.230313mzl4w4u92 net.daringfireball.markdown all
 com.todesktop.230313mzl4w4u92 public.comma-separated-values-text all
+
+# Xcode-related files (previously TextEdit)
+com.todesktop.230313mzl4w4u92 com.apple.xcode.strings-text all
+com.todesktop.230313mzl4w4u92 com.apple.xcode.entitlements-property-list all
+com.todesktop.230313mzl4w4u92 com.apple.xcode.projectdata all
+com.todesktop.230313mzl4w4u92 com.apple.dt.document.scheme all
+com.todesktop.230313mzl4w4u92 com.apple.dt.interfacebuilder.document.storyboard all
+com.todesktop.230313mzl4w4u92 com.apple.interfacebuilder.document.cocoa all
