@@ -14,5 +14,11 @@ keybind = command+shift+z=text:\x1b[90~
 keybind = command+enter=ignore
 keybind = shift+enter=text:\x0a
 
+# Resize cmux panes (Ctrl+Cmd+Arrow)
+keybind = ctrl+super+left=text:\x1b[1;13D
+keybind = ctrl+super+right=text:\x1b[1;13C
+keybind = ctrl+super+up=text:\x1b[1;13A
+keybind = ctrl+super+down=text:\x1b[1;13B
+
 # Clear screen + scrollback (Cmd+K)
 keybind = super+k=text:\x1b[2J\x1b[3J\x1b[H
