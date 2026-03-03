@@ -77,6 +77,5 @@
     "playwright@claude-plugins-official": true
   },
   "language": "English",
-  "skipDangerousModePermissionPrompt": true,
-  "teammateMode": "in-process"
+  "skipDangerousModePermissionPrompt": true
 }
