@@ -1,13 +1,36 @@
-plugins=(git)
-
-autoload -Uz compinit
+autoload -Uz compinit add-zsh-hook
 compinit
 
 eval "$(fnm env --use-on-cd --shell zsh)"
 eval "$(pyenv init -)"
 eval "$(ssh-agent -s)"
 
-source $HOME/.zsh/.zprezto/init.zsh
+# Prompt
+setopt PROMPT_SUBST
+
+_prompt_precmd() {
+  local git=''
+  local branch=$(command git symbolic-ref --short HEAD 2>/dev/null)
+  if [[ -n $branch ]]; then
+    local dirty
+    [[ -n $(command git status --porcelain 2>/dev/null | head -1) ]] && dirty='*'
+    git="%F{242}${branch}%F{218}${dirty}%f"
+  fi
+  print
+  PROMPT="%F{blue}%~%f ${git}
+%(?.%F{magenta}.%F{red})❯%f "
+}
+add-zsh-hook precmd _prompt_precmd
+
+# Completion
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+
+# History substring search
+source $(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $HOME/.zsh/configs/alias.zsh
@@ -23,6 +46,7 @@ source $HOME/.local/bin/env
 export HISTFILE=$HOME/.zsh/.zsh_history
 export HISTSIZE=100000
 export SAVEHIST=100000
+setopt SHARE_HISTORY HIST_IGNORE_DUPS
 
 export PATH="$PATH:/usr/local/bin"
 export PATH=$PATH:"$HOME/google-cloud-sdk/bin"
