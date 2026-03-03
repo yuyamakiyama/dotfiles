@@ -1,5 +1,5 @@
 background = #3a3a3a
-background-opacity = 0.2
+background-opacity = 0.6
 macos-option-as-alt = left
 unfocused-split-fill = #888888
 confirm-close-surface = false
@@ -7,7 +7,6 @@ working-directory = inherit
 shell-integration = none
 window-inherit-working-directory = true
 font-family = Jetbrains Mono Nerd Font
-font-family-codepoint-map = U+3000-9FFF=Noto Sans CJK JP
 
 keybind = command+z=text:\x1f
 keybind = command+shift+z=text:\x1b[90~
