@@ -4,18 +4,7 @@
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
-    "allow": [
-      "Bash(nb list*)",
-      "Bash(nb show*)",
-      "Bash(nb search*)",
-      "Bash(nb todos*)",
-      "Bash(nb todo add*)",
-      "Bash(nb do*)",
-      "Bash(nb undo*)",
-      "Bash(nb edit*)",
-      "Bash(nb add*)",
-      "Bash(nb index reconcile*)"
-    ],
+    "allow": [],
     "deny": []
   },
   "model": "opus",
@@ -89,5 +78,5 @@
   },
   "language": "English",
   "skipDangerousModePermissionPrompt": true,
-  "teammateMode": "tmux"
+  "teammateMode": "in-process"
 }
