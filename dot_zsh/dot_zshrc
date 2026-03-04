@@ -12,34 +12,43 @@ fi
 # Prompt
 setopt PROMPT_SUBST
 
-# Async git dirty check — prompt renders instantly, dirty marker appears when ready
-_git_dirty_result=''
-_git_dirty_pid=0
+# Async git status — prompt renders instantly, dirty/ahead/behind appear when ready
+_git_async_result=''
+_git_async_pid=0
 
-_prompt_async_git_dirty() {
-  local output_file="/tmp/zsh_git_dirty_$$"
+_prompt_async_git_status() {
+  local output_file="/tmp/zsh_git_async_$$"
   # Kill previous async job if still running
-  if (( _git_dirty_pid > 0 )); then
-    kill $_git_dirty_pid 2>/dev/null
-    _git_dirty_pid=0
+  if (( _git_async_pid > 0 )); then
+    kill $_git_async_pid 2>/dev/null
+    _git_async_pid=0
   fi
   (
+    local result=''
+    # Dirty check
     if [[ -n $(command git status --porcelain 2>/dev/null | head -1) ]]; then
-      echo '*' > "$output_file"
-    else
-      echo '' > "$output_file"
+      result='*'
     fi
+    # Ahead/behind check
+    local counts=$(command git rev-list --count --left-right HEAD...@{upstream} 2>/dev/null)
+    if [[ -n $counts ]]; then
+      local ahead=${counts%%	*}
+      local behind=${counts##*	}
+      (( ahead > 0 )) && result="${result} ⬆"
+      (( behind > 0 )) && result="${result} ⬇"
+    fi
+    echo "$result" > "$output_file"
     kill -USR1 $$ 2>/dev/null
   ) &!
-  _git_dirty_pid=$!
+  _git_async_pid=$!
 }
 
 TRAPUSR1() {
-  local output_file="/tmp/zsh_git_dirty_$$"
+  local output_file="/tmp/zsh_git_async_$$"
   if [[ -f "$output_file" ]]; then
-    _git_dirty_result=$(<"$output_file")
+    _git_async_result=$(<"$output_file")
     rm -f "$output_file"
-    _git_dirty_pid=0
+    _git_async_pid=0
     zle && zle reset-prompt
   fi
 }
@@ -48,11 +57,11 @@ _prompt_precmd() {
   local git=''
   local branch=$(command git symbolic-ref --short HEAD 2>/dev/null)
   if [[ -n $branch ]]; then
-    git="%F{242}${branch}%F{218}${_git_dirty_result}%f"
-    _git_dirty_result=''
-    _prompt_async_git_dirty
+    git="%F{242}${branch}%F{218}${_git_async_result}%f"
+    _git_async_result=''
+    _prompt_async_git_status
   else
-    _git_dirty_result=''
+    _git_async_result=''
   fi
   print
   PROMPT="%F{blue}%~%f ${git}
