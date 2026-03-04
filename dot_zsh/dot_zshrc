@@ -13,7 +13,8 @@ fi
 setopt PROMPT_SUBST
 
 # Async git status — prompt renders instantly, dirty/ahead/behind appear when ready
-_git_async_result=''
+_git_prompt=''
+_git_branch=''
 _git_async_pid=0
 
 _prompt_async_git_status() {
@@ -46,27 +47,31 @@ _prompt_async_git_status() {
 TRAPUSR1() {
   local output_file="/tmp/zsh_git_async_$$"
   if [[ -f "$output_file" ]]; then
-    _git_async_result=$(<"$output_file")
+    local result=$(<"$output_file")
     rm -f "$output_file"
     _git_async_pid=0
+    # Update _git_prompt with async result so reset-prompt picks it up
+    if [[ -n $_git_branch ]]; then
+      _git_prompt="%F{242}${_git_branch}%F{218}${result}%f"
+    fi
     zle && zle reset-prompt
   fi
 }
 
 _prompt_precmd() {
-  local git=''
-  local branch=$(command git symbolic-ref --short HEAD 2>/dev/null)
-  if [[ -n $branch ]]; then
-    git="%F{242}${branch}%F{218}${_git_async_result}%f"
-    _git_async_result=''
+  _git_branch=$(command git symbolic-ref --short HEAD 2>/dev/null)
+  if [[ -n $_git_branch ]]; then
+    # Show branch immediately, async will add dirty/arrows via reset-prompt
+    _git_prompt="%F{242}${_git_branch}%f"
     _prompt_async_git_status
   else
-    _git_async_result=''
+    _git_prompt=''
   fi
   print
-  PROMPT="%F{blue}%~%f ${git}
-%(?.%F{magenta}.%F{red})❯%f "
 }
+# Single quotes: PROMPT_SUBST evaluates $_git_prompt at display time, not assignment time
+PROMPT='%F{blue}%~%f ${_git_prompt}
+%(?.%F{magenta}.%F{red})❯%f '
 add-zsh-hook precmd _prompt_precmd
 
 # Completion
