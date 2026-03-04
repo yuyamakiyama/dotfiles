@@ -59,12 +59,16 @@ TRAPUSR1() {
 }
 
 _prompt_precmd() {
-  _git_branch=$(command git symbolic-ref --short HEAD 2>/dev/null)
-  if [[ -n $_git_branch ]]; then
-    # Show branch immediately, async will add dirty/arrows via reset-prompt
-    _git_prompt="%F{242}${_git_branch}%f"
+  local new_branch=$(command git symbolic-ref --short HEAD 2>/dev/null)
+  if [[ -n $new_branch ]]; then
+    # Only reset prompt when branch changes; otherwise keep previous async result
+    if [[ "$new_branch" != "$_git_branch" ]]; then
+      _git_prompt="%F{242}${new_branch}%f"
+    fi
+    _git_branch=$new_branch
     _prompt_async_git_status
   else
+    _git_branch=''
     _git_prompt=''
   fi
   print
