@@ -34,8 +34,8 @@ _prompt_async_git_status() {
     if [[ -n $counts ]]; then
       local ahead=${counts%%	*}
       local behind=${counts##*	}
-      (( ahead > 0 )) && result="${result} ⬆"
-      (( behind > 0 )) && result="${result} ⬇"
+      (( ahead > 0 )) && result="${result} ↑"
+      (( behind > 0 )) && result="${result} ↓"
     fi
     echo "$result" > "$output_file"
     kill -USR1 $$ 2>/dev/null
