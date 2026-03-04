@@ -3,18 +3,56 @@ compinit
 
 eval "$(fnm env --use-on-cd --shell zsh)"
 eval "$(pyenv init -)"
-eval "$(ssh-agent -s)"
+
+# Reuse existing ssh-agent if available
+if [[ -z "$SSH_AUTH_SOCK" ]] || ! ssh-add -l &>/dev/null; then
+  eval "$(ssh-agent -s)"
+fi
 
 # Prompt
 setopt PROMPT_SUBST
+
+# Async git dirty check — prompt renders instantly, dirty marker appears when ready
+_git_dirty_result=''
+_git_dirty_pid=0
+
+_prompt_async_git_dirty() {
+  local output_file="/tmp/zsh_git_dirty_$$"
+  # Kill previous async job if still running
+  if (( _git_dirty_pid > 0 )); then
+    kill $_git_dirty_pid 2>/dev/null
+    _git_dirty_pid=0
+  fi
+  (
+    if [[ -n $(command git status --porcelain 2>/dev/null | head -1) ]]; then
+      echo '*' > "$output_file"
+    else
+      echo '' > "$output_file"
+    fi
+    kill -USR1 $$ 2>/dev/null
+  ) &!
+  _git_dirty_pid=$!
+}
+
+TRAPUSR1() {
+  local output_file="/tmp/zsh_git_dirty_$$"
+  if [[ -f "$output_file" ]]; then
+    _git_dirty_result=$(<"$output_file")
+    rm -f "$output_file"
+    _git_dirty_pid=0
+    zle && zle reset-prompt
+  fi
+}
 
 _prompt_precmd() {
   local git=''
   local branch=$(command git symbolic-ref --short HEAD 2>/dev/null)
   if [[ -n $branch ]]; then
-    local dirty
-    [[ -n $(command git status --porcelain 2>/dev/null | head -1) ]] && dirty='*'
-    git="%F{242}${branch}%F{218}${dirty}%f"
+    git="%F{242}${branch}%F{218}${_git_dirty_result}%f"
+    _git_dirty_result=''
+    _prompt_async_git_dirty
+  else
+    _git_dirty_result=''
   fi
   print
   PROMPT="%F{blue}%~%f ${git}
@@ -26,13 +64,16 @@ add-zsh-hook precmd _prompt_precmd
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 
+# Cache brew prefix
+_brew_prefix=/opt/homebrew
+
 # History substring search
-source $(brew --prefix)/share/zsh-history-substring-search/zsh-history-substring-search.zsh
+source $_brew_prefix/share/zsh-history-substring-search/zsh-history-substring-search.zsh
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
 
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $_brew_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $_brew_prefix/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $HOME/.zsh/configs/alias.zsh
 source $HOME/.zsh/configs/work.zsh
 source $HOME/.zsh/configs/git.zsh
