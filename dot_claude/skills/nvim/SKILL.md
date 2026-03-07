@@ -19,6 +19,8 @@ description: "Neovim shortcut cheat sheet. Use when the user asks how to do some
 2. **Breakdown**: Below the keystrokes, show what each key stands for in a compact `key` = meaning format.
 3. **Optional tip** (only if genuinely useful): Add 1-2 short lines prefixed with "Tip:" after a blank line.
 
+**IMPORTANT**: Always prefer LazyVim-specific keybindings over vanilla Vim equivalents when both exist. For example, suggest `H`/`L` for buffer navigation instead of `[b`/`]b`, and `<leader>bd` instead of `:bd`. LazyVim remaps should be the primary suggestion, with vanilla Vim as alternatives.
+
 Do NOT write long explanations, tutorials, or vim philosophy. Be terse.
 
 ## Examples
@@ -36,6 +38,13 @@ Response:
 `5` = count, `j` = down, `k` = up
 
 Tip: `5G` jumps to absolute line 5 (`G` = go to line). `:5<CR>` does the same via command mode.
+
+User: "go to next buffer"
+Response:
+`L` (next) | `H` (prev)
+`L` = next buffer, `H` = prev buffer (LazyVim remaps)
+
+Tip: `<leader>fb` opens Telescope buffer picker to jump to any buffer. `<leader>bd` to close current buffer.
 
 User: "find and replace foo with bar in the whole file"
 Response:
@@ -79,7 +88,7 @@ Keep these in mind when answering:
 - `gd` go to definition, `gr` references, `gI` implementation, `gy` type definition
 - `K` hover doc, `gK` signature help
 - `]d` / `[d` next/prev diagnostic
-- `]b` / `[b` next/prev buffer
+- `H` / `L` prev/next buffer (LazyVim remap, preferred over `[b`/`]b`)
 - `]]` / `[[` next/prev function (treesitter)
 - `<C-h/j/k/l>` window navigation
 - `<A-j>` / `<A-k>` move line up/down
