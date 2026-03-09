@@ -9,7 +9,7 @@ return {
         delete = "#eb6f92",
         copy = "#c4a7e7",
       },
-      line_opacity = 0.2,
+      line_opacity = 0.5,
     },
   },
 }
