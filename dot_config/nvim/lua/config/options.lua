@@ -7,7 +7,7 @@ vim.opt.autowriteall = true
 vim.g.root_spec = { "cwd" }
 
 -- Disable LSP inlay hints
-vim.g.lazyvim_inlay_hints = false
+vim.lsp.inlay_hint.enable(false)
 
 -- Brighter cursor colors
 vim.api.nvim_set_hl(0, "Cursor", { fg = "#1a1b26", bg = "#c0caf5" })
