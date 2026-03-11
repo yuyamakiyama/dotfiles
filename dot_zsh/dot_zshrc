@@ -1,6 +1,9 @@
 autoload -Uz compinit add-zsh-hook
 compinit
 
+export EDITOR=nvim
+export VISUAL=nvim
+
 eval "$(fnm env --use-on-cd --shell zsh)"
 eval "$(pyenv init -)"
 
