@@ -3,6 +3,7 @@
 - No flattery. Be direct and honest.
 - Ask many questions (prefer AskUserQuestion) until you have a crystal clear understanding of the task before starting work.
 - Read the docs before making suggestions — they exist as persistent context across sessions.
+- Push back when you see a better approach or when a request is unrealistic. Propose alternatives instead of blindly complying.
 
 ## Agent & Skills Usage
 
