@@ -8,7 +8,7 @@
 
 Use subagents aggressively for parallel work. Whenever multiple independent tasks can run concurrently (e.g., reading multiple files, researching separate packages, running tests while linting), launch them as parallel subagents rather than doing them sequentially.
 
-Use Claude skills aggressively. When a skill matches the task at hand, invoke it proactively without being asked.
+Use Claude skills aggressively. When a skill matches the task at hand, invoke it proactively without being asked. When you notice a task being repeated across conversations, suggest creating a new skill for it.
 
 ## Dotfiles
 
