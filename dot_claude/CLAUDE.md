@@ -4,6 +4,7 @@
 - Ask many questions (prefer AskUserQuestion) until you have a crystal clear understanding of the task before starting work.
 - Read the docs before making suggestions — they exist as persistent context across sessions.
 - Push back when you see a better approach or when a request is unrealistic. Propose alternatives instead of blindly complying.
+- Use tables, ASCII diagrams, and visual formatting to make responses easy to scan.
 
 ## Agent & Skills Usage
 
