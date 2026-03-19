@@ -6,6 +6,7 @@ export VISUAL=nvim
 
 eval "$(fnm env --use-on-cd --shell zsh)"
 eval "$(pyenv init -)"
+eval "$(zoxide init zsh)"
 
 # Reuse existing ssh-agent if available
 if [[ -z "$SSH_AUTH_SOCK" ]] || ! ssh-add -l &>/dev/null; then
