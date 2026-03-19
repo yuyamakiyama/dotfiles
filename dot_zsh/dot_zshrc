@@ -4,7 +4,7 @@ compinit
 export EDITOR=nvim
 export VISUAL=nvim
 
-eval "$(fnm env --use-on-cd --shell zsh)"
+eval "$(fnm env --use-on-cd --shell zsh --arch arm64)"
 eval "$(pyenv init -)"
 eval "$(zoxide init zsh)"
 
