@@ -3,6 +3,7 @@ compinit
 
 export EDITOR=nvim
 export VISUAL=nvim
+export XDG_CONFIG_HOME="$HOME/.config"
 
 eval "$(fnm env --use-on-cd --shell zsh --arch arm64)"
 eval "$(pyenv init -)"
