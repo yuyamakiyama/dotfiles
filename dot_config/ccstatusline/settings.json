@@ -74,6 +74,22 @@
         "type": "tokens-total",
         "color": "white"
       }
+    ],
+    [
+      {
+        "id": "f7c76579-08b4-4849-941d-b3b4f2b85dc0",
+        "type": "session-usage",
+        "color": "brightWhite"
+      },
+      {
+        "id": "93af6419-1709-4258-b0d2-2cdf0a6249bf",
+        "type": "separator"
+      },
+      {
+        "id": "23bd36d3-1c87-4c80-a26d-586abe3b429a",
+        "type": "weekly-usage",
+        "color": "white"
+      }
     ]
   ],
   "flexMode": "full-minus-40",
