@@ -78,5 +78,6 @@
     "playwright@claude-plugins-official": true
   },
   "language": "English",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "showThinkingSummaries": true
 }
