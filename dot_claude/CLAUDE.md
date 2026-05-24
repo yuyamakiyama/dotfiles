@@ -28,6 +28,14 @@ Managed with [chezmoi](https://www.chezmoi.io/). Source repo: `~/.local/share/ch
 - Write declarative code, not imperative. Avoid `let`, `for`, `Array.push`, `Map.set`, `Array.forEach`, mutable accumulators, and similar patterns. Prefer `const`, `map`, `filter`, `reduce`, spread, and expression-based transforms.
 - Avoid type assertions (`as`, `!`). Use type narrowing, guards, or generics instead.
 
+## Code Comments
+
+- **Default to zero comments.** Do not add comments unless I ask for them.
+- Never explain _what_ the code does — names already do that.
+- Never write comments that paraphrase the diff ("autoFocus so the keyboard opens", "use Platform.OS to gate Android-only"). If a reader can derive it from the line below, delete the comment.
+- The only acceptable comment is a _load-bearing why_ — a hidden invariant, a subtle race, a workaround for a specific upstream bug, or a non-obvious constraint that would surprise a future reader. Even then, one short line.
+- Do not narrate prior bugs, prior PRs, or "without this, X happens" in code comments — that belongs in the commit message / PR description.
+
 ## Git Rules
 
 - **NEVER force push** unless rebasing. Always create new commits instead of amending.
