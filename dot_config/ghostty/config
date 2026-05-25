@@ -1,5 +1,5 @@
 background = #3a3a3a
-background-opacity = 0.6
+background-opacity = 0.9
 macos-option-as-alt = left
 unfocused-split-fill = #888888
 confirm-close-surface = false
