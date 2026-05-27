@@ -14,6 +14,7 @@ Managed with [chezmoi](https://www.chezmoi.io/).
 | Claude Code        | `~/.claude/settings.base.json`, `~/.claude/CLAUDE.md`, `~/.claude/skills/` |
 | Neovim             | `~/.config/nvim/`                                                          |
 | duti               | `~/.config/duti/duti`, `~/duti.sh`                                         |
+| cmux               | `~/.config/cmux/cmux.json`                                                 |
 | macOS KeyBindings  | `~/Library/KeyBindings/DefaultKeyBinding.dict`                             |
 | zsh                | `~/.zshrc`, `~/.zsh/`                                                      |
 
