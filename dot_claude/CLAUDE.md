@@ -18,9 +18,8 @@ Use Claude skills aggressively. When a skill matches the task at hand, invoke it
 Managed with [chezmoi](https://www.chezmoi.io/). Source repo: `~/.local/share/chezmoi/`.
 
 - `autoCommit` and `autoPush` are enabled in `~/.config/chezmoi/chezmoi.toml`
-- After editing a managed file via chezmoi, changes are automatically committed and pushed
-- Use `chezmoi add <file>` to start managing a new file
-- Use `chezmoi apply` to apply changes from the source repo
+- Edit the **source** (`chezmoi edit` / the source repo), never the live target directly, then `chezmoi apply` — editing the target leaves it diverged from source
+- `chezmoi add <file>` to manage a new file; `chezmoi apply` to push source → live
 
 ## TypeScript Rules
 
@@ -39,3 +38,4 @@ Managed with [chezmoi](https://www.chezmoi.io/). Source repo: `~/.local/share/ch
 ## Git Rules
 
 - **NEVER force push** unless rebasing. Always create new commits instead of amending.
+- Never `git add -A` or `git add .` — stage specific paths so unrelated changes don't sneak into a commit.
