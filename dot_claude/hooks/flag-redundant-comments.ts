@@ -39,7 +39,7 @@ const C_FAMILY = new Set([
   "mm",
   "zig",
 ]);
-const HASH = new Set(["py", "rb"]);
+const HASH = new Set(["py", "rb", "graphql", "gql"]);
 
 const DIRECTIVE =
   /eslint-(disable|enable)|@ts-(expect-error|ignore|nocheck)|ts-nocheck|biome-ignore|prettier-ignore|@jsxImportSource|istanbul ignore|c8 ignore|v8 ignore|noinspection|#region|#endregion|coding[:=]|@preserve|@license|webpackChunkName|type-coverage:ignore/i;
