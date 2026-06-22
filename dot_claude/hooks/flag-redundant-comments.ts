@@ -40,6 +40,7 @@ const C_FAMILY = new Set([
   "zig",
 ]);
 const HASH = new Set(["py", "rb", "graphql", "gql"]);
+const DASH = new Set(["sql", "sqlx", "pgsql"]);
 
 const DIRECTIVE =
   /eslint-(disable|enable)|@ts-(expect-error|ignore|nocheck)|ts-nocheck|biome-ignore|prettier-ignore|@jsxImportSource|istanbul ignore|c8 ignore|v8 ignore|noinspection|#region|#endregion|coding[:=]|@preserve|@license|webpackChunkName|type-coverage:ignore/i;
@@ -71,6 +72,22 @@ const fullLineHash = (line: string): string | null => {
   return t.startsWith("#") && !t.startsWith("#!") ? t : null;
 };
 
+// `*` / `*/` lines are intentionally NOT comments here, to avoid false-positives on `SELECT *`.
+const fullLineDash = (line: string): string | null => {
+  const t = line.trim();
+  return t.startsWith("--") || t.startsWith("/*") ? t : null;
+};
+
+const trailingDash = (line: string): string | null => {
+  if (/['"`]/.test(line)) return null;
+  const idx = line.indexOf("--");
+  if (idx <= 0) return null;
+  const before = line.slice(0, idx);
+  return before.trim() !== "" && /\s$/.test(before)
+    ? ("--" + line.slice(idx + 2)).trim()
+    : null;
+};
+
 const commentsIn = (text: string, ext: string): readonly string[] => {
   const lines = text.split("\n");
   const detect = (line: string): string | null =>
@@ -78,7 +95,9 @@ const commentsIn = (text: string, ext: string): readonly string[] => {
       ? (fullLineCFamily(line) ?? trailingCFamily(line))
       : HASH.has(ext)
         ? fullLineHash(line)
-        : null;
+        : DASH.has(ext)
+          ? (fullLineDash(line) ?? trailingDash(line))
+          : null;
   return lines
     .map(detect)
     .filter((c): c is string => c !== null)
@@ -92,7 +111,7 @@ const main = async (): Promise<number> => {
   if (!filePath) return 0;
 
   const ext = extOf(filePath);
-  if (!C_FAMILY.has(ext) && !HASH.has(ext)) return 0;
+  if (!C_FAMILY.has(ext) && !HASH.has(ext) && !DASH.has(ext)) return 0;
 
   const added = ((): readonly string[] => {
     const { old_string, new_string, content } = input.tool_input ?? {};
