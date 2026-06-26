@@ -37,4 +37,3 @@ function fzf-src () {
 }
 
 zle -N fzf-src
-bindkey '^P' fzf-src

@@ -31,3 +31,6 @@ bindkey '\e[1;13D' cmux-resize-left
 bindkey '\e[1;13C' cmux-resize-right
 bindkey '\e[1;13A' cmux-resize-up
 bindkey '\e[1;13B' cmux-resize-down
+
+# Ctrl+L: fuzzy-select a ghq repo and cd into it (clear-screen moved to Cmd+K)
+bindkey '^L' fzf-src
