@@ -218,5 +218,6 @@
         "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
     },
     "git.replaceTagsWhenPull": true,
+    "window.autoDetectColorScheme": false,
     // "biome.suggestInstallingGlobally": false,
 }
