@@ -39,7 +39,7 @@ const C_FAMILY = new Set([
   "mm",
   "zig",
 ]);
-const HASH = new Set(["py", "rb", "graphql", "gql"]);
+const HASH = new Set(["py", "rb", "graphql", "gql", "sh", "bash", "zsh"]);
 const DASH = new Set(["sql", "sqlx", "pgsql"]);
 
 const DIRECTIVE =
