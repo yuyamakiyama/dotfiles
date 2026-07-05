@@ -73,7 +73,7 @@ The **My open PRs** table is sorted so the most actionable rows are on top:
 
 Column meanings:
 
-- **Base**: the branch this PR merges into (`main`, a `release/*` branch, or a parent branch for a stacked PR).
+- **Branch**: `head → base` — the PR's own (current) branch and the branch it merges into. The base reveals stacked PRs (a parent feature branch) and release targets (`release/*`).
 - **CI**: ✅ pass · ❌ fail · ⏳ running · `–` no checks configured.
 - **Review**: `✅ N` approvals · `🔴 changes` requested · `⏳ review` required · `· gate` = the configured review-gate reviewer (`PR_STATUS_REVIEW_GATE`) is still a pending reviewer.
 - **Merge**: `✅ clean` · `🟠 behind` (rebase needed) · `🔴 conflict` · `🚧 blocked` (a required check/review is blocking) · `⚠️ unstable` (mergeable but a non-required check is red) · `· ?` (GitHub hasn't computed it yet — re-run to resolve).

@@ -16,6 +16,7 @@ type Pr = {
   number: number;
   title: string;
   url: string;
+  headRefName: string;
   baseRefName: string;
   isDraft: boolean;
   mergeable: string;
@@ -39,7 +40,7 @@ type Pr = {
 };
 
 const PR_FIELDS = `
-  number title url baseRefName isDraft mergeable mergeStateStatus reviewDecision createdAt updatedAt
+  number title url headRefName baseRefName isDraft mergeable mergeStateStatus reviewDecision createdAt updatedAt
   repository { nameWithOwner }
   author { login }
   reviewRequests(first: 20) {
@@ -308,13 +309,13 @@ const renderMine = (prs: Pr[]) => {
   const repos = new Set(prs.map((p) => p.repository.nameWithOwner));
   const showRepo = repos.size > 1;
   const header = showRepo
-    ? "| PR | Repo | Title | Base | CI | Review | Merge | Age |\n|----|------|-------|------|----|--------|-------|-----|"
-    : "| PR | Title | Base | CI | Review | Merge | Age |\n|----|-------|------|----|--------|-------|-----|";
+    ? "| PR | Repo | Title | Branch | CI | Review | Merge | Age |\n|----|------|-------|--------|----|--------|-------|-----|"
+    : "| PR | Title | Branch | CI | Review | Merge | Age |\n|----|-------|--------|----|--------|-------|-----|";
   const body = rows
     .map(({ pr, ci, review, merge }) => {
       const title = esc(trunc(pr.title, 42)) + (pr.isDraft ? " _(draft)_" : "");
       const rv = review.icon + (review.gate ? " · gate" : "");
-      const base = `\`${pr.baseRefName}\``;
+      const base = `\`${pr.headRefName}\` → \`${pr.baseRefName}\``;
       const cells = showRepo
         ? [
             `[#${pr.number}](${pr.url})`,
@@ -346,11 +347,11 @@ const renderReview = (prs: Pr[]) => {
     .map(enrich)
     .sort((a, b) => ageMs(b.pr.updatedAt) - ageMs(a.pr.updatedAt));
   const header =
-    "| PR | Repo | Author | Title | Base | CI | Age |\n|----|------|--------|-------|------|----|----|";
+    "| PR | Repo | Author | Title | Branch | CI | Age |\n|----|------|--------|-------|--------|----|----|";
   const body = rows
     .map(
       ({ pr, ci }) =>
-        `| [#${pr.number}](${pr.url}) | ${shortRepo(pr.repository.nameWithOwner)} | ${pr.author?.login ?? "?"} | ${esc(trunc(pr.title, 42))} | \`${pr.baseRefName}\` | ${ci.icon} | ${age(pr.updatedAt)} |`,
+        `| [#${pr.number}](${pr.url}) | ${shortRepo(pr.repository.nameWithOwner)} | ${pr.author?.login ?? "?"} | ${esc(trunc(pr.title, 42))} | \`${pr.headRefName}\` → \`${pr.baseRefName}\` | ${ci.icon} | ${age(pr.updatedAt)} |`,
     )
     .join("\n");
   return `${header}\n${body}`;
