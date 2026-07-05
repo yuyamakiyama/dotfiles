@@ -1,0 +1,29 @@
+{
+  "skill_name": "pr-status",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "can you check the status of all my open PRs? i want to know which ones are ready to merge and which are broken",
+      "expected_output": "Runs pr-status.ts and presents the ranked Markdown table with a headline; ready-to-merge PRs on top, failing ones flagged with the failing check names.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "which of my PRs have failing CI right now? want to see them all before I start fixing",
+      "expected_output": "Runs the script and surfaces the PRs whose CI column is ❌, naming the failing checks in the Next action column. Read-only — does not start fixing.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "before I start clearing my PR queue this morning, give me the rundown on my PRs in one specific repo only",
+      "expected_output": "Runs pr-status.ts --repo <name>, shows the attention-ranked table scoped to that repo.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "any of my PRs have merge conflicts or are behind main?",
+      "expected_output": "Runs the script and points at rows where the Merge column is 🔴 conflict or 🟠 behind, with the rebase/resolve next action.",
+      "files": []
+    }
+  ]
+}
