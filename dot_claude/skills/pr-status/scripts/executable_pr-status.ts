@@ -232,7 +232,7 @@ const review = (pr: Pr) => {
 const merge = (pr: Pr) => {
   const s = pr.mergeStateStatus;
   const conflict = pr.mergeable === "CONFLICTING" || s === "DIRTY";
-  const label = conflict
+  const state = conflict
     ? "🔴 conflict"
     : s === "BEHIND"
       ? "🟠 behind"
@@ -247,6 +247,7 @@ const merge = (pr: Pr) => {
               : pr.mergeable === "MERGEABLE"
                 ? "✅ clean"
                 : "· ?";
+  const label = pr.isDraft && s !== "DRAFT" ? `${state} · 📝 draft` : state;
   return {
     label,
     conflict,
@@ -395,7 +396,7 @@ console.log(
     ...out,
     ...reviewOut,
     "",
-    "_CI: ✅ pass ❌ fail ⏳ running · Merge: 🟠 behind 🔴 conflict 🚧 blocked · ⏰ = stale >7d_",
+    "_CI: ✅ pass ❌ fail ⏳ running · Merge: 🟠 behind 🔴 conflict 🚧 blocked 📝 draft · ⏰ = stale >7d_",
   ]
     .filter((l) => l !== undefined)
     .join("\n"),
