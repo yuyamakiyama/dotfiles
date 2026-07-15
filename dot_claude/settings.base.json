@@ -80,7 +80,8 @@
     "superpowers@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
-    "github@claude-plugins-official": true
+    "github@claude-plugins-official": true,
+    "codex@openai-codex": true
   },
   "language": "English",
   "skipDangerousModePermissionPrompt": true,
