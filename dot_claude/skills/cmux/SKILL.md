@@ -153,10 +153,10 @@ cmux list-log --limit 20
 cmux clear-log
 ```
 
-### Claude Code Hook Integration
+### Hook Integration
 
 ```bash
-# Dedicated hook command for Claude Code events
+# Dedicated hook command for agent lifecycle events
 cmux claude-hook session-start
 cmux claude-hook stop
 cmux claude-hook notification

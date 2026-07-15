@@ -15,7 +15,7 @@ Create a TODO item using the `nb` CLI.
 status: not_started
 pr_url: ""                                        # Optional: GitHub PR URL
 branch: ""                                        # Optional: git branch name
-codex_session_id: ""                              # Optional: Codex session ID
+agent_session_id: ""                              # Optional: agent session ID
 blocked_by:
   - "[[other-todo.todo.md]]" # Optional: link to blocking todo
 ---
@@ -59,5 +59,5 @@ Detailed description of the work.
 | `status`           | `not_started`, `pending`, `in_progress`, `done` | Current status              |
 | `pr_url`           | URL string                                      | GitHub PR URL               |
 | `branch`           | string                                          | Git branch name             |
-| `codex_session_id` | string                                          | Codex session ID            |
+| `agent_session_id` | string                                          | Agent session ID            |
 | `blocked_by`       | `["[[filename.todo.md]]"]`                      | Links to blocking todos     |

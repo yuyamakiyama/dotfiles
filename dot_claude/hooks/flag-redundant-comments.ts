@@ -72,7 +72,6 @@ const fullLineHash = (line: string): string | null => {
   return t.startsWith("#") && !t.startsWith("#!") ? t : null;
 };
 
-// `*` / `*/` lines are intentionally NOT comments here, to avoid false-positives on `SELECT *`.
 const fullLineDash = (line: string): string | null => {
   const t = line.trim();
   return t.startsWith("--") || t.startsWith("/*") ? t : null;
@@ -125,12 +124,12 @@ const main = async (): Promise<number> => {
 
   if (added.length === 0) return 0;
 
-  const list = added.map((c) => `   • ${c}`).join("\n");
+  const list = added.map((c) => `   - ${c}`).join("\n");
   process.stderr.write(
-    `\u{1F6D1} Redundant-comment check: you just added ${added.length} comment line(s) to ${filePath}:\n` +
+    `Redundant-comment check: you just added ${added.length} comment line(s) to ${filePath}:\n` +
       `${list}\n\n` +
-      `CLAUDE.md rule: default to ZERO comments. Keep a comment ONLY if it is a load-bearing *why* ` +
-      `(hidden invariant, subtle race, upstream-bug workaround, non-obvious constraint). ` +
+      `Instruction rule: default to zero comments. Keep a comment only if it is a load-bearing why ` +
+      `(hidden invariant, subtle race, upstream-bug workaround, or non-obvious constraint). ` +
       `Re-edit ${filePath} now and delete every comment above that merely restates what the code does.\n`,
   );
   return 2;

@@ -128,7 +128,7 @@ const main = async (): Promise<number> => {
   process.stderr.write(
     `Redundant-comment check: you just added ${added.length} comment line(s) to ${filePath}:\n` +
       `${list}\n\n` +
-      `AGENTS.md rule: default to zero comments. Keep a comment only if it is a load-bearing why ` +
+      `Instruction rule: default to zero comments. Keep a comment only if it is a load-bearing why ` +
       `(hidden invariant, subtle race, upstream-bug workaround, or non-obvious constraint). ` +
       `Re-edit ${filePath} now and delete every comment above that merely restates what the code does.\n`,
   );
