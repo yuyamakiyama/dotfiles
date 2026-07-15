@@ -26,7 +26,7 @@ Claude Code and Codex keep tool-specific entry points separate:
 - Claude Code: `~/.claude/CLAUDE.md`, `~/.claude/settings.base.json`
 - Codex: `~/.codex/AGENTS.md`, `~/.codex/config.toml`
 
-Shared hooks and skills are intentionally standardized between both agents. When changing one of these, update both copies and verify they stay byte-identical:
+Shared hooks and skills are canonical under `~/.claude`. The matching `~/.codex` paths are symlinks managed by chezmoi, so update the Claude copy only:
 
 - `hooks/block-japanese-commit.ts`
 - `hooks/flag-redundant-comments.ts`
