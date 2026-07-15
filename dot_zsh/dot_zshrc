@@ -130,5 +130,5 @@ export PATH="$PATH:$ANDROID_HOME/platform-tools"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 
 # bun completions
-[ -s "/Users/yuya.makiyama/.bun/_bun" ] && source "/Users/yuya.makiyama/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 export PATH=$PATH:$HOME/.maestro/bin
