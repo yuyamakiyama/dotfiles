@@ -12,6 +12,10 @@ multi_agent = true
 
 [projects."{{ .chezmoi.homeDir }}"]
 trust_level = "trusted"
+{{ range default (list) .codexTrustedProjects }}
+[projects."{{ . }}"]
+trust_level = "trusted"
+{{ end -}}
 
 [mcp_servers.mobile]
 command = "npx"
