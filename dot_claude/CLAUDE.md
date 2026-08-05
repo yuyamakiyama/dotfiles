@@ -39,3 +39,5 @@ Managed with [chezmoi](https://www.chezmoi.io/). Source repo: `~/.local/share/ch
 
 - **NEVER force push** unless rebasing. Always create new commits instead of amending.
 - Never `git add -A` or `git add .` — stage specific paths so unrelated changes don't sneak into a commit.
+
+@DELEGATION.md
