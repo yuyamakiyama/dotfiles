@@ -4,4 +4,5 @@
 
 vim.opt.spell = false
 vim.opt.autowriteall = true
+vim.opt.wrap = true
 vim.g.root_spec = { "cwd" }
