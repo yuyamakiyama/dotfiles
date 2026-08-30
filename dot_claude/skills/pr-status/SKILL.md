@@ -12,9 +12,6 @@ description: >-
   is a read-only multi-PR overview — NOT the same as watch-pr (which monitors one
   specific PR and fixes it), and NOT create-pr. Prefer this skill any time the
   request is about the status of more than one of my PRs.
-disable-model-invocation: false
-user-invocable: true
-argument-hint: "[--mine] [--all] [--repo <name>]"
 ---
 
 # PR Status
