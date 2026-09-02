@@ -87,5 +87,6 @@
   "skipDangerousModePermissionPrompt": true,
   "showThinkingSummaries": true,
   "effortLevel": "xhigh",
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "outputStyle": "Concise"
 }
