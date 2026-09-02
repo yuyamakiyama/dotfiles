@@ -22,3 +22,24 @@ local function browse_line_commit()
 end
 
 vim.keymap.set("n", "<leader>go", browse_line_commit, { desc = "Browse line commit (GitHub)" })
+
+local function copy_path(modifier, label)
+  local path = vim.fn.expand("%:" .. modifier)
+  if path == "" then
+    return Snacks.notify.warn("No file in buffer", { title = "Copy Path" })
+  end
+  vim.fn.setreg("+", path)
+  Snacks.notify.info(path, { title = label })
+end
+
+pcall(function()
+  require("which-key").add({ { "<leader>y", group = "yank path" } })
+end)
+
+vim.keymap.set("n", "<leader>yp", function()
+  copy_path(".", "Relative path copied")
+end, { desc = "Copy relative path" })
+
+vim.keymap.set("n", "<leader>yP", function()
+  copy_path("p", "Absolute path copied")
+end, { desc = "Copy absolute path" })
