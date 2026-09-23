@@ -1,0 +1,26 @@
+#!/bin/bash
+# Merges the chezmoi-managed subset of Orca's `.settings` into the live,
+# otherwise-unmanaged orca-data.json (which also holds volatile app state:
+# repos, worktrees, sessions). See README.md "Orca" section.
+set -euo pipefail
+
+CURATED_SETTINGS="$CHEZMOI_SOURCE_DIR/dot_config/orca/settings.json"
+
+tempfile=$(mktemp)
+trap 'rm -f "${tempfile}"' EXIT
+cat > "${tempfile}"
+
+if [ "${ORCA_CHEZMOI_SKIP_RUNNING_CHECK:-}" != "1" ] && pgrep -xq Orca; then
+  echo "modify_orca-data.json: Orca is running, leaving orca-data.json unchanged. Quit Orca and re-run 'chezmoi apply' to sync settings." >&2
+  cat "${tempfile}"
+  exit 0
+fi
+
+if [ ! -s "${tempfile}" ]; then
+  # Orca not installed yet / first run: target doesn't exist, stdin is
+  # empty. Emit nothing so chezmoi leaves the target absent rather than
+  # creating or deleting it.
+  exit 0
+fi
+
+jq -c --slurpfile curated "${CURATED_SETTINGS}" '.settings = (.settings + $curated[0])' "${tempfile}"
