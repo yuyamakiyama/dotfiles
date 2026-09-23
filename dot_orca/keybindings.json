@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "keybindings": {},
+  "platforms": {
+    "darwin": {
+      "worktree.navigateUp": [
+        "Ctrl+ArrowUp"
+      ],
+      "worktree.navigateDown": [
+        "Ctrl+ArrowDown"
+      ],
+      "tab.nextSameType": [
+        "Mod+ArrowLeft"
+      ],
+      "sidebar.left.toggle": [
+        "Mod+S"
+      ],
+      "workspace.rename": [
+        "Mod+B"
+      ]
+    },
+    "linux": {},
+    "win32": {}
+  }
+}
