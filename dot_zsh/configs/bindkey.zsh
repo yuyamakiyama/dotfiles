@@ -32,5 +32,13 @@ bindkey '\e[1;13C' cmux-resize-right
 bindkey '\e[1;13A' cmux-resize-up
 bindkey '\e[1;13B' cmux-resize-down
 
+# Orca forwards Ctrl+Arrow to the PTY even when it handles the shortcut itself
+function swallow-key() {}
+zle -N swallow-key
+bindkey '\e[1;5A' swallow-key
+bindkey '\e[1;5B' swallow-key
+bindkey '\e[1;5C' swallow-key
+bindkey '\e[1;5D' swallow-key
+
 # Ctrl+L: fuzzy-select a ghq repo and cd into it (clear-screen moved to Cmd+K)
 bindkey '^L' fzf-src
