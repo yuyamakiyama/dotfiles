@@ -9,14 +9,26 @@
       "worktree.navigateDown": [
         "Ctrl+ArrowDown"
       ],
-      "tab.nextSameType": [
-        "Mod+ArrowLeft"
-      ],
+      "tab.nextSameType": [],
       "sidebar.left.toggle": [
         "Mod+S"
       ],
       "workspace.rename": [
         "Mod+B"
+      ],
+      "worktree.history.back": [],
+      "worktree.history.forward": [],
+      "tab.previousSameType": [],
+      "tab.nextAllTypes": [
+        "Mod+Alt+ArrowRight"
+      ],
+      "tab.previousAllTypes": [
+        "Mod+Alt+ArrowLeft"
+      ],
+      "tab.nextTerminal": [],
+      "tab.previousTerminal": [],
+      "floatingTerminal.toggle": [
+        "Mod+Shift+A"
       ]
     },
     "linux": {},
