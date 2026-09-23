@@ -45,9 +45,11 @@ reviewer is still a pending requested reviewer on a PR, the Review column shows
 no org-specific reviewer name lives in this skill.
 
 Then **paste the script's Markdown output verbatim into your reply** — it is a
-ready-to-render GFM table with a one-line summary and a legend. Don't rebuild
-the table yourself; the script already ranked and formatted it. Add at most a
-one-line headline (e.g. "1 ready to merge, 3 need a fix") if it helps.
+ready-to-render GFM table with a one-line summary, a Dependency graph section,
+and a legend. Don't rebuild the table or the dependency graph yourself, and
+don't drop the dependency graph section — the script already ranked and
+formatted all of it. Add at most a one-line headline (e.g. "1 ready to merge, 3
+need a fix") if it helps.
 
 ## Flags
 
@@ -79,6 +81,14 @@ Column meanings:
 Rows are still ranked most-actionable-first (ready to merge → broken → behind →
 waiting → draft); that ordering drives the sort and the one-line summary even
 though the per-row action text is no longer shown as a column.
+
+### Dependency graph
+
+Always emitted right after the **My open PRs** table, regardless of flags.
+Top-level bullets are base branches (e.g. `release/1.251.x`); nested bullets
+are PRs whose base branch is the parent PR's own head branch, so indentation
+depth shows how deep a stacked-PR chain runs. Each PR line carries its CI icon
+and merge state (no review column here). PR numbers link to their GitHub URLs.
 
 ## Follow-ups
 

@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "lines": [
     [
       {
@@ -89,6 +89,15 @@
         "id": "23bd36d3-1c87-4c80-a26d-586abe3b429a",
         "type": "weekly-usage",
         "color": "white"
+      },
+      {
+        "id": "7b570273-969f-4b02-899b-835473fc53f7",
+        "type": "separator"
+      },
+      {
+        "id": "99acfc19-f17f-42ff-894b-d6efda42e7a8",
+        "type": "fable-weekly-usage",
+        "color": "white"
       }
     ]
   ],
@@ -96,8 +105,11 @@
   "compactThreshold": 60,
   "colorLevel": 2,
   "defaultPadding": " ",
+  "defaultPaddingSide": "both",
   "inheritSeparatorColors": true,
   "globalBold": true,
+  "gitCacheTtlSeconds": 5,
+  "minimalistMode": false,
   "powerline": {
     "enabled": false,
     "separators": [
@@ -109,6 +121,7 @@
     "startCaps": [],
     "endCaps": [],
     "theme": "minimal",
-    "autoAlign": true
+    "autoAlign": true,
+    "continueThemeAcrossLines": false
   }
 }

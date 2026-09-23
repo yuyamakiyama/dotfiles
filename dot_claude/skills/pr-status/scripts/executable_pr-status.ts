@@ -358,6 +358,87 @@ const renderReview = (prs: Pr[]) => {
   return `${header}\n${body}`;
 };
 
+type DepGraphAcc = { lines: string[]; visited: string[] };
+
+const renderDepGraph = (prs: Pr[]) => {
+  const isRoot = (pr: Pr) =>
+    !prs.some(
+      (p) =>
+        p.repository.nameWithOwner === pr.repository.nameWithOwner &&
+        p.headRefName === pr.baseRefName &&
+        p.url !== pr.url,
+    );
+  const childrenOf = (pr: Pr) =>
+    prs
+      .filter(
+        (p) =>
+          p.repository.nameWithOwner === pr.repository.nameWithOwner &&
+          p.baseRefName === pr.headRefName &&
+          p.url !== pr.url,
+      )
+      .sort((a, b) => a.number - b.number);
+  const line = (pr: Pr, depth: number) => {
+    const e = enrich(pr);
+    const title = esc(trunc(pr.title, 42)) + (pr.isDraft ? " _(draft)_" : "");
+    return `${"  ".repeat(depth)}- [#${pr.number}](${pr.url}) ${title} · ${e.ci.icon} · ${e.merge.label}`;
+  };
+  const renderSubtree = (
+    pr: Pr,
+    depth: number,
+    visited: readonly string[],
+  ): { lines: string[]; visited: string[] } => {
+    if (visited.includes(pr.url)) return { lines: [], visited: [...visited] };
+    const seen = [...visited, pr.url];
+    const kids = childrenOf(pr).reduce<DepGraphAcc>(
+      (acc, kid) => {
+        const sub = renderSubtree(kid, depth + 1, acc.visited);
+        return { lines: [...acc.lines, ...sub.lines], visited: sub.visited };
+      },
+      { lines: [], visited: seen },
+    );
+    return { lines: [line(pr, depth), ...kids.lines], visited: kids.visited };
+  };
+  const showRepo = new Set(prs.map((p) => p.repository.nameWithOwner)).size > 1;
+  const groupKey = (pr: Pr) =>
+    `${pr.repository.nameWithOwner}::${pr.baseRefName}`;
+  const groups = Object.values(
+    prs.filter(isRoot).reduce<Record<string, Pr[]>>((acc, pr) => {
+      const key = groupKey(pr);
+      return { ...acc, [key]: [...(acc[key] ?? []), pr] };
+    }, {}),
+  )
+    .map((groupPrs) => ({
+      repo: groupPrs[0].repository.nameWithOwner,
+      branch: groupPrs[0].baseRefName,
+      roots: groupPrs.sort((a, b) => a.number - b.number),
+    }))
+    .sort(
+      (a, b) =>
+        a.branch.localeCompare(b.branch) || a.repo.localeCompare(b.repo),
+    );
+  const groupHeader = (g: { repo: string; branch: string }) =>
+    showRepo
+      ? `- \`${shortRepo(g.repo)}\` · \`${g.branch}\``
+      : `- \`${g.branch}\``;
+  const rendered = groups.reduce<DepGraphAcc>(
+    (acc, g) => {
+      const subtrees = g.roots.reduce<DepGraphAcc>(
+        (rAcc, pr) => {
+          const sub = renderSubtree(pr, 1, rAcc.visited);
+          return { lines: [...rAcc.lines, ...sub.lines], visited: sub.visited };
+        },
+        { lines: [], visited: acc.visited },
+      );
+      return {
+        lines: [...acc.lines, groupHeader(g), ...subtrees.lines],
+        visited: subtrees.visited,
+      };
+    },
+    { lines: [], visited: [] },
+  );
+  return `## Dependency graph\n${rendered.lines.join("\n")}`;
+};
+
 const mineTable = renderMine(mine);
 const counts = mineTable.rows.reduce<Record<number, number>>(
   (acc, r) => ({ ...acc, [r.action.rank]: (acc[r.action.rank] ?? 0) + 1 }),
@@ -382,6 +463,8 @@ const out = [
   mine.length ? mineTable.md : "_No open PRs authored by or assigned to you._",
 ];
 
+const depGraphOut = mine.length ? ["", renderDepGraph(mine)] : [];
+
 const reviewOut =
   mineOnly || !toReview.length
     ? []
@@ -394,6 +477,7 @@ const reviewOut =
 console.log(
   [
     ...out,
+    ...depGraphOut,
     ...reviewOut,
     "",
     "_CI: ✅ pass ❌ fail ⏳ running · Merge: 🟠 behind 🔴 conflict 🚧 blocked 📝 draft · ⏰ = stale >7d_",
