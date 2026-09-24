@@ -37,6 +37,11 @@ def excludedKeys: [
   "tabSwitchKeybindingSeed"
 ];
 
-def isExcluded($k): (excludedKeys | index($k)) != null or ($k | test("(Defaulted|Migrated)"));
+def isExcluded($k):
+  (excludedKeys | index($k)) != null
+  or ($k | test("(Defaulted|Migrated)"))
+  # Fail safe: a credential-shaped key added by a future Orca release is
+  # dropped by default rather than synced until someone notices.
+  or ($k | test("(?i)token|secret|cookie|credential|password|apikey"));
 
 with_entries(select(isExcluded(.key) | not))

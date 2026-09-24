@@ -55,7 +55,13 @@ Orca keeps `.settings` inside `~/Library/Application Support/orca/profiles/local
 - `~/.config/orca/settings.json` is a curated, hand-refreshed copy of `.settings`, minus machine-specific values, secrets, app-owned migration flags, and UI state. It's a normal chezmoi target — edit it (or re-export, below) and `chezmoi add` it like any other file.
 - A `modify_` script (source: `Library/Application Support/private_orca/profiles/private_local-default/modify_orca-data.json`) shallow-merges that curated file's keys into the live `orca-data.json`'s `.settings` on every `chezmoi apply`, leaving every other key and all volatile state untouched. It refuses to run (passes the file through unchanged, with a warning) while Orca is open — quit Orca before running `chezmoi apply` if you want settings changes to take effect.
 
-**Refreshing the curated file** after changing settings in the Orca UI:
+**Refreshing the curated file** after changing settings in the Orca UI — `orca-sync-settings` (defined in `dot_zsh/configs/orca.zsh`) re-exports, reports what changed, and stages it:
+
+```sh
+orca-sync-settings
+```
+
+It prints an added/removed/changed key summary, then `chezmoi add`s the result, so autoCommit/autoPush commits and pushes. By hand:
 
 ```sh
 LIVE="$HOME/Library/Application Support/orca/profiles/local-default/orca-data.json"
@@ -63,7 +69,9 @@ jq '.settings' "$LIVE" | jq -f ~/.local/share/chezmoi/.orca-settings-exclude.jq 
 chezmoi add ~/.config/orca/settings.json
 ```
 
-The exclusion list lives in `.orca-settings-exclude.jq` at the source repo root (a dot-prefixed file, so chezmoi never treats it as a target).
+Neither path sorts the output — the committed file keeps Orca's own key order, and sorting would rewrite all 159 keys on the next export.
+
+The exclusion list lives in `.orca-settings-exclude.jq` at the source repo root (a dot-prefixed file, so chezmoi never treats it as a target). It drops an explicit denylist of machine-specific and secret keys, anything matching `(Defaulted|Migrated)`, and anything with a credential-shaped name (`token`, `secret`, `cookie`, `credential`, `password`, `apikey`) — so a secret key added by a future Orca release is excluded by default rather than synced until someone notices.
 
 ## Symlinks
 
