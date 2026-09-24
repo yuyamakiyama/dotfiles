@@ -39,6 +39,15 @@ Shared hooks and skills are canonical under `~/.claude`. The matching `~/.codex`
 - `skills/pr-status/`
 - `skills/stop-slop/`
 
+`~/.codex/config.toml` comes from a `modify_` script (source: `dot_codex/modify_private_config.toml.tmpl`) rather than a plain template. Codex recomputes the `[hooks.state]` hook-trust hashes per machine and rewrites them on launch, so tracking them would make each machine overwrite the other's values on every `chezmoi apply`. The script emits the managed config, then passes the live file's Codex-owned tail (`[hooks.state]` onward, including the `[tui.*]` counters) through untouched.
+
+Machine-specific trusted project paths are not in the repo either — they render from `codexTrustedProjects` in `~/.config/chezmoi/chezmoi.toml`:
+
+```toml
+[data]
+    codexTrustedProjects = ["/path/to/repo"]
+```
+
 ## Orca
 
 Orca keeps `.settings` inside `~/Library/Application Support/orca/profiles/local-default/orca-data.json`, alongside volatile app state (repos, worktrees, sessions) that must never be put under chezmoi management. Instead:
