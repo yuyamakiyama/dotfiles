@@ -81,12 +81,21 @@
     "context7@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "github@claude-plugins-official": true,
-    "codex@openai-codex": true
+    "codex@openai-codex": true,
+    "i-have-adhd@i-have-adhd": true
   },
   "language": "English",
   "skipDangerousModePermissionPrompt": true,
   "showThinkingSummaries": true,
   "effortLevel": "xhigh",
   "tui": "fullscreen",
-  "outputStyle": "Concise"
+  "outputStyle": "Concise",
+  "extraKnownMarketplaces": {
+    "i-have-adhd": {
+      "source": {
+        "source": "github",
+        "repo": "ayghri/i-have-adhd"
+      }
+    }
+  }
 }
