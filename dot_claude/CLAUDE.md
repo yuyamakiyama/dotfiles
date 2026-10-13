@@ -15,7 +15,7 @@ Use Claude skills aggressively. When a skill matches the task at hand, invoke it
 
 ## Dotfiles
 
-Managed with [chezmoi](https://www.chezmoi.io/). Source repo: `~/.local/share/chezmoi/`.
+Managed with [chezmoi](https://www.chezmoi.io/). Source repo: `~/ghq/github.com/yuyamakiyama/dotfiles`.
 
 - `autoCommit` and `autoPush` are enabled in `~/.config/chezmoi/chezmoi.toml`
 - Edit the **source** (`chezmoi edit` / the source repo), never the live target directly, then `chezmoi apply` — editing the target leaves it diverged from source
@@ -23,7 +23,7 @@ Managed with [chezmoi](https://www.chezmoi.io/). Source repo: `~/.local/share/ch
 
 ## TypeScript Rules
 
-- Always use **bun**. No npm, yarn, or pnpm.
+- Default to **bun** for new projects. In an existing repo, use the package manager its lockfile implies (`package-lock.json` → npm, `yarn.lock` → yarn, `pnpm-lock.yaml` → pnpm).
 - Write declarative code, not imperative. Avoid `let`, `for`, `Array.push`, `Map.set`, `Array.forEach`, mutable accumulators, and similar patterns. Prefer `const`, `map`, `filter`, `reduce`, spread, and expression-based transforms.
 - Avoid type assertions (`as`, `!`). Use type narrowing, guards, or generics instead.
 
