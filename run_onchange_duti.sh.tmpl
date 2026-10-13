@@ -2,10 +2,40 @@
 
 # Apply default file associations using duti
 # Config hash: {{ include "dot_config/duti/duti" | sha256sum }}
+# LSHandlers hash: {{ include "dot_config/duti/lshandlers" | sha256sum }}
 
 if command -v duti &>/dev/null; then
   duti ~/.config/duti/duti
   echo "duti: file associations applied"
 else
   echo "duti: not installed, skipping"
+fi
+
+plist=~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure.plist
+pb=/usr/libexec/PlistBuddy
+
+if [ -f ~/.config/duti/lshandlers ] && [ -x "$pb" ]; then
+  while read -r bundle ext; do
+    [ -n "$ext" ] || continue
+    count=$("$pb" -c "Print :LSHandlers" "$plist" 2>/dev/null | grep -c '^    Dict {')
+    for ((i = count - 1; i >= 0; i--)); do
+      tag=$("$pb" -c "Print :LSHandlers:$i:LSHandlerContentTag" "$plist" 2>/dev/null)
+      [ "$tag" = "$ext" ] && "$pb" -c "Delete :LSHandlers:$i" "$plist"
+    done
+    "$pb" -c "Add :LSHandlers: dict" "$plist" 2>/dev/null || {
+      "$pb" -c "Add :LSHandlers array" "$plist"
+      "$pb" -c "Add :LSHandlers: dict" "$plist"
+    }
+    n=$("$pb" -c "Print :LSHandlers" "$plist" | grep -c '^    Dict {')
+    i=$((n - 1))
+    "$pb" \
+      -c "Add :LSHandlers:$i:LSHandlerContentTag string $ext" \
+      -c "Add :LSHandlers:$i:LSHandlerContentTagClass string public.filename-extension" \
+      -c "Add :LSHandlers:$i:LSHandlerRoleAll string $bundle" \
+      -c "Add :LSHandlers:$i:LSHandlerPreferredVersions dict" \
+      -c "Add :LSHandlers:$i:LSHandlerPreferredVersions:LSHandlerRoleAll string -" \
+      "$plist"
+  done < ~/.config/duti/lshandlers
+  killall -HUP lsd 2>/dev/null
+  echo "duti: LSHandlers applied"
 fi
