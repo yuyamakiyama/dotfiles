@@ -1,0 +1,9 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+# Config hash: {{ include "dot_config/duti/orca.duti" | sha256sum }}
+
+command -v duti &>/dev/null || exit 0
+[ -d /Applications/Orca.app ] || exit 0
+
+duti "$HOME/.config/duti/orca.duti"
+{{ end -}}
