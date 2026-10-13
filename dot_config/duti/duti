@@ -2,18 +2,18 @@
 # Format: app_id UTI role
 # Roles: all, viewer, editor, shell, none
 
-# Cursor (com.todesktop.230313mzl4w4u92)
-com.todesktop.230313mzl4w4u92 public.xml all
-com.todesktop.230313mzl4w4u92 public.json all
-com.todesktop.230313mzl4w4u92 public.yaml all
-com.todesktop.230313mzl4w4u92 public.plain-text all
-com.todesktop.230313mzl4w4u92 net.daringfireball.markdown all
-com.todesktop.230313mzl4w4u92 public.comma-separated-values-text all
+# Orca (com.stablyai.orca)
+com.stablyai.orca public.xml all
+com.stablyai.orca public.json all
+com.stablyai.orca public.yaml all
+com.stablyai.orca public.plain-text all
+com.stablyai.orca net.daringfireball.markdown all
+com.stablyai.orca public.comma-separated-values-text all
 
 # Xcode-related files (previously TextEdit)
-com.todesktop.230313mzl4w4u92 com.apple.xcode.strings-text all
-com.todesktop.230313mzl4w4u92 com.apple.xcode.entitlements-property-list all
-com.todesktop.230313mzl4w4u92 com.apple.xcode.projectdata all
-com.todesktop.230313mzl4w4u92 com.apple.dt.document.scheme all
-com.todesktop.230313mzl4w4u92 com.apple.dt.interfacebuilder.document.storyboard all
-com.todesktop.230313mzl4w4u92 com.apple.interfacebuilder.document.cocoa all
+com.stablyai.orca com.apple.xcode.strings-text all
+com.stablyai.orca com.apple.xcode.entitlements-property-list all
+com.stablyai.orca com.apple.xcode.projectdata all
+com.stablyai.orca com.apple.dt.document.scheme all
+com.stablyai.orca com.apple.dt.interfacebuilder.document.storyboard all
+com.stablyai.orca com.apple.interfacebuilder.document.cocoa all
