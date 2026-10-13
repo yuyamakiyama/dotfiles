@@ -1,12 +1,12 @@
 # Not deployed as a chezmoi target (literal-dot filename in the source root
 # is ignored by chezmoi's source-state parser).
 #
-# Filters an Orca `.settings` object down to the curated subset that's safe
+# Filters an Orca settings object down to the curated subset that's safe
 # to sync across machines via chezmoi. Drops machine-specific values, secrets,
 # app-owned migration flags, and UI state.
 #
 # Usage (see README.md "Orca" section for the full export command):
-#   jq '.settings' "<live orca-data.json>" | jq -f .orca-settings-exclude.jq
+#   sqlite3 -readonly "<live profile-state.db>" "SELECT payload FROM profile_state_documents WHERE domain = 'settings'" | jq -f .orca-settings-exclude.jq
 
 def excludedKeys: [
   "workspaceDir",

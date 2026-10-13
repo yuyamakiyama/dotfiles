@@ -50,10 +50,10 @@ Machine-specific trusted project paths are not in the repo either — they rende
 
 ## Orca
 
-Orca keeps `.settings` inside `~/Library/Application Support/orca/profiles/local-default/orca-data.json`, alongside volatile app state (repos, worktrees, sessions) that must never be put under chezmoi management. Instead:
+Orca keeps its settings in the `settings` document of `~/Library/Application Support/orca/profiles/local-default/profile-state.db` (SQLite), alongside volatile app state (repos, worktrees, sessions) that must never be put under chezmoi management. Instead:
 
-- `~/.config/orca/settings.json` is a curated, hand-refreshed copy of `.settings`, minus machine-specific values, secrets, app-owned migration flags, and UI state. It's a normal chezmoi target — edit it (or re-export, below) and `chezmoi add` it like any other file.
-- A `modify_` script (source: `Library/Application Support/private_orca/profiles/private_local-default/modify_orca-data.json`) shallow-merges that curated file's keys into the live `orca-data.json`'s `.settings` on every `chezmoi apply`, leaving every other key and all volatile state untouched. It refuses to run (passes the file through unchanged, with a warning) while Orca is open — quit Orca before running `chezmoi apply` if you want settings changes to take effect.
+- `~/.config/orca/settings.json` is a curated, hand-refreshed copy of the settings, minus machine-specific values, secrets, app-owned migration flags, and UI state. It's a normal chezmoi target — edit it (or re-export, below) and `chezmoi add` it like any other file.
+- A `run_after_` script (`run_after_orca-apply-settings.sh`) shallow-merges that curated file's keys into the live `settings` document on every `chezmoi apply`, leaving every other key and all other documents untouched. It writes the way Orca does (bumps the profile revision, updates the row's content hash) in a single transaction, after backing up the DB to `profile-state.db.chezmoi-backup`. It's a no-op when nothing differs, and refuses to write (with a warning) while Orca is open — quit Orca and re-run `chezmoi apply` for settings changes to take effect.
 
 **Refreshing the curated file** after changing settings in the Orca UI — `orca-sync-settings` (defined in `dot_zsh/configs/orca.zsh`) re-exports, reports what changed, and stages it:
 
@@ -64,8 +64,8 @@ orca-sync-settings
 It prints an added/removed/changed key summary, then `chezmoi add`s the result, so autoCommit/autoPush commits and pushes. By hand:
 
 ```sh
-LIVE="$HOME/Library/Application Support/orca/profiles/local-default/orca-data.json"
-jq '.settings' "$LIVE" | jq -f ~/.local/share/chezmoi/.orca-settings-exclude.jq > ~/.config/orca/settings.json
+LIVE="$HOME/Library/Application Support/orca/profiles/local-default/profile-state.db"
+sqlite3 -readonly "$LIVE" "SELECT payload FROM profile_state_documents WHERE domain = 'settings'" | jq -f ~/.local/share/chezmoi/.orca-settings-exclude.jq > ~/.config/orca/settings.json
 chezmoi add ~/.config/orca/settings.json
 ```
 

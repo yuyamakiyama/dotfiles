@@ -1,15 +1,15 @@
 function orca-sync-settings() {
-  local live="$HOME/Library/Application Support/orca/profiles/local-default/orca-data.json"
+  local live="$HOME/Library/Application Support/orca/profiles/local-default/profile-state.db"
   local curated="$HOME/.config/orca/settings.json"
   local filter="$(chezmoi source-path)/.orca-settings-exclude.jq"
 
-  [[ -f $live ]]   || { print -u2 "orca-sync-settings: no live data at $live"; return 1; }
+  [[ -f $live ]]   || { print -u2 "orca-sync-settings: no live database at $live"; return 1; }
   [[ -f $filter ]] || { print -u2 "orca-sync-settings: no filter at $filter"; return 1; }
 
   local tmp=$(mktemp)
   # Unsorted on purpose: the committed file keeps Orca's own key order, so
   # sorting here would rewrite all 159 keys on the next export.
-  if ! jq '.settings' "$live" | jq -f "$filter" > "$tmp"; then
+  if ! sqlite3 "$live" "SELECT payload FROM profile_state_documents WHERE domain = 'settings'" | jq -f "$filter" > "$tmp"; then
     rm -f "$tmp"
     return 1
   fi
