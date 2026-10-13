@@ -1,0 +1,33 @@
+#!/bin/bash
+# Config hash: {{ include "dot_claude/settings.base.json" | sha256sum }}
+
+set -euo pipefail
+
+if ! command -v jq &>/dev/null; then
+  echo "claude-settings: jq not installed, skipping"
+  exit 0
+fi
+
+base="$HOME/.claude/settings.base.json"
+live="$HOME/.claude/settings.json"
+tmp="$(mktemp "$HOME/.claude/settings.json.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+
+if [ -s "$live" ]; then live_src="$live"; else live_src="$(mktemp)"; echo '{}' >"$live_src"; fi
+
+jq -n --slurpfile live "$live_src" --slurpfile base "$base" '
+  def orca: [.[] | select(any(.hooks[]?; ((.command // "") | contains(".orca/agent-hooks/"))))];
+  ($live[0] // {}) as $l
+  | ($base[0] // {}) as $b
+  | ($l * $b)
+  | .hooks = (
+      reduce ((($l.hooks // {} | keys) + ($b.hooks // {} | keys)) | unique)[] as $e ({};
+        (($b.hooks[$e] // []) + (($l.hooks[$e] // []) | orca)) as $a
+        | if ($a | length) > 0 then .[$e] = $a else . end)
+    )
+' >"$tmp"
+
+jq empty "$tmp"
+mv "$tmp" "$live"
+trap - EXIT
+echo "claude-settings: merged settings.base.json into settings.json"
