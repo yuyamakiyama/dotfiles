@@ -27,3 +27,11 @@ com.stablyai.orca conf
 com.stablyai.orca config
 com.stablyai.orca xcconfig
 com.stablyai.orca ruleset
+com.stablyai.orca pbxproj
+com.stablyai.orca xcscheme
+com.stablyai.orca xcworkspacedata
+com.stablyai.orca xcsettings
+com.stablyai.orca xctestplan
+com.stablyai.orca storyboard
+com.stablyai.orca xib
+com.stablyai.orca xcprivacy
