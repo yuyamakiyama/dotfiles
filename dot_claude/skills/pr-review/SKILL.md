@@ -11,6 +11,15 @@ Wraps the built-in `/code-review` with a Bugbot-style logic-bug hunt, independen
 
 Pass through anything given (target, level, `--comment`, `--fix`, `--max-findings`). If no level is given, use `medium`. Add no flags by default.
 
+If no target is given, the target is the current branch:
+
+1. Resolve the base: `git merge-base HEAD origin/<default-branch>` (default branch from `git symbolic-ref refs/remotes/origin/HEAD`, falling back to `main`).
+2. The diff is `git diff <base>`: every commit on the branch plus uncommitted changes to tracked files. Run `git status --porcelain` and include untracked files as well.
+3. Pass the current branch name as the target to `code-review` and use the same diff for the step-2 subagent.
+4. If HEAD is the default branch, or the diff is empty, review uncommitted changes only. If those are empty too, say so and stop.
+
+Use the branch name, with `/` replaced by `-`, as `<target>` in file paths.
+
 ## Steps
 
 Run steps 1 and 2 in parallel.
