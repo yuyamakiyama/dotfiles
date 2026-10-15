@@ -31,6 +31,7 @@
         --risk: #b0341e;
         --info: #1a6890;
         --node-top: var(--surface);
+        --fail-fill: #fbe9e5;
         --lift: rgb(18 22 20 / 0.12);
         --halo: 22%;
         --font-body: "Geist", "Segoe UI", sans-serif;
@@ -75,6 +76,7 @@
           --risk: #ef6f5c;
           --info: #6cb6e0;
           --node-top: color-mix(in srgb, var(--text) 7%, var(--surface));
+          --fail-fill: #2b1a17;
           --lift: rgb(0 0 0 / 0.45);
           --halo: 32%;
         }
@@ -94,6 +96,7 @@
         --risk: #ef6f5c;
         --info: #6cb6e0;
         --node-top: color-mix(in srgb, var(--text) 7%, var(--surface));
+        --fail-fill: #2b1a17;
         --lift: rgb(0 0 0 / 0.45);
         --halo: 32%;
       }
@@ -350,12 +353,13 @@
       .flow .ve-n text.verb { fill: var(--text-dim); font: 500 13px var(--font-body); }
       .flow .ve-n.dashed rect { stroke-dasharray: 6 5; }
       .flow .ve-n.bad rect { stroke: var(--risk); stroke-width: 2; }
-      .flow .ve-n.fail rect { fill: url(#ve-hatch); stroke: var(--risk); stroke-width: 2.5; }
-      .flow .ve-n.fail text { paint-order: stroke; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round; }
+      .flow .ve-n.fail rect.bg { fill: var(--fail-fill); stroke: none; }
+      .flow .ve-n.fail rect.hatch { fill: url(#ve-hatch); stroke: none; }
+      .flow .ve-n.fail rect.ol { fill: none; stroke: var(--risk); stroke-width: 2.5; }
       .flow .ve-e.hot { stroke: var(--accent); stroke-width: 2.5; }
       .flow .ve-e.dash { stroke-dasharray: 6 5; }
       .flow .ve-fail { fill: var(--risk); font: 600 14px var(--font-mono); }
-      .frame:has(.flow) { overflow-x: hidden; }
+      .frame:has(.flow) { overflow-x: hidden; padding-block: 0; }
 
       /* KPI strip */
       .kpis {
@@ -595,6 +599,7 @@
           --warn: #7a5e00;
           --risk: #b0341e;
           --info: #1a6890;
+          --fail-fill: #fbe9e5;
         }
         .frame {
           overflow: visible;
@@ -922,13 +927,14 @@
         function wrap(text, max) {
           var words = str(text).split(/\s+/).filter(Boolean);
           var pieces = words.flatMap(function (w) {
-            return w.length <= max ? [w] : (w.match(new RegExp(".{1," + max + "}", "g")) || []);
+            return w.length <= max ? [{ t: w, fresh: false }]
+              : wrapCode(w, max).map(function (p, i) { return { t: p, fresh: i === 0 }; });
           });
           var lines = pieces.reduce(function (acc, w) {
             var last = acc.length ? acc[acc.length - 1] : null;
-            return last !== null && (last + " " + w).length <= max
-              ? acc.slice(0, -1).concat(last + " " + w)
-              : acc.concat(w);
+            return last !== null && !w.fresh && (last + " " + w.t).length <= max
+              ? acc.slice(0, -1).concat(last + " " + w.t)
+              : acc.concat(w.t);
           }, []);
           return lines.length ? lines : [""];
         }
@@ -937,24 +943,24 @@
         var WORD_RE = /(?<=[a-z])(?=[A-Z])|(?<=[#_$])/;
         var CLOSER_ONLY = /^\s*[)\]}]+[;,.]*\s*$/;
         function wrapCode(text, max) {
-          var atoms = str(text).replace(/\s+/g, " ").trim().split(BREAK_RE).filter(Boolean)
-            .flatMap(function (a) {
-              return a.trimEnd().length <= max ? [a] : a.split(WORD_RE).filter(Boolean).flatMap(function (p) {
-                return p.trimEnd().length <= max ? [p] : (p.match(new RegExp("[^]{1," + max + "}", "g")) || []);
-              });
-            });
+          var segments = str(text).replace(/\s+/g, " ").trim().split(BREAK_RE).filter(Boolean)
+            .reduce(function (acc, seg) {
+              return acc.length && CLOSER_ONLY.test(seg)
+                ? acc.slice(0, -1).concat(acc[acc.length - 1] + seg)
+                : acc.concat(seg);
+            }, []);
+          var atoms = segments.flatMap(function (seg) {
+            return seg.trimEnd().length <= max ? [{ t: seg, fresh: false }] : seg.split(WORD_RE).filter(Boolean).flatMap(function (p) {
+              return p.trimEnd().length <= max ? [p] : (p.match(new RegExp("[^]{1," + max + "}", "g")) || []);
+            }).map(function (p, i) { return { t: p, fresh: i === 0 }; });
+          });
           var lines = atoms.reduce(function (acc, a) {
             var last = acc.length ? acc[acc.length - 1] : null;
-            return last !== null && (last + a).trimEnd().length <= max
-              ? acc.slice(0, -1).concat(last + a)
-              : acc.concat(a);
+            return last !== null && !a.fresh && (last + a.t).trimEnd().length <= max
+              ? acc.slice(0, -1).concat(last + a.t)
+              : acc.concat(a.t);
           }, []).map(function (l) { return l.trim(); }).filter(Boolean);
-          var merged = lines.reduce(function (acc, l) {
-            return acc.length && CLOSER_ONLY.test(l)
-              ? acc.slice(0, -1).concat(acc[acc.length - 1] + l)
-              : acc.concat(l);
-          }, []);
-          return merged.length ? merged : [""];
+          return lines.length ? lines : [""];
         }
 
         var figN = 0;
@@ -1259,15 +1265,16 @@
         function longestOf(lines) {
           return lines.reduce(function (a, l) { return Math.max(a, l.length); }, 0);
         }
+        var STRIP = 6, FRAME_PAD_DEFAULT = 24, LABEL_UP = 21, EDGE = 1.5, DESC = 4, clipN = 0;
         var NODE_MAX = 250, NODE_MIN = 120, ARROW_GAP = 32;
-        function flowLayout(steps, avail) {
+        function flowLayout(steps, avail, pad) {
           var n = steps.length;
           var width = Math.min(NODE_MAX, Math.floor((avail - 4 - (n - 1) * ARROW_GAP) / n));
           if (width < NODE_MIN) return null;
           var chars = Math.max(10, Math.floor((width - 32) / CH));
           var noteChars = Math.max(10, Math.floor((width - 8) / 8.2));
           var nodes = steps.map(function (s, i) {
-            var t = flowText(s, chars, i > 0);
+            var t = flowText(s, s.kind === "fail" ? Math.max(10, chars - Math.ceil(STRIP / CH)) : chars, i > 0);
             return { s: s, verbLines: t.verbLines, labelLines: t.labelLines, codeLines: t.codeLines,
               lines: t.lines.length ? t.lines : ["\u2026"], width: width,
               noteLines: s.note ? wrap(s.note, noteChars) : [] };
@@ -1280,12 +1287,26 @@
           });
           var maxNote = placed.reduce(function (a, x) { return Math.max(a, x.noteLines.length); }, 0);
           var totalW = 4 + n * width + (n - 1) * ARROW_GAP;
-          var totalH = padTop + height + (maxNote ? 22 + maxNote * 17 : 0) + 14;
-          return { nodes: placed, height: height, padTop: padTop, totalW: totalW, totalH: totalH,
+          var hasFail = steps.some(function (s) { return s.kind === "fail"; });
+          var top = hasFail ? padTop - LABEL_UP : padTop - EDGE;
+          var bottom = maxNote ? padTop + height + 22 + (maxNote - 1) * 17 + DESC : padTop + height + EDGE;
+          var totalH = bottom - top + 2 * pad;
+          return { nodes: placed, height: height, padTop: padTop, totalW: totalW, totalH: totalH, minY: top - pad,
             nodeW: width, gapW: ARROW_GAP, maxLines: maxLines };
         }
         function nodeClass(kind) {
           return "ve-n" + (kind === "fail" ? " fail" : kind === "result" ? " bad" : kind === "trigger" ? " trigger" : "");
+        }
+        function nodeShape(kind, x, y, w, h) {
+          if (kind !== "fail") return [svg("rect", { x: x, y: y, width: w, height: h, rx: 4 })];
+          clipN += 1;
+          var id = "ve-fc-" + clipN;
+          return [
+            svg("defs", {}, svg("clipPath", { id: id }, svg("rect", { x: x, y: y, width: w, height: h, rx: 4 }))),
+            svg("rect", { class: "bg", x: x, y: y, width: w, height: h, rx: 4 }),
+            svg("rect", { class: "hatch", "clip-path": "url(#" + id + ")", x: x, y: y, width: STRIP, height: h }),
+            svg("rect", { class: "ol", x: x, y: y, width: w, height: h, rx: 4 })
+          ];
         }
         function flowSvg(steps, label, L) {
           var arrowY = L.padTop + L.height / 2;
@@ -1303,9 +1324,9 @@
                   ]
                 : null,
               svg("g", { class: nodeClass(kind) },
-                svg("rect", { x: n.x, y: L.padTop, width: n.width, height: L.height, rx: 4 }),
+                nodeShape(kind, n.x, L.padTop, n.width, L.height),
                 lines.map(function (l, j) {
-                  return svg("text", { class: l[1], x: n.x + n.width / 2, y: y0 + j * 20 }, l[0]);
+                  return svg("text", { class: l[1], x: n.x + n.width / 2 + (hot ? STRIP / 2 : 0), y: y0 + j * 20 }, l[0]);
                 })),
               kind === "fail" ? svg("text", { class: "ve-fail", x: n.x, y: L.padTop - 10 }, "✕ fails here") : null,
               n.noteLines.map(function (nl, j) {
@@ -1315,16 +1336,16 @@
             ];
           });
           return svg("svg", { class: "ve-svg flow", style: "width:" + L.totalW + "px;max-width:none;min-width:0",
-            viewBox: "0 0 " + L.totalW + " " + L.totalH, role: "img", "aria-label": label }, drawn);
+            viewBox: "0 " + L.minY + " " + L.totalW + " " + L.totalH, role: "img", "aria-label": label }, drawn);
         }
 
-        function flowLayoutVertical(steps, avail) {
+        function flowLayoutVertical(steps, avail, pad) {
           var W = Math.floor(Math.min(Math.max(avail, 200), 420));
           var nodeW = W - 6;
           var chars = Math.max(10, Math.floor((nodeW - 32) / CH));
           var noteChars = Math.max(12, Math.floor((nodeW - 8) / 8.2));
           var nodes = steps.map(function (s, i) {
-            var t = flowText(s, chars, i > 0);
+            var t = flowText(s, s.kind === "fail" ? Math.max(10, chars - Math.ceil(STRIP / CH)) : chars, i > 0);
             var lines = t.lines.length ? t.lines : ["…"];
             var noteLines = s.note ? wrap(s.note, noteChars) : [];
             var gap = i === 0 ? 0 : s.kind === "fail" ? 60 : 36;
@@ -1338,9 +1359,15 @@
             var y = prev ? prev.y + prev.height + prev.noteH + n.gap : 4;
             return acc.concat([Object.assign({}, n, { y: y })]);
           }, []);
-          var last = placed.length ? placed[placed.length - 1] : null;
-          var totalH = last ? last.y + last.height + last.noteH + 6 : 8;
-          return { W: W, nodeW: nodeW, nodes: placed, totalH: totalH };
+          var top = placed.reduce(function (a, n) { return Math.min(a, n.s.kind === "fail" ? n.y - LABEL_UP : n.y - EDGE); }, Infinity);
+          var bottom = placed.reduce(function (a, n) {
+            return Math.max(a, n.noteLines.length
+              ? n.y + n.height + 22 + (n.noteLines.length - 1) * 17 + DESC
+              : n.y + n.height + EDGE);
+          }, -Infinity);
+          var hasNodes = placed.length > 0;
+          var totalH = hasNodes ? bottom - top + 2 * pad : 2 * pad;
+          return { W: W, nodeW: nodeW, nodes: placed, totalH: totalH, minY: hasNodes ? top - pad : 0 };
         }
         function flowSvgVertical(label, V) {
           var cx = V.W / 2;
@@ -1359,9 +1386,9 @@
                   ]
                 : null,
               svg("g", { class: nodeClass(kind) },
-                svg("rect", { x: 3, y: n.y, width: V.nodeW, height: n.height, rx: 4 }),
+                nodeShape(kind, 3, n.y, V.nodeW, n.height),
                 lines.map(function (l, j) {
-                  return svg("text", { class: l[1], x: 3 + V.nodeW / 2, y: y0 + j * 20 }, l[0]);
+                  return svg("text", { class: l[1], x: 3 + V.nodeW / 2 + (hot ? STRIP / 2 : 0), y: y0 + j * 20 }, l[0]);
                 })),
               kind === "fail" ? svg("text", { class: "ve-fail", x: 3, y: n.y - 10 }, "✕ fails here") : null,
               n.noteLines.map(function (nl, j) {
@@ -1371,7 +1398,7 @@
             ];
           });
           return svg("svg", { class: "ve-svg flow", style: "width:" + V.W + "px;max-width:none;min-width:0",
-            viewBox: "0 0 " + V.W + " " + V.totalH, role: "img", "aria-label": label }, drawn);
+            viewBox: "0 " + V.minY + " " + V.W + " " + V.totalH, role: "img", "aria-label": label }, drawn);
         }
 
         function frameAvail(frame) {
@@ -1379,17 +1406,21 @@
           var pad = cs ? (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0) : 0;
           return Math.max(0, frame.clientWidth - pad);
         }
-        function chooseFlow(steps, avail, canObserve) {
-          var H = canObserve ? flowLayout(steps, avail) : null;
+        function framePad(frame) {
+          var cs = typeof getComputedStyle === "function" ? getComputedStyle(frame) : null;
+          return cs ? parseFloat(cs.paddingLeft) || FRAME_PAD_DEFAULT : FRAME_PAD_DEFAULT;
+        }
+        function chooseFlow(steps, avail, canObserve, pad) {
+          var H = canObserve ? flowLayout(steps, avail, pad) : null;
           return H
             ? { mode: "h", key: "h" + H.nodeW + "-" + H.gapW, H: H, avail: avail }
-            : { mode: "v", key: "v" + Math.floor(Math.min(Math.max(avail, 200), 420)), V: flowLayoutVertical(steps, avail), avail: avail };
+            : { mode: "v", key: "v" + Math.floor(Math.min(Math.max(avail, 200), 420)), V: flowLayoutVertical(steps, avail, pad), avail: avail };
         }
         var flowEntries = [];
         function drawFlow(entry) {
           var avail = frameAvail(entry.frame);
           if (avail <= 0) return;
-          var plan = chooseFlow(entry.steps, avail, typeof ResizeObserver === "function");
+          var plan = chooseFlow(entry.steps, avail, typeof ResizeObserver === "function", framePad(entry.frame));
           if (plan.key === entry.key) return;
           entry.key = plan.key;
           entry.frame.textContent = "";
@@ -1409,7 +1440,7 @@
               return (i > 0 && s.verb ? "(" + s.verb + ") " : "") + (s.label || s.code || "step");
             }).join(" → ");
             flowEntries.push({ steps: steps, label: label, frame: null, key: null });
-            body = flowSvgVertical(label, flowLayoutVertical(steps, 320));
+            body = flowSvgVertical(label, flowLayoutVertical(steps, 320, FRAME_PAD_DEFAULT));
           } else {
             body = el("p", { class: "nodata" }, "No flow provided");
           }
