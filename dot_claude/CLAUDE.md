@@ -13,6 +13,11 @@ Use subagents aggressively for parallel work. Whenever multiple independent task
 
 Use Claude skills aggressively. When a skill matches the task at hand, invoke it proactively without being asked. When you notice a task being repeated across conversations, suggest creating a new skill for it.
 
+## Browser
+
+- Always use Orca's embedded browser (`orca-cli` skill) for driving or verifying web apps. Not Playwright MCP, Chrome, or other browsers.
+- Interact like a user (`click`, `type`, `keypress`). `fill` and JS `dispatchEvent` can fire fake events and produce errors real users never see.
+
 ## Dotfiles
 
 Managed with [chezmoi](https://www.chezmoi.io/). Source repo: `~/ghq/github.com/yuyamakiyama/dotfiles`.
