@@ -1,0 +1,1610 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{TITLE}}</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b0d0c'/%3E%3Cpath d='M16 32h14M34 22h14M34 42h14' stroke='%23f2a93b' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* tokens: Instrument register. Light is the base; dark under prefers-color-scheme and data-theme="dark". */
+      :root {
+        color-scheme: light dark;
+        --bg: #f4f5f3;
+        --surface: #ffffff;
+        --border: #dfe3e0;
+        --border-bright: #888e8b;
+        --text: #121614;
+        --text-dim: #545e59;
+        --accent: #955700;
+        --accent-dim: rgba(149, 87, 0, 0.12);
+        --ok: #1c7443;
+        --warn: #7a5e00;
+        --risk: #b0341e;
+        --info: #1a6890;
+        --node-top: var(--surface);
+        --lift: rgb(18 22 20 / 0.12);
+        --halo: 22%;
+        --font-body: "Geist", "Segoe UI", sans-serif;
+        --font-mono: "Geist Mono", ui-monospace, monospace;
+        --t-label: 0.75rem;
+        --t-small: 0.875rem;
+        --t-body: 1rem;
+        --t-lead: 1.25rem;
+        --t-h2: 1.625rem;
+        --t-h1: clamp(1.625rem, 3vw, 2.125rem);
+        --s-1: 0.25rem;
+        --s-2: 0.5rem;
+        --s-3: 0.75rem;
+        --s-4: 1rem;
+        --s-5: 1.5rem;
+        --s-6: 2rem;
+        --s-7: 3rem;
+        --s-8: 4.5rem;
+        --r-1: 4px;
+        --r-2: 10px;
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        --fast: 150ms;
+        --med: 300ms;
+        --slow: 500ms;
+      }
+      :root[data-theme="light"] {
+        color-scheme: light;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          color-scheme: dark;
+          --bg: #0b0d0c;
+          --surface: #121614;
+          --border: #1f2522;
+          --border-bright: #5e6662;
+          --text: #e6ebe8;
+          --text-dim: #919d97;
+          --accent: #f2a93b;
+          --accent-dim: rgba(242, 169, 59, 0.14);
+          --ok: #6fcf97;
+          --warn: #e8c547;
+          --risk: #ef6f5c;
+          --info: #6cb6e0;
+          --node-top: color-mix(in srgb, var(--text) 7%, var(--surface));
+          --lift: rgb(0 0 0 / 0.45);
+          --halo: 32%;
+        }
+      }
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #0b0d0c;
+        --surface: #121614;
+        --border: #1f2522;
+        --border-bright: #5e6662;
+        --text: #e6ebe8;
+        --text-dim: #919d97;
+        --accent: #f2a93b;
+        --accent-dim: rgba(242, 169, 59, 0.14);
+        --ok: #6fcf97;
+        --warn: #e8c547;
+        --risk: #ef6f5c;
+        --info: #6cb6e0;
+        --node-top: color-mix(in srgb, var(--text) 7%, var(--surface));
+        --lift: rgb(0 0 0 / 0.45);
+        --halo: 32%;
+      }
+
+      /* base */
+      html {
+        font-size: 17px;
+        scroll-behavior: smooth;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font: 400 var(--t-body)/1.6 var(--font-body);
+        text-wrap: pretty;
+        font-kerning: normal;
+        font-synthesis: none;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      ::selection {
+        background: var(--accent-dim);
+      }
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      a {
+        color: var(--text);
+        text-decoration: underline;
+        text-decoration-color: var(--accent);
+        text-underline-offset: 0.22em;
+      }
+      a:hover {
+        color: var(--accent);
+      }
+      main {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: var(--s-6) 16px var(--s-8);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--s-7);
+      }
+      @media (min-width: 52rem) {
+        main {
+          padding: var(--s-8) var(--s-5);
+          gap: var(--s-8);
+        }
+      }
+      section,
+      figure {
+        min-width: 0;
+      }
+      header {
+        display: grid;
+        gap: var(--s-4);
+        min-width: 0;
+      }
+      h1,
+      h2,
+      .kpi .val {
+        text-box: trim-both cap alphabetic;
+      }
+      h1 {
+        font-size: var(--t-h1);
+        line-height: 1.15;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        text-wrap: balance;
+        margin-bottom: var(--s-2);
+        overflow-wrap: anywhere;
+      }
+      h2 {
+        font-size: var(--t-h2);
+        line-height: 1.2;
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        text-wrap: balance;
+      }
+      .sec-head {
+        display: grid;
+        gap: var(--s-3) var(--s-5);
+        align-items: baseline;
+        border-top: 1px solid var(--border);
+        padding-top: var(--s-5);
+        margin-bottom: var(--s-6);
+      }
+      @media (min-width: 52rem) {
+        .sec-head {
+          grid-template-columns: 3fr 9fr;
+        }
+      }
+      h3 {
+        font-size: var(--t-body);
+        line-height: 1.3;
+        font-weight: 600;
+      }
+      .ve-label {
+        font: 500 var(--t-label) var(--font-mono);
+        color: var(--text-dim);
+      }
+      .caps {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .meta {
+        font: 500 var(--t-label) var(--font-mono);
+        color: var(--text-dim);
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+        display: grid;
+        gap: var(--s-1);
+      }
+      .meta .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--s-1) var(--s-3);
+        min-width: 0;
+      }
+      .meta .k {
+        min-width: 3.5rem;
+      }
+      .unit {
+        font-size: 0.5em;
+        font-weight: 500;
+        color: var(--text-dim);
+        letter-spacing: 0;
+      }
+      code {
+        font: 0.875em var(--font-mono);
+        font-variant-ligatures: none;
+        overflow-wrap: anywhere;
+      }
+
+      /* figure */
+      .frame {
+        background:
+          radial-gradient(
+              circle at 1px 1px,
+              color-mix(in srgb, var(--text) 13%, transparent) 1px,
+              transparent 1.5px
+            )
+            0 0 / 20px 20px,
+          var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--r-2);
+        padding: var(--s-5);
+        overflow-x: auto;
+      }
+      figcaption {
+        font-size: var(--t-body);
+        color: var(--text-dim);
+        margin-top: var(--s-3);
+        max-width: 65ch;
+      }
+      .fig-n {
+        font: 600 var(--t-label) var(--font-mono);
+        color: var(--text);
+        margin-right: var(--s-2);
+      }
+
+      /* diagram kit */
+      .ve-svg {
+        width: 100%;
+        min-width: 600px;
+        height: auto;
+        display: block;
+        font: 500 17px var(--font-body);
+      }
+      .ve-e {
+        fill: none;
+        stroke: var(--text-dim);
+        stroke-width: 1.75;
+        marker-end: url(#ve-ah);
+      }
+      .ve-el {
+        fill: var(--text-dim);
+        font: 500 14px var(--font-mono);
+        text-anchor: start;
+        paint-order: stroke;
+        stroke: var(--bg);
+        stroke-width: 5px;
+        stroke-linejoin: round;
+      }
+      .fn text {
+        font: 500 14px var(--font-mono);
+        dominant-baseline: central;
+      }
+      .fn .rowlab {
+        fill: var(--text-dim);
+      }
+      .fn .sub {
+        fill: var(--text-dim);
+        text-anchor: middle;
+        dominant-baseline: auto;
+      }
+      .fn .num {
+        fill: var(--text);
+        text-anchor: middle;
+        font-weight: 600;
+      }
+      .fn .tot {
+        fill: var(--text);
+        font-weight: 600;
+      }
+      .fn .seg-src {
+        fill: var(--surface);
+        stroke: var(--border-bright);
+        stroke-width: 1.5;
+      }
+      .fn .seg-mid {
+        fill: var(--surface);
+        stroke: var(--border-bright);
+        stroke-width: 1.5;
+      }
+      .fn .seg-keep {
+        fill: var(--accent);
+        stroke: var(--accent);
+        stroke-width: 1.5;
+        filter: drop-shadow(
+          0 0 12px color-mix(in srgb, var(--accent) var(--halo), transparent)
+        );
+      }
+      .fn .num.on-keep {
+        fill: var(--bg);
+      }
+      .fn .seg-rej {
+        fill: url(#ve-hatch);
+        stroke: var(--risk);
+        stroke-width: 1.5;
+      }
+      .fn .seg-flt {
+        fill: none;
+        stroke: var(--border-bright);
+        stroke-width: 1.5;
+        stroke-dasharray: 6 5;
+      }
+      .fn .num.on-rej {
+        paint-order: stroke;
+        stroke: var(--bg);
+        stroke-width: 4px;
+        stroke-linejoin: round;
+      }
+
+      .flow .ve-n rect { fill: var(--node-top); stroke: var(--border-bright); stroke-width: 1.5; }
+      .flow .ve-n text { fill: var(--text); font: 500 14px var(--font-mono); text-anchor: middle; dominant-baseline: central; }
+      .flow .ve-n text.sub { fill: var(--text-dim); }
+      .flow .ve-n text.verb { fill: var(--text-dim); font: 500 13px var(--font-body); }
+      .flow .ve-n.dashed rect { stroke-dasharray: 6 5; }
+      .flow .ve-n.bad rect { stroke: var(--risk); stroke-width: 2; }
+      .flow .ve-n.fail rect { fill: url(#ve-hatch); stroke: var(--risk); stroke-width: 2.5; }
+      .flow .ve-n.fail text { paint-order: stroke; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round; }
+      .flow .ve-e.hot { stroke: var(--accent); stroke-width: 2.5; }
+      .flow .ve-e.dash { stroke-dasharray: 6 5; }
+      .flow .ve-fail { fill: var(--risk); font: 600 14px var(--font-mono); }
+      .frame:has(.flow) { overflow-x: hidden; }
+
+      /* KPI strip */
+      .kpis {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        border-radius: var(--r-2);
+        overflow: hidden;
+      }
+      .kpi {
+        flex: 1 1 14rem;
+        background: var(--surface);
+        padding: var(--s-5);
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        gap: var(--s-3);
+        min-width: 0;
+      }
+      .kpi .val {
+        font: 600 2.75rem/1 var(--font-body);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.04em;
+      }
+      .ve-cells {
+        align-self: end;
+        width: 100%;
+        max-width: 14rem;
+        height: auto;
+        font: 500 13px var(--font-mono);
+        overflow: visible;
+      }
+      .ve-cells text {
+        fill: var(--text-dim);
+        dominant-baseline: central;
+      }
+      .cell-on {
+        fill: var(--accent);
+      }
+      .cell-off {
+        fill: none;
+        stroke: var(--text-dim);
+        stroke-width: 1.5;
+      }
+      .ve-bars {
+        align-self: end;
+        width: 100%;
+        max-width: 16rem;
+        height: auto;
+        font: 500 13px var(--font-mono);
+        overflow: visible;
+      }
+      .ve-bars text {
+        fill: var(--text-dim);
+        dominant-baseline: central;
+      }
+      .ve-bars rect {
+        fill: var(--border-bright);
+        transform-box: fill-box;
+        transform-origin: left;
+        transition: transform 900ms var(--ease) 150ms;
+      }
+      .ve-bars .hot {
+        fill: var(--accent);
+      }
+      .ve-bars .hot + text {
+        fill: var(--text);
+      }
+      .ve-bars .zero {
+        stroke: var(--border-bright);
+        stroke-width: 2;
+      }
+      .ve-bars .lab {
+        fill: var(--text);
+      }
+      .kpi .note {
+        font-size: var(--t-label);
+        font-family: var(--font-mono);
+        color: var(--text-dim);
+      }
+
+      /* small multiples */
+      .cases {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(14.5rem, 1fr));
+        gap: var(--s-4);
+      }
+      .case {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-2);
+        padding: var(--s-4);
+        display: grid;
+        gap: var(--s-3);
+        align-content: start;
+        min-width: 0;
+      }
+      .case .ve-bars {
+        max-width: none;
+      }
+
+      /* chips */
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--s-2);
+        font: 600 var(--t-label) var(--font-mono);
+        padding: 2px var(--s-2);
+        border: 1px solid currentColor;
+        border-radius: var(--r-1);
+        white-space: nowrap;
+        justify-self: start;
+      }
+      .chip::before {
+        content: "";
+        width: 0.5rem;
+        height: 0.5rem;
+        background: currentColor;
+      }
+      .chip.ok {
+        color: var(--ok);
+      }
+      .chip.ok::before {
+        border-radius: 50%;
+      }
+      .chip.warn {
+        color: var(--warn);
+      }
+      .chip.warn::before {
+        clip-path: polygon(50% 0, 100% 100%, 0 100%);
+      }
+      .chip.risk {
+        color: var(--risk);
+      }
+      .chip.info {
+        color: var(--info);
+      }
+      .chip.info::before {
+        clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+      }
+
+      /* callout */
+      .callout {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-2);
+        padding: var(--s-4);
+        display: grid;
+        gap: var(--s-3);
+      }
+      .callout p {
+        max-width: 65ch;
+        overflow-wrap: anywhere;
+      }
+
+      details {
+        border-top: 1px solid var(--border);
+        padding-top: var(--s-4);
+        color: var(--text-dim);
+        font-size: var(--t-body);
+      }
+      details + details {
+        margin-top: var(--s-5);
+      }
+      summary {
+        cursor: pointer;
+        font: 500 var(--t-label) var(--font-mono);
+        margin-bottom: var(--s-2);
+        color: var(--text);
+      }
+      summary .n {
+        color: var(--text-dim);
+        margin-left: var(--s-2);
+      }
+      .items {
+        display: grid;
+        gap: var(--s-3);
+        margin-top: var(--s-4);
+      }
+      .item {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-2);
+        padding: var(--s-4);
+        display: grid;
+        gap: var(--s-2);
+        min-width: 0;
+      }
+      .item .claim {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .item .why {
+        color: var(--text-dim);
+        max-width: 65ch;
+      }
+      .item .by {
+        font: 500 var(--t-label) var(--font-mono);
+        color: var(--text-dim);
+      }
+      .item .where {
+        font: 500 var(--t-label) var(--font-mono);
+        color: var(--text-dim);
+        overflow-wrap: anywhere;
+      }
+
+      .js-motion main > * {
+        transition:
+          opacity var(--slow) var(--ease),
+          transform var(--slow) var(--ease);
+      }
+      .js-motion main > :not(.in) {
+        opacity: 0;
+        transform: translateY(1rem);
+      }
+      .js-motion main > :not(.in) .ve-bars rect {
+        transform: scaleX(0);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+          scroll-behavior: auto !important;
+        }
+      }
+
+      @media print {
+        :root {
+          --bg: #fff;
+          --surface: #fff;
+          --border: #dfe3e0;
+          --border-bright: #888e8b;
+          --text: #121614;
+          --text-dim: #545e59;
+          --accent: #955700;
+          --ok: #1c7443;
+          --warn: #7a5e00;
+          --risk: #b0341e;
+          --info: #1a6890;
+        }
+        .frame {
+          overflow: visible;
+          background: #fff;
+        }
+        .ve-svg {
+          min-width: 0;
+        }
+        .frame,
+        .case,
+        .kpi,
+        .item,
+        .finding {
+          break-inside: avoid;
+        }
+        h2 {
+          break-after: avoid;
+        }
+        svg * {
+          filter: none !important;
+        }
+        .js-motion main > * {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+        .js-motion .ve-bars rect {
+          transform: none !important;
+        }
+        details > * {
+          display: revert;
+        }
+      }
+      /* additions for data-driven rendering */
+      .flow .ve-n.trigger rect {
+        stroke: var(--accent);
+        stroke-width: 2;
+      }
+      .flow .ve-note {
+        fill: var(--text-dim);
+        font: 500 13px var(--font-mono);
+        text-anchor: middle;
+      }
+      .flow .ve-note.bad {
+        fill: var(--risk);
+      }
+      .flow .ve-n text.top {
+        fill: var(--text);
+      }
+      .frame .custom-svg svg {
+        max-width: none;
+      }
+      .frame .nodata {
+        font: 500 var(--t-label) var(--font-mono);
+        color: var(--text-dim);
+      }
+      /* findings */
+      .finding-list {
+        display: grid;
+        gap: var(--s-8);
+      }
+      .finding {
+        display: grid;
+        gap: var(--s-4);
+        min-width: 0;
+        border-top: 1px solid var(--border);
+        padding-top: var(--s-5);
+      }
+      .finding h3 {
+        font-size: var(--t-lead);
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+        overflow-wrap: anywhere;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--s-2) var(--s-3);
+      }
+      .tag {
+        font: 500 var(--t-label) var(--font-mono);
+        color: var(--text-dim);
+        overflow-wrap: anywhere;
+      }
+      dl.details {
+        display: grid;
+        gap: var(--s-3);
+        margin: 0;
+      }
+      .drow {
+        display: grid;
+        gap: var(--s-1) var(--s-4);
+        grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
+      }
+      @media (min-width: 700px) {
+        .drow {
+          grid-template-columns: 9rem minmax(0, 1fr);
+        }
+      }
+      dt {
+        font: 500 var(--t-label) var(--font-mono);
+        color: var(--text-dim);
+        padding-top: 0.25rem;
+      }
+      dd {
+        margin: 0;
+        max-width: 70ch;
+        overflow-wrap: anywhere;
+      }
+      fieldset.fixplan {
+        border: 1px solid var(--border);
+        border-radius: var(--r-2);
+        background: var(--surface);
+        padding: var(--s-4);
+        min-width: 0;
+      }
+      fieldset.fixplan legend {
+        font-weight: 600;
+        padding: 0 var(--s-2);
+      }
+      .opts {
+        display: grid;
+        gap: var(--s-2);
+      }
+      .opt {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: var(--s-3);
+        align-items: start;
+        padding: var(--s-3);
+        border: 1px solid var(--border);
+        border-radius: var(--r-1);
+        cursor: pointer;
+      }
+      .opt:hover {
+        border-color: var(--border-bright);
+      }
+      .opt:has(input:checked) {
+        border-color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .opt:has(input:focus-visible) {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .opt input {
+        accent-color: var(--accent);
+        width: 1.1rem;
+        height: 1.1rem;
+        margin: 0.2rem 0 0;
+      }
+      .opt input:focus-visible {
+        outline: none;
+      }
+      .opt-body {
+        display: grid;
+        gap: var(--s-1);
+        min-width: 0;
+      }
+      .opt-label {
+        font-weight: 600;
+        overflow-wrap: anywhere;
+      }
+      .opt-desc {
+        color: var(--text-dim);
+        font-size: var(--t-small);
+        overflow-wrap: anywhere;
+      }
+      .fix-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--s-3);
+        align-items: start;
+      }
+      @media (min-width: 700px) {
+        .fix-grid {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        }
+      }
+      pre.preview,
+      pre.prompt {
+        font: 400 var(--t-small)/1.5 var(--font-mono);
+        font-variant-ligatures: none;
+        white-space: pre;
+        overflow: auto;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--r-2);
+        padding: var(--s-4);
+      }
+      pre.preview {
+        min-height: 6rem;
+      }
+      pre.preview.is-empty {
+        color: var(--text-dim);
+        font-style: italic;
+      }
+      .prompt-panel {
+        display: grid;
+        gap: var(--s-3);
+        margin-top: var(--s-7);
+        padding-top: var(--s-5);
+        border-top: 1px solid var(--border);
+        min-width: 0;
+      }
+      .prompt-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--s-3);
+      }
+      .prompt-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--s-3);
+      }
+      pre.prompt {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        max-height: 24rem;
+      }
+      button.copy {
+        font: 500 var(--t-label) var(--font-mono);
+        color: var(--text);
+        background: var(--bg);
+        border: 1px solid var(--border-bright);
+        border-radius: var(--r-1);
+        padding: var(--s-2) var(--s-4);
+        cursor: pointer;
+      }
+      button.copy:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .err {
+        padding: var(--s-5);
+        color: var(--risk);
+        font: 500 var(--t-small) var(--font-mono);
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <defs>
+        <marker
+          id="ve-ah"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerUnits="userSpaceOnUse"
+          markerWidth="11"
+          markerHeight="11"
+          orient="auto"
+        >
+          <path d="M0 0L10 5L0 10z" fill="context-stroke" />
+        </marker>
+        <pattern
+          id="ve-hatch"
+          width="8"
+          height="8"
+          patternUnits="userSpaceOnUse"
+          patternTransform="rotate(45)"
+        >
+          <rect
+            width="8"
+            height="8"
+            style="fill: color-mix(in srgb, var(--risk) 10%, var(--bg))"
+          />
+          <path
+            d="M0 0V8"
+            stroke-width="2"
+            style="stroke: color-mix(in srgb, var(--risk) 55%, transparent)"
+          />
+        </pattern>
+      </defs>
+    </svg>
+
+    <main id="cr-main"></main>
+
+    <script id="pr-review-data" type="application/json">{{FINDINGS_JSON}}</script>
+    <script>
+      (function () {
+        "use strict";
+        var SVGNS = "http://www.w3.org/2000/svg";
+        var SEV = ["critical", "high", "medium", "low"];
+        var SEV_CHIP = { critical: "risk", high: "risk", medium: "warn", low: "info" };
+        var CH = 8.8;
+
+        function append(node, kids) {
+          kids.forEach(function (k) {
+            if (k === null || k === undefined || k === false) return;
+            if (Array.isArray(k)) return append(node, k);
+            node.appendChild(typeof k === "object" ? k : document.createTextNode(String(k)));
+          });
+          return node;
+        }
+        function setAttrs(node, attrs) {
+          Object.keys(attrs || {}).forEach(function (k) {
+            var v = attrs[k];
+            if (v === null || v === undefined || v === false) return;
+            node.setAttribute(k, v === true ? "" : String(v));
+          });
+          return node;
+        }
+        function el(tag, attrs) {
+          var kids = Array.prototype.slice.call(arguments, 2);
+          return append(setAttrs(document.createElement(tag), attrs), kids);
+        }
+        function svg(tag, attrs) {
+          var kids = Array.prototype.slice.call(arguments, 2);
+          return append(setAttrs(document.createElementNS(SVGNS, tag), attrs), kids);
+        }
+        var arr = function (v) { return Array.isArray(v) ? v : []; };
+        var str = function (v) { return v === null || v === undefined ? "" : String(v); };
+        var isObj = function (v) { return typeof v === "object" && v !== null && !Array.isArray(v); };
+        var count = function (v) { return typeof v === "number" && isFinite(v) ? v : 0; };
+        var plural = function (n, w) { return n + " " + w + (n === 1 ? "" : "s"); };
+        var clamp = function (v, lo, hi) { return Math.max(lo, Math.min(hi, v)); };
+        var safeUrl = function (u) { return /^https?:\/\//i.test(str(u)) ? str(u) : null; };
+        var baseName = function (p) { return str(p).split("/").pop() || str(p); };
+        var trunc = function (s, n) { return s.length > n ? s.slice(0, n - 1) + "…" : s; };
+
+        function wrap(text, max) {
+          var words = str(text).split(/\s+/).filter(Boolean);
+          var pieces = words.flatMap(function (w) {
+            return w.length <= max ? [w] : (w.match(new RegExp(".{1," + max + "}", "g")) || []);
+          });
+          var lines = pieces.reduce(function (acc, w) {
+            var last = acc.length ? acc[acc.length - 1] : null;
+            return last !== null && (last + " " + w).length <= max
+              ? acc.slice(0, -1).concat(last + " " + w)
+              : acc.concat(w);
+          }, []);
+          return lines.length ? lines : [""];
+        }
+
+        var BREAK_RE = /(?<=[.(, →])|(?<![=!<>])(?==)/;
+        var WORD_RE = /(?<=[a-z])(?=[A-Z])|(?<=[#_$])/;
+        var CLOSER_ONLY = /^\s*[)\]}]+[;,.]*\s*$/;
+        function wrapCode(text, max) {
+          var atoms = str(text).replace(/\s+/g, " ").trim().split(BREAK_RE).filter(Boolean)
+            .flatMap(function (a) {
+              return a.trimEnd().length <= max ? [a] : a.split(WORD_RE).filter(Boolean).flatMap(function (p) {
+                return p.trimEnd().length <= max ? [p] : (p.match(new RegExp("[^]{1," + max + "}", "g")) || []);
+              });
+            });
+          var lines = atoms.reduce(function (acc, a) {
+            var last = acc.length ? acc[acc.length - 1] : null;
+            return last !== null && (last + a).trimEnd().length <= max
+              ? acc.slice(0, -1).concat(last + a)
+              : acc.concat(a);
+          }, []).map(function (l) { return l.trim(); }).filter(Boolean);
+          var merged = lines.reduce(function (acc, l) {
+            return acc.length && CLOSER_ONLY.test(l)
+              ? acc.slice(0, -1).concat(acc[acc.length - 1] + l)
+              : acc.concat(l);
+          }, []);
+          return merged.length ? merged : [""];
+        }
+
+        var figN = 0;
+        function figure(inner, caption) {
+          figN += 1;
+          return el("figure", {}, inner,
+            el("figcaption", {}, el("span", { class: "fig-n" }, "Fig. " + figN), caption));
+        }
+        function section(id, label, title) {
+          var kids = Array.prototype.slice.call(arguments, 3);
+          return append(
+            el("section", { id: id },
+              el("div", { class: "sec-head" },
+                el("p", { class: "ve-label caps" }, label),
+                el("h2", {}, title))),
+            kids);
+        }
+        function chip(cls, text) { return el("span", { class: "chip " + cls }, text); }
+
+        /* ---------- data ---------- */
+        var D;
+        try {
+          D = JSON.parse(document.getElementById("pr-review-data").textContent);
+        } catch (err) {
+          document.getElementById("cr-main").appendChild(el("p", { class: "err" }, "Could not read report data."));
+          return;
+        }
+        var MR = isObj(D.mr) ? D.mr : {};
+        var P = isObj(D.pipeline) ? D.pipeline : {};
+        var sevRank = function (s) { var i = SEV.indexOf(s); return i < 0 ? SEV.length : i; };
+        var findings = arr(D.findings)
+          .filter(isObj)
+          .map(function (f, i) { return { f: f, i: i }; })
+          .sort(function (a, b) { return sevRank(a.f.severity) - sevRank(b.f.severity) || a.i - b.i; })
+          .map(function (x) { return x.f; });
+        var rejected = arr(D.rejected).filter(isObj);
+        var filteredOut = arr(D.filteredOut).filter(isObj);
+        var hasFindings = findings.length > 0;
+        var sevCounts = SEV.map(function (s) {
+          return findings.filter(function (f) { return f.severity === s; }).length;
+        });
+        var title = str(D.title) || "Code review";
+        document.title = title;
+
+        /* ---------- header ---------- */
+        function pageHeader() {
+          var url = safeUrl(MR.url);
+          var heading = str(MR.title) || title;
+          return el("header", {},
+            el("h1", {}, url ? el("a", { href: url }, heading) : heading),
+            el("div", { class: "meta" },
+              el("div", { class: "row" },
+                el("span", { class: "k" }, "Branch"),
+                el("span", {}, el("code", {}, str(MR.branch)), " → ", el("code", {}, str(MR.target)))),
+              el("div", { class: "row" },
+                el("span", { class: "k" }, "SHA"),
+                el("code", {}, str(MR.sha)))));
+        }
+
+        /* ---------- next action ---------- */
+        function nextAction() {
+          return section("next", "Next action", "What to do first",
+            el("div", { class: "callout" }, chip("info", "Next action"), el("p", {}, str(D.nextAction))));
+        }
+
+        /* ---------- numbers ---------- */
+        function cells(on, off, text) {
+          var COLS = 5, CAP = 15;
+          var nOn = clamp(Math.round(on), 0, CAP);
+          var nOff = clamp(Math.round(off), 0, CAP - nOn);
+          var all = Array.from({ length: nOn + nOff }, function (_, i) { return i < nOn; });
+          var rows = Math.max(1, Math.ceil(all.length / COLS));
+          var h = rows * 26 + 20;
+          return svg("svg", { class: "ve-cells", viewBox: "0 0 140 " + h, role: "img", "aria-label": text },
+            all.map(function (isOn, i) {
+              var x = (i % COLS) * 26, y = Math.floor(i / COLS) * 26;
+              return isOn
+                ? svg("rect", { class: "cell-on", x: x, y: y + 2, width: 20, height: 20, rx: 2 })
+                : svg("rect", { class: "cell-off", x: x, y: y + 2.75, width: 18.5, height: 18.5, rx: 2 });
+            }),
+            svg("text", { x: 0, y: rows * 26 + 10 }, text));
+        }
+        function miniBars(rows, label) {
+          var max = Math.max(1, rows[0][1], rows[1][1]);
+          return svg("svg", { class: "ve-bars", viewBox: "0 0 240 52", role: "img", "aria-label": label },
+            rows.map(function (r, i) {
+              var y = 12 + i * 28, w = Math.round((r[1] / max) * 100);
+              return [
+                svg("text", { y: y }, r[0]),
+                r[1] > 0
+                  ? svg("rect", { class: i === 0 ? "" : "hot", x: 84, y: y - 7, width: w, height: 14, rx: 2 })
+                  : svg("path", { class: "zero", d: "M84 " + (y - 7) + "V" + (y + 7) }),
+                svg("text", { x: r[1] > 0 ? 84 + w + 8 : 94, y: y, class: r[1] > 0 ? "" : "lab" }, String(r[1]))
+              ];
+            }));
+        }
+        function kpi(label, value, unit, figureEl) {
+          return el("div", { class: "kpi" },
+            el("span", { class: "ve-label" }, label),
+            el("span", { class: "val" },
+              el("span", { "data-count": value }, String(value)),
+              unit ? el("span", { class: "unit" }, unit) : null),
+            figureEl);
+        }
+        function numbers() {
+          var total = findings.length;
+          var ch = findings.filter(function (f) { return f.severity === "critical" || f.severity === "high"; }).length;
+          var files = findings.map(function (f) { return str(f.file); })
+            .filter(function (v, i, all) { return all.indexOf(v) === i; }).length;
+          var changed = arr(MR.filesChanged).length;
+          var sevText = SEV.map(function (s, i) { return sevCounts[i] ? sevCounts[i] + " " + s : null; })
+            .filter(Boolean).join(" · ") || "none";
+          var kept = count(P.kept), rej = count(P.rejected);
+          var cOn = kept;
+          var cAll = kept + rej;
+          var other = Math.max(0, total - ch);
+          return section("numbers", "Numbers",
+            plural(total, "finding") + " in " + plural(files, "file"),
+            figure(
+              el("div", { class: "kpis" },
+                kpi("Total findings", total, "", cells(total, 0, total + " findings: " + sevText)),
+                kpi("Critical + high", ch, "",
+                  miniBars([["crit+high", ch], ["other", other]], "Critical plus high: " + ch + ". Other: " + other + ".")),
+                kpi("Files affected", files, "",
+                  cells(files, changed ? Math.max(0, changed - files) : 0,
+                    changed ? files + " of " + changed + " changed files" : plural(files, "file"))),
+                kpi("Confirmation rate", cOn, " of " + cAll,
+                  cells(cOn, Math.max(0, cAll - cOn), kept + " kept · " + rej + " rejected"))),
+              cOn + " of " + cAll + " behavior candidates survived verification. Filled squares are kept."));
+        }
+
+        /* ---------- charts ---------- */
+        function tally(keyFn) {
+          return findings.reduce(function (acc, f) {
+            var k = keyFn(f);
+            return acc.some(function (r) { return r[0] === k; })
+              ? acc.map(function (r) { return r[0] === k ? [k, r[1] + 1] : r; })
+              : acc.concat([[k, 1]]);
+          }, []).sort(function (a, b) { return b[1] - a[1]; });
+        }
+        function barsSvg(rows, inline, unit, label) {
+          var pitch = inline ? 30 : 48;
+          var h = pitch * (rows.length - 1) + (inline ? 28 : 44);
+          var x0 = inline ? 70 : 0;
+          return svg("svg", { class: "ve-bars", viewBox: "0 0 240 " + h, role: "img", "aria-label": label },
+            rows.map(function (r, i) {
+              var w = Math.round(r.n * unit);
+              var yb = inline ? 5 + pitch * i : 20 + pitch * i;
+              var yt = yb + 7;
+              return [
+                inline
+                  ? svg("text", { y: 12 + pitch * i }, r.label)
+                  : svg("text", { y: 8 + pitch * i, class: "lab" }, trunc(r.label, 30)),
+                r.n > 0
+                  ? svg("rect", { class: r.hot ? "hot" : "", x: x0, y: yb, width: w, height: 14, rx: 2 })
+                  : svg("path", { class: "zero", d: "M" + x0 + " " + yb + "V" + (yb + 14) }),
+                svg("text", { x: r.n > 0 ? x0 + w + 8 : x0 + 10, y: yt, class: r.n > 0 ? "" : "lab" }, String(r.n))
+              ];
+            }));
+        }
+        function charts() {
+          var sevRows = SEV.map(function (s, i) { return { label: s, n: sevCounts[i], hot: true }; });
+          var catRows = tally(function (f) { return str(f.category) || "Uncategorized"; })
+            .slice(0, 8).map(function (r) { return { label: r[0], n: r[1] }; });
+          var fileAll = tally(function (f) { return str(f.file); });
+          var fileRows = fileAll.slice(0, 5).map(function (r) { return { label: baseName(r[0]), n: r[1] }; });
+          var max = Math.max(1, sevCounts.reduce(function (a, b) { return Math.max(a, b); }, 0),
+            catRows.reduce(function (a, r) { return Math.max(a, r.n); }, 0),
+            fileRows.reduce(function (a, r) { return Math.max(a, r.n); }, 0));
+          var unit = Math.min(50, 140 / max);
+          var desc = function (rows) { return rows.map(function (r) { return r.label + " " + r.n; }).join(", "); };
+          var cases = el("div", { class: "cases" },
+            el("div", { class: "case" }, el("h3", {}, "By severity"),
+              barsSvg(sevRows, true, unit, "Findings by severity: " + desc(sevRows))),
+            el("div", { class: "case" }, el("h3", {}, "By category"),
+              barsSvg(catRows, false, unit, "Findings by category: " + desc(catRows))),
+            el("div", { class: "case" }, el("h3", {}, "Per file, top 5"),
+              barsSvg(fileRows, false, unit, "Findings per file: " + desc(fileRows))));
+          return section("charts", "Charts", "Where the findings sit",
+            figure(cases, "All three charts share one scale. " +
+              (fileAll.length > 5 ? "Top 5 of " + fileAll.length + " files shown." : plural(fileAll.length, "file") + " with findings.")));
+        }
+
+        /* ---------- verification funnel ---------- */
+        var SRC_NAMES = { builtinCodeReview: "built-in review", logicBugHunt: "logic-bug hunt" };
+        function humanize(k) {
+          return SRC_NAMES[k] || k.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
+        }
+        function assignLanes(items) {
+          return items.reduce(function (acc, it) {
+            var lane = 0;
+            while (acc.some(function (p) { return p.lane === lane && p.right + 8 > it.left; })) lane += 1;
+            return acc.concat([Object.assign({}, it, { lane: lane })]);
+          }, []);
+        }
+        function funnel() {
+          var cand = count(P.candidates), dedupe = count(P.afterDedupe);
+          var kept = count(P.kept), rej = count(P.rejected), flt = count(P.filteredOut);
+          var X = 120;
+          var unit = Math.min(40, 480 / Math.max(cand, 1));
+          var w = function (n) { return n > 0 ? Math.max(4, n * unit) : 0; };
+          var srcEntries = Object.keys(isObj(P.sources) ? P.sources : {})
+            .map(function (k) { return [humanize(k), count(P.sources[k])]; })
+            .filter(function (e) { return e[1] > 0; });
+          var srcs = srcEntries.length ? srcEntries : [["candidates", cand]];
+          var layout = function (entries) {
+            return entries.reduce(function (acc, e) {
+              var x = acc.length ? acc[acc.length - 1].x + acc[acc.length - 1].w : X;
+              return acc.concat([{ label: e[0], n: e[1], x: x, w: w(e[1]), cls: e[2] }]);
+            }, []);
+          };
+          var segInside = function (s, y) {
+            var cy = y + 14, digits = String(s.n).length;
+            var full = (digits + 1 + s.label.length) * CH + 16;
+            return s.w <= 0 ? [] : [
+              svg("rect", { class: s.cls, x: s.x, y: y, width: s.w, height: 28, rx: 4 }),
+              svg("text", { class: "num" + (s.cls === "seg-keep" ? " on-keep" : s.cls === "seg-rej" ? " on-rej" : ""),
+                x: s.x + s.w / 2, y: cy }, s.w >= full && s.cls.indexOf("seg-src") === 0 ? s.n + " " + s.label : s.w >= digits * 9 + 8 ? String(s.n) : "")
+            ];
+          };
+          var belowLabels = function (segs, y0, inlineSrc) {
+            var items = segs.filter(function (s) {
+              var full = (String(s.n).length + 1 + s.label.length) * CH + 16;
+              return !(inlineSrc && s.w >= full);
+            }).map(function (s) {
+              var text = s.w >= String(s.n).length * 9 + 8 ? s.label : s.label + " " + s.n;
+              var half = (text.length * CH) / 2;
+              var cx = s.w > 0 ? s.x + s.w / 2 : s.x;
+              return { text: text, cx: cx, left: cx - half, right: cx + half };
+            });
+            var placed = assignLanes(items);
+            var lanes = placed.reduce(function (a, p) { return Math.max(a, p.lane + 1); }, 0);
+            return {
+              lanes: lanes,
+              nodes: placed.map(function (p) {
+                return svg("text", { class: "sub", x: p.cx, y: y0 + p.lane * 17 }, p.text);
+              })
+            };
+          };
+
+          var yC = 10;
+          var srcSegs = layout(srcs.map(function (e) { return [e[0], e[1], "seg-src"]; }));
+          var srcEnd = srcSegs.reduce(function (a, s) { return a + s.w; }, X);
+          var srcBelow = belowLabels(srcSegs, yC + 28 + 18, true);
+          var e1y0 = srcBelow.lanes ? yC + 28 + 18 + (srcBelow.lanes - 1) * 17 + 10 : yC + 34;
+          var e1y1 = e1y0 + 44;
+          var yD = e1y1 + 2;
+          var e2y0 = yD + 34, e2y1 = e2y0 + 44, yV = e2y1 + 2;
+          var vSegs = layout([["kept", kept, "seg-keep"], ["rejected", rej, "seg-rej"], ["filtered out", flt, "seg-flt"]]);
+          var vEnd = vSegs.reduce(function (a, s) { return a + s.w; }, X);
+          var vBelow = belowLabels(vSegs, yV + 52, false);
+          var height = yV + 52 + Math.max(0, vBelow.lanes - 1) * 17 + 16;
+          var dw = w(dedupe);
+          var dedupeText = dw >= (String(dedupe).length + 18) * CH ? dedupe + " unique candidates" : String(dedupe);
+          var dropped = Math.max(0, cand - dedupe);
+
+          var label = "Verification funnel. " + cand + " candidates" +
+            (srcEntries.length ? ": " + srcEntries.map(function (e) { return e[1] + " from " + e[0]; }).join(", ") : "") +
+            ". After dedupe: " + dedupe + ". Verdicts on " + dedupe + ": " + kept + " kept, " + rej + " rejected, " + flt + " filtered out.";
+
+          var drawing = svg("svg", { class: "ve-svg fn", viewBox: "0 0 660 " + height, role: "img", "aria-label": label },
+            svg("text", { class: "rowlab", x: 0, y: yC + 14 }, "Candidates"),
+            srcSegs.map(function (s) { return segInside(s, yC); }),
+            svg("text", { class: "tot", x: srcEnd + 12, y: yC + 14 }, String(cand)),
+            srcBelow.nodes,
+            svg("path", { class: "ve-e", d: "M135 " + e1y0 + "V" + e1y1 }),
+            svg("text", { class: "ve-el", x: 147, y: (e1y0 + e1y1) / 2 + 4 },
+              "dedupe: " + plural(dropped, "duplicate") + " dropped"),
+            svg("text", { class: "rowlab", x: 0, y: yD + 14 }, "After dedupe"),
+            dw > 0 ? svg("rect", { class: "seg-mid", x: X, y: yD, width: dw, height: 28, rx: 4 }) : null,
+            dw > 0 ? svg("text", { class: "num", x: X + dw / 2, y: yD + 14 }, dedupeText) : null,
+            svg("text", { class: "tot", x: X + dw + 12, y: yD + 14 }, String(dedupe)),
+            svg("path", { class: "ve-e", d: "M135 " + e2y0 + "V" + e2y1 }),
+            svg("text", { class: "ve-el", x: 147, y: (e2y0 + e2y1) / 2 + 4 }, "verify each against the code"),
+            svg("text", { class: "rowlab", x: 0, y: yV + 14 }, "Verdicts"),
+            vSegs.map(function (s) { return segInside(s, yV); }),
+            vBelow.nodes,
+            svg("text", { class: "tot", x: vEnd + 12, y: yV + 14 }, String(dedupe)));
+
+          return section("pipeline", "Verification",
+            cand + " candidates narrowed to " + plural(kept, "finding"),
+            figure(el("div", { class: "frame" }, drawing),
+              kept + " of " + dedupe + " unique candidates were kept. " + rej +
+              " failed verification and " + flt + " were not behavior bugs."));
+        }
+
+        /* ---------- flows ---------- */
+        var VCH = 7.4;
+        function flowText(s, maxChars, withVerb) {
+          var verbLines = withVerb && s.verb ? wrap("\u21b3 " + s.verb, Math.max(6, Math.floor(maxChars * CH / VCH))) : [];
+          var labelLines = s.label ? wrap(s.label, maxChars) : [];
+          var codeLines = s.code ? wrapCode(s.code, maxChars) : [];
+          return { verbLines: verbLines, labelLines: labelLines, codeLines: codeLines,
+            lines: verbLines.concat(labelLines, codeLines) };
+        }
+        function textRows(n) {
+          var rows = n.verbLines.map(function (t) { return [t, "verb"]; })
+            .concat(n.labelLines.map(function (t) { return [t, "top"]; }),
+              n.codeLines.map(function (t) { return [t, n.labelLines.length || n.verbLines.length ? "sub" : "top"]; }));
+          return rows.length ? rows : [["\u2026", "sub"]];
+        }
+        function longestOf(lines) {
+          return lines.reduce(function (a, l) { return Math.max(a, l.length); }, 0);
+        }
+        var NODE_MAX = 250, NODE_MIN = 120, ARROW_GAP = 32;
+        function flowLayout(steps, avail) {
+          var n = steps.length;
+          var width = Math.min(NODE_MAX, Math.floor((avail - 4 - (n - 1) * ARROW_GAP) / n));
+          if (width < NODE_MIN) return null;
+          var chars = Math.max(10, Math.floor((width - 32) / CH));
+          var noteChars = Math.max(10, Math.floor((width - 8) / 8.2));
+          var nodes = steps.map(function (s, i) {
+            var t = flowText(s, chars, i > 0);
+            return { s: s, verbLines: t.verbLines, labelLines: t.labelLines, codeLines: t.codeLines,
+              lines: t.lines.length ? t.lines : ["\u2026"], width: width,
+              noteLines: s.note ? wrap(s.note, noteChars) : [] };
+          });
+          var maxLines = nodes.reduce(function (a, x) { return Math.max(a, x.lines.length); }, 1);
+          var height = maxLines * 20 + 28;
+          var padTop = 34;
+          var placed = nodes.map(function (x, i) {
+            return Object.assign({}, x, { x: 2 + i * (width + ARROW_GAP) });
+          });
+          var maxNote = placed.reduce(function (a, x) { return Math.max(a, x.noteLines.length); }, 0);
+          var totalW = 4 + n * width + (n - 1) * ARROW_GAP;
+          var totalH = padTop + height + (maxNote ? 22 + maxNote * 17 : 0) + 14;
+          return { nodes: placed, height: height, padTop: padTop, totalW: totalW, totalH: totalH,
+            nodeW: width, gapW: ARROW_GAP, maxLines: maxLines };
+        }
+        function nodeClass(kind) {
+          return "ve-n" + (kind === "fail" ? " fail" : kind === "result" ? " bad" : kind === "trigger" ? " trigger" : "");
+        }
+        function flowSvg(steps, label, L) {
+          var arrowY = L.padTop + L.height / 2;
+          var drawn = L.nodes.map(function (n, i) {
+            var kind = n.s.kind;
+            var lines = textRows(n);
+            var y0 = L.padTop + (L.height - lines.length * 20) / 2 + 10;
+            var prev = i > 0 ? L.nodes[i - 1] : null;
+            var hot = kind === "fail";
+            return [
+              prev
+                ? [
+                    svg("path", { class: "ve-e" + (hot ? " hot" : ""),
+                      d: "M" + (prev.x + prev.width) + " " + arrowY + "H" + n.x })
+                  ]
+                : null,
+              svg("g", { class: nodeClass(kind) },
+                svg("rect", { x: n.x, y: L.padTop, width: n.width, height: L.height, rx: 4 }),
+                lines.map(function (l, j) {
+                  return svg("text", { class: l[1], x: n.x + n.width / 2, y: y0 + j * 20 }, l[0]);
+                })),
+              kind === "fail" ? svg("text", { class: "ve-fail", x: n.x, y: L.padTop - 10 }, "✕ fails here") : null,
+              n.noteLines.map(function (nl, j) {
+                return svg("text", { class: "ve-note" + (kind === "fail" || kind === "result" ? " bad" : ""),
+                  x: n.x + n.width / 2, y: L.padTop + L.height + 22 + j * 17 }, nl);
+              })
+            ];
+          });
+          return svg("svg", { class: "ve-svg flow", style: "width:" + L.totalW + "px;max-width:none;min-width:0",
+            viewBox: "0 0 " + L.totalW + " " + L.totalH, role: "img", "aria-label": label }, drawn);
+        }
+
+        function flowLayoutVertical(steps, avail) {
+          var W = Math.floor(Math.min(Math.max(avail, 200), 420));
+          var nodeW = W - 6;
+          var chars = Math.max(10, Math.floor((nodeW - 32) / CH));
+          var noteChars = Math.max(12, Math.floor((nodeW - 8) / 8.2));
+          var nodes = steps.map(function (s, i) {
+            var t = flowText(s, chars, i > 0);
+            var lines = t.lines.length ? t.lines : ["…"];
+            var noteLines = s.note ? wrap(s.note, noteChars) : [];
+            var gap = i === 0 ? 0 : s.kind === "fail" ? 60 : 36;
+            return { s: s, verbLines: t.verbLines, labelLines: t.labelLines, codeLines: t.codeLines, lines: lines,
+              noteLines: noteLines, gap: gap,
+              height: lines.length * 20 + 28,
+              noteH: noteLines.length ? 8 + noteLines.length * 17 : 0 };
+          });
+          var placed = nodes.reduce(function (acc, n) {
+            var prev = acc.length ? acc[acc.length - 1] : null;
+            var y = prev ? prev.y + prev.height + prev.noteH + n.gap : 4;
+            return acc.concat([Object.assign({}, n, { y: y })]);
+          }, []);
+          var last = placed.length ? placed[placed.length - 1] : null;
+          var totalH = last ? last.y + last.height + last.noteH + 6 : 8;
+          return { W: W, nodeW: nodeW, nodes: placed, totalH: totalH };
+        }
+        function flowSvgVertical(label, V) {
+          var cx = V.W / 2;
+          var drawn = V.nodes.map(function (n, i) {
+            var kind = n.s.kind;
+            var prev = i > 0 ? V.nodes[i - 1] : null;
+            var hot = kind === "fail";
+            var lines = textRows(n);
+            var y0 = n.y + (n.height - lines.length * 20) / 2 + 10;
+            var arrowTop = prev ? prev.y + prev.height + prev.noteH : 0;
+            return [
+              prev
+                ? [
+                    svg("path", { class: "ve-e" + (hot ? " hot" : ""),
+                      d: "M" + cx + " " + arrowTop + "V" + n.y })
+                  ]
+                : null,
+              svg("g", { class: nodeClass(kind) },
+                svg("rect", { x: 3, y: n.y, width: V.nodeW, height: n.height, rx: 4 }),
+                lines.map(function (l, j) {
+                  return svg("text", { class: l[1], x: 3 + V.nodeW / 2, y: y0 + j * 20 }, l[0]);
+                })),
+              kind === "fail" ? svg("text", { class: "ve-fail", x: 3, y: n.y - 10 }, "✕ fails here") : null,
+              n.noteLines.map(function (nl, j) {
+                return svg("text", { class: "ve-note" + (kind === "fail" || kind === "result" ? " bad" : ""),
+                  x: cx, y: n.y + n.height + 22 + j * 17 }, nl);
+              })
+            ];
+          });
+          return svg("svg", { class: "ve-svg flow", style: "width:" + V.W + "px;max-width:none;min-width:0",
+            viewBox: "0 0 " + V.W + " " + V.totalH, role: "img", "aria-label": label }, drawn);
+        }
+
+        function frameAvail(frame) {
+          var cs = typeof getComputedStyle === "function" ? getComputedStyle(frame) : null;
+          var pad = cs ? (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0) : 0;
+          return Math.max(0, frame.clientWidth - pad);
+        }
+        function chooseFlow(steps, avail, canObserve) {
+          var H = canObserve ? flowLayout(steps, avail) : null;
+          return H
+            ? { mode: "h", key: "h" + H.nodeW + "-" + H.gapW, H: H, avail: avail }
+            : { mode: "v", key: "v" + Math.floor(Math.min(Math.max(avail, 200), 420)), V: flowLayoutVertical(steps, avail), avail: avail };
+        }
+        var flowEntries = [];
+        function drawFlow(entry) {
+          var avail = frameAvail(entry.frame);
+          if (avail <= 0) return;
+          var plan = chooseFlow(entry.steps, avail, typeof ResizeObserver === "function");
+          if (plan.key === entry.key) return;
+          entry.key = plan.key;
+          entry.frame.textContent = "";
+          entry.frame.appendChild(plan.mode === "h"
+            ? flowSvg(entry.steps, entry.label, plan.H)
+            : flowSvgVertical(entry.label, plan.V));
+        }
+        function flowFigure(f) {
+          var steps = arr(f.flow).filter(isObj);
+          var custom = typeof f.svg === "string" && f.svg.trim() !== "";
+          var body;
+          if (custom) {
+            body = el("div", { class: "custom-svg" });
+            body.innerHTML = f.svg;
+          } else if (steps.length) {
+            var label = str(f.id) + ": " + steps.map(function (s, i) {
+              return (i > 0 && s.verb ? "(" + s.verb + ") " : "") + (s.label || s.code || "step");
+            }).join(" → ");
+            flowEntries.push({ steps: steps, label: label, frame: null, key: null });
+            body = flowSvgVertical(label, flowLayoutVertical(steps, 320));
+          } else {
+            body = el("p", { class: "nodata" }, "No flow provided");
+          }
+          var frame = el("div", { class: "frame" }, body);
+          if (steps.length && !custom) flowEntries[flowEntries.length - 1].frame = frame;
+          return figure(frame, "Flow for " + str(f.id) + ", trigger to wrong result.");
+        }
+        /* ---------- findings ---------- */
+        function optionsOf(f) {
+          var list = arr(f.fixOptions).filter(isObj).filter(function (o) { return str(o.id) !== ""; });
+          var rec = list.filter(function (o) { return o.recommended === true; }).slice(0, 1);
+          var rest = list.filter(function (o) { return rec.indexOf(o) < 0; });
+          return rec.concat(rest).map(function (o) { return { o: o, rec: rec.indexOf(o) >= 0 }; });
+        }
+        var plans = findings.map(function (f) {
+          var opts = optionsOf(f);
+          return { f: f, opts: opts, chosen: opts.length ? str(opts[0].o.id) : null };
+        });
+        function chosenOption(p) {
+          var hit = p.opts.filter(function (x) { return str(x.o.id) === p.chosen; });
+          return hit.length ? hit[0].o : null;
+        }
+        function promptText() {
+          var lines = plans.filter(function (p) { return p.opts.length; }).map(function (p) {
+            var o = chosenOption(p);
+            return "- " + str(p.f.id) + " · " + str(p.f.file) + ":" + str(p.f.line) + " · " + str(p.f.title) +
+              " → " + str(o.label) + ": " + str(o.description);
+          });
+          return ['Apply this fix plan from the /pr-review review "' + title + '":'].concat(lines).join("\n");
+        }
+        var promptBox = null;
+        function refreshPrompt() { if (promptBox) promptBox.textContent = promptText(); }
+
+        function fixPlan(p, idx) {
+          var f = p.f;
+          if (!p.opts.length) {
+            return el("div", { class: "fixplan-empty" }, el("p", { class: "nodata" }, "No fix options provided"));
+          }
+          var hasPreview = p.opts.some(function (x) { return str(x.o.preview) !== ""; });
+          var box = hasPreview ? el("pre", { class: "preview", tabindex: "0", "aria-live": "polite" }) : null;
+          var showPreview = function (o) {
+            if (!box) return;
+            var text = str(o.preview);
+            box.classList.toggle("is-empty", text === "");
+            box.textContent = text !== "" ? text : "No preview for this option";
+          };
+          var group = "fix-" + idx;
+          var labels = p.opts.map(function (x) {
+            var o = x.o, oid = str(o.id);
+            var input = el("input", { type: "radio", name: group, value: oid, checked: oid === p.chosen });
+            var pick = function () { p.chosen = oid; showPreview(o); refreshPrompt(); };
+            input.addEventListener("change", pick);
+            input.addEventListener("focus", function () { showPreview(o); });
+            input.addEventListener("blur", function () { var c = chosenOption(p); if (c) showPreview(c); });
+            return el("label", { class: "opt" }, input,
+              el("span", { class: "opt-body" },
+                el("b", { class: "opt-label" }, str(o.label) + (x.rec ? " (Recommended)" : "")),
+                el("span", { class: "opt-desc" }, str(o.description))));
+          });
+          showPreview(chosenOption(p));
+          var fs = el("fieldset", { class: "fixplan" },
+            el("legend", {}, "How should " + str(f.id) + " be fixed?"),
+            el("div", { class: "opts" }, labels));
+          return hasPreview ? el("div", { class: "fix-grid" }, fs, box) : el("div", { class: "fix-single" }, fs);
+        }
+
+        function findingBlock(p, idx) {
+          var f = p.f;
+          var sev = str(f.severity), ver = str(f.verdict).toUpperCase();
+          var by = arr(f.foundBy).map(str).join(", ");
+          var rows = [
+            ["Defect", str(f.defect)],
+            ["Failure scenario", str(f.failureScenario)],
+            ["Suggested fix", str(f.fix)],
+            ["Context", str(f.context)],
+            ["Found by", by]
+          ].filter(function (r) { return r[1] !== ""; });
+          return el("article", { class: "finding", "aria-labelledby": "finding-h-" + idx },
+            el("h3", { id: "finding-h-" + idx }, str(f.id) + " · " + str(f.title)),
+            el("div", { class: "chips" },
+              chip(SEV_CHIP[sev] || "info", sev.charAt(0).toUpperCase() + sev.slice(1)),
+              chip(ver === "CONFIRMED" ? "ok" : ver === "PLAUSIBLE" ? "warn" : "info", ver),
+              str(f.category) ? el("span", { class: "tag" }, str(f.category)) : null,
+              el("code", { class: "tag" }, str(f.file) + ":" + str(f.line))),
+            flowFigure(f),
+            el("dl", { class: "details" }, rows.map(function (r) {
+              return el("div", { class: "drow" }, el("dt", {}, r[0]), el("dd", {}, r[1]));
+            })),
+            el("div", { class: "fixplan-wrap" }, fixPlan(p, idx)));
+        }
+
+        function copyPanel() {
+          var status = el("span", { class: "ve-label", role: "status" });
+          promptBox = el("pre", { class: "prompt", tabindex: "0", "aria-label": "Fix prompt" });
+          refreshPrompt();
+          var timer = null;
+          var say = function (msg) {
+            status.textContent = msg;
+            if (timer !== null) clearTimeout(timer);
+            timer = setTimeout(function () { status.textContent = ""; }, 2000);
+          };
+          var btn = el("button", { type: "button", class: "copy" }, "Copy");
+          btn.addEventListener("click", async function () {
+            try {
+              await navigator.clipboard.writeText(promptText());
+              say("Copied");
+            } catch (err) {
+              try {
+                var range = document.createRange();
+                range.selectNodeContents(promptBox);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+              } catch (e2) {}
+              say("Press ⌘C");
+            }
+          });
+          return el("div", { class: "prompt-panel" },
+            el("div", { class: "prompt-head" }, el("h3", {}, "Fix prompt"), el("div", { class: "prompt-actions" }, status, btn)),
+            promptBox);
+        }
+
+        function findingsSection() {
+          var withOpts = plans.some(function (p) { return p.opts.length; });
+          return section("findings", plural(findings.length, "finding"), "Findings",
+            el("div", { class: "finding-list" }, plans.map(findingBlock)),
+            withOpts ? copyPanel() : null);
+        }
+        function noFindings() {
+          return section("findings", "No findings", "Findings",
+            el("div", { class: "callout" }, chip("ok", "Clean"),
+              el("p", {}, "No findings survived verification. Charts, flow diagrams and the fix plan are omitted.")));
+        }
+
+        /* ---------- excluded ---------- */
+        function items(list, withBy) {
+          return el("div", { class: "items" }, list.map(function (r) {
+            var by = arr(r.foundBy).map(str).join(", ");
+            return el("div", { class: "item" },
+              el("span", { class: "where" }, str(r.file) + ":" + str(r.line)),
+              el("p", { class: "claim" }, str(r.claim)),
+              el("p", { class: "why" }, str(r.reason)),
+              withBy && by ? el("span", { class: "by" }, "Found by: " + by) : null);
+          }));
+        }
+        function rejectedSection() {
+          return section("rejected", "Rejected", plural(rejected.length, "candidate") + " failed verification",
+            el("details", {}, el("summary", {}, "Rejected by verification", el("span", { class: "n" }, String(rejected.length))),
+              items(rejected, true)));
+        }
+        function filteredSection() {
+          return section("filtered", "Filtered out", plural(filteredOut.length, "candidate") + " were not behavior bugs",
+            el("details", {}, el("summary", {}, "Filtered out — not behavior bugs", el("span", { class: "n" }, String(filteredOut.length))),
+              items(filteredOut, false)));
+        }
+
+        /* ---------- assemble ---------- */
+        var parts = [pageHeader(), nextAction(), numbers()]
+          .concat(hasFindings ? [charts()] : [])
+          .concat([funnel(), hasFindings ? findingsSection() : noFindings(), rejectedSection(), filteredSection()]);
+        var main = document.getElementById("cr-main");
+        parts.forEach(function (node) { main.appendChild(node); });
+
+        /* ---------- behavior ---------- */
+        flowEntries.forEach(drawFlow);
+        if (typeof ResizeObserver === "function") {
+          var flowTimer = null;
+          var ro = new ResizeObserver(function () {
+            if (flowTimer !== null) clearTimeout(flowTimer);
+            flowTimer = setTimeout(function () { flowEntries.forEach(drawFlow); }, 80);
+          });
+          flowEntries.forEach(function (e) { ro.observe(e.frame); });
+        }
+        var still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!still && "IntersectionObserver" in window) {
+          document.documentElement.classList.add("js-motion");
+          var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+              if (!e.isIntersecting) return;
+              io.unobserve(e.target);
+              e.target.classList.add("in");
+              e.target.querySelectorAll("[data-count]").forEach(function (node) {
+                var end = +node.dataset.count, t0 = performance.now();
+                var step = function (t) {
+                  var k = Math.min(1, (t - t0) / 900);
+                  node.textContent = Math.round(end * (1 - Math.pow(1 - k, 3))).toLocaleString("en-US");
+                  if (k < 1) requestAnimationFrame(step);
+                };
+                requestAnimationFrame(step);
+              });
+            });
+          }, { rootMargin: "0px 0px -10% 0px" });
+          document.querySelectorAll("main > *").forEach(function (node) { io.observe(node); });
+        }
+      })();
+    </script>
+  </body>
+</html>
