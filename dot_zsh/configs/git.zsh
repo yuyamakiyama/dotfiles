@@ -209,3 +209,17 @@ function _gw() {
   compadd -Q -- "${worktrees[@]}"
 }
 compdef _gw gw
+
+alias gst='git status'
+alias gcm='git commit'
+alias gco='git checkout'
+alias gps='git push'
+alias gpl='git pull'
+alias gad='git add'
+alias gbr='git branch'
+alias glo='git log'
+alias gdi='git diff'
+alias gre='git reset'
+alias gfe='git fetch'
+alias ggraph="git log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s'"
+alias gac='aicommits -a -t conventional'
