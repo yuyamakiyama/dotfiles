@@ -8,6 +8,11 @@ return {
         typescript = { "oxfmt" },
         typescriptreact = { "oxfmt" },
       },
+      formatters = {
+        oxfmt = {
+          require_cwd = true,
+        },
+      },
     },
   },
 }
