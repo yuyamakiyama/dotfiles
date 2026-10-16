@@ -43,3 +43,5 @@ end, { desc = "Copy relative path" })
 vim.keymap.set("n", "<leader>yP", function()
   copy_path("p", "Absolute path copied")
 end, { desc = "Copy absolute path" })
+
+vim.keymap.set("n", "<leader>bD", "<Cmd>BufferLineGroupClose ungrouped<CR>", { desc = "Delete Non-Pinned Buffers" })
