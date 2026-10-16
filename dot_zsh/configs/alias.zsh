@@ -1,7 +1,6 @@
 alias c='code .'
 alias d='docker exec -it $(docker ps |peco|awk "{print \$1}") bash'
 alias dsh='docker exec -it $(docker ps |peco|awk "{print \$1}") sh'
-alias g='git'
 alias dps='docker ps'
 alias dup='docker compose up -d'
 alias dst='docker compose stop'

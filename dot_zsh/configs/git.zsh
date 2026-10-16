@@ -210,16 +210,22 @@ function _gw() {
 }
 compdef _gw gw
 
-alias gst='git status'
-alias gcm='git commit'
-alias gco='git checkout'
-alias gps='git push'
-alias gpl='git pull'
-alias gad='git add'
-alias gbr='git branch'
-alias glo='git log'
-alias gdi='git diff'
-alias gre='git reset'
-alias gfe='git fetch'
-alias ggraph="git log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s'"
-alias gac='aicommits -a -t conventional'
+function g() {
+  case "$1" in
+    st) shift; git status "$@" ;;
+    cm) shift; git commit "$@" ;;
+    co) shift; git checkout "$@" ;;
+    ps) shift; git push "$@" ;;
+    pl) shift; git pull "$@" ;;
+    ad) shift; git add "$@" ;;
+    br) shift; git branch "$@" ;;
+    lo) shift; git log "$@" ;;
+    di) shift; git diff "$@" ;;
+    re) shift; git reset "$@" ;;
+    fe) shift; git fetch "$@" ;;
+    graph) shift; git log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s' "$@" ;;
+    ac) shift; aicommits -a -t conventional "$@" ;;
+    *) git "$@" ;;
+  esac
+}
+compdef g=git
