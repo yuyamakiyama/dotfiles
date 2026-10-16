@@ -359,7 +359,24 @@
       .flow .ve-e.hot { stroke: var(--accent); stroke-width: 2.5; }
       .flow .ve-e.dash { stroke-dasharray: 6 5; }
       .flow .ve-fail { fill: var(--risk); font: 600 14px var(--font-mono); }
-      .frame:has(.flow) { overflow-x: hidden; padding-block: 0; }
+      .frame:has(.flow) { overflow: auto; max-height: 60vh; padding-block: 0; }
+      .flow-wrap { position: relative; }
+      .flow-wrap > button.expand { position: absolute; top: var(--s-2); right: var(--s-2); z-index: 1; padding: var(--s-1) var(--s-3); }
+      dialog.flow-dlg {
+        width: 96vw; max-width: none; height: 92vh; max-height: none; padding: 0; margin: auto;
+        background: var(--bg); color: var(--text);
+        border: 1px solid var(--border-bright); border-radius: var(--r-2);
+      }
+      dialog.flow-dlg::backdrop { background: rgba(0, 0, 0, 0.6); }
+      dialog.flow-dlg[open] { display: flex; flex-direction: column; }
+      .flow-dlg .dlg-head {
+        display: flex; align-items: center; justify-content: space-between; gap: var(--s-4);
+        padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--border);
+        font: 500 var(--t-label) var(--font-mono); color: var(--text-dim);
+      }
+      .flow-dlg .dlg-body { flex: 1; overflow: auto; padding: var(--s-5); display: flex; }
+      .flow-dlg .dlg-body > * { margin: auto; }
+      .flow-dlg .dlg-body svg { max-width: none; }
 
       /* KPI strip */
       .kpis {
@@ -1266,11 +1283,10 @@
           return lines.reduce(function (a, l) { return Math.max(a, l.length); }, 0);
         }
         var STRIP = 6, FRAME_PAD_DEFAULT = 24, LABEL_UP = 21, EDGE = 1.5, DESC = 4, clipN = 0;
-        var NODE_MAX = 250, NODE_MIN = 120, ARROW_GAP = 32;
+        var NODE_MAX = 320, NODE_MIN = 280, ARROW_GAP = 32;
         function flowLayout(steps, avail, pad) {
           var n = steps.length;
-          var width = Math.min(NODE_MAX, Math.floor((avail - 4 - (n - 1) * ARROW_GAP) / n));
-          if (width < NODE_MIN) return null;
+          var width = Math.max(NODE_MIN, Math.min(NODE_MAX, Math.floor((avail - 4 - (n - 1) * ARROW_GAP) / n)));
           var chars = Math.max(10, Math.floor((width - 32) / CH));
           var noteChars = Math.max(10, Math.floor((width - 8) / 8.2));
           var nodes = steps.map(function (s, i) {
@@ -1428,6 +1444,23 @@
             ? flowSvg(entry.steps, entry.label, plan.H)
             : flowSvgVertical(entry.label, plan.V));
         }
+        var flowDlg = null;
+        function openFlow(title, frame) {
+          if (!flowDlg) {
+            var close = el("button", { type: "button", class: "copy", "aria-label": "Close" }, "\u2715 Close");
+            flowDlg = el("dialog", { class: "flow-dlg" },
+              el("div", { class: "dlg-head" }, el("span", { class: "dlg-title" }), close),
+              el("div", { class: "dlg-body" }));
+            close.addEventListener("click", function () { flowDlg.close(); });
+            flowDlg.addEventListener("click", function (e) { if (e.target === flowDlg) flowDlg.close(); });
+            document.body.appendChild(flowDlg);
+          }
+          flowDlg.querySelector(".dlg-title").textContent = title;
+          var body = flowDlg.querySelector(".dlg-body");
+          body.textContent = "";
+          Array.prototype.forEach.call(frame.childNodes, function (n) { body.appendChild(n.cloneNode(true)); });
+          flowDlg.showModal();
+        }
         function flowFigure(f) {
           var steps = arr(f.flow).filter(isObj);
           var custom = typeof f.svg === "string" && f.svg.trim() !== "";
@@ -1446,7 +1479,11 @@
           }
           var frame = el("div", { class: "frame" }, body);
           if (steps.length && !custom) flowEntries[flowEntries.length - 1].frame = frame;
-          return figure(frame, "Flow for " + str(f.id) + ", trigger to wrong result.");
+          if (!steps.length && !custom) return figure(frame, "Flow for " + str(f.id) + ", trigger to wrong result.");
+          var title = "Flow for " + str(f.id);
+          var btn = el("button", { type: "button", class: "copy expand", "aria-label": "Expand " + title }, "\u2922 Expand");
+          btn.addEventListener("click", function () { openFlow(title, frame); });
+          return figure(el("div", { class: "flow-wrap" }, btn, frame), title + ", trigger to wrong result.");
         }
         /* ---------- findings ---------- */
         function optionsOf(f) {
