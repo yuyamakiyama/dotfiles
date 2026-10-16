@@ -25,6 +25,7 @@ return {
         sources = {
           explorer = {
             hidden = true,
+            matcher = { fuzzy = true },
             layout = { layout = { width = 45, min_width = 45 } },
             format = function(item, picker)
               local ret = {} ---@type snacks.picker.Highlight[]
