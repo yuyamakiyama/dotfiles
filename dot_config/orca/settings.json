@@ -76,9 +76,7 @@
   "terminalLinkActionPopoverEnabled": true,
   "terminalLinkClickBehavior": "actions",
   "terminalUrlMiddleClickBehavior": "open",
-  "openAgentTabsInChatByDefault": false,
   "experimentalNativeChat": false,
-  "experimentalStructuredNativeChat": false,
   "nativeChatResumeWorkOnRestart": false,
   "nativeChatQueueFollowUps": true,
   "nativeChatInheritShellEnvironment": true,
@@ -247,6 +245,9 @@
         "commandInputTemplate": "{basePrompt}"
       },
       "resolveComments": {
+        "commandInputTemplate": "{basePrompt}"
+      },
+      "conversationName": {
         "commandInputTemplate": "{basePrompt}"
       }
     },
