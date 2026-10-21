@@ -34,7 +34,6 @@ Shared hooks and skills are canonical under `~/.claude`. The matching `~/.codex`
 - `skills/chezmoi/`
 - `skills/cmux/`
 - `skills/difit/`
-- `skills/nb/`
 - `skills/nvim/`
 - `skills/pr-status/`
 - `skills/stop-slop/`
