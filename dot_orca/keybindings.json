@@ -14,7 +14,7 @@
         "Mod+S"
       ],
       "workspace.rename": [
-        "Mod+B"
+        "Mod+Shift+B"
       ],
       "worktree.history.back": [],
       "worktree.history.forward": [],
@@ -29,6 +29,9 @@
       "tab.previousTerminal": [],
       "floatingTerminal.toggle": [
         "Mod+Shift+A"
+      ],
+      "tab.newBrowser": [
+        "Mod+B"
       ]
     },
     "linux": {},
