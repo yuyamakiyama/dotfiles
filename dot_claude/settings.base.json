@@ -66,7 +66,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'POST-COMPACT REMINDER: (1) Use bun, never npm. (2) bun typecheck output: ignore AuditLogs errors. (3) Branch naming: feat/ or fix/ prefix required. (4) Always run bun format before commit. (5) Current sprint: vacancy trigger config + reservation URL insert.'"
+            "command": "echo 'POST-COMPACT REMINDER: (1) Package manager: use the one the lockfile implies (package-lock.json = npm, yarn.lock = yarn, pnpm-lock.yaml = pnpm); bun only for new projects. (2) TypeScript: declarative code (no let, for, push, forEach or mutable accumulators); no type assertions (as, !). (3) Branch naming: Conventional Branch, type/description, lowercase and hyphenated, ticket ID first when there is one; types feat/ (preferred over feature/), fix/ (preferred over bugfix/), hotfix/, release/, chore/; no user-name prefix. (4) Git: Conventional Commits; stage specific paths, never git add -A or git add .; never force push unless rebasing; make new commits, never amend.'"
           }
         ]
       }
