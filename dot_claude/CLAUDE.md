@@ -46,6 +46,6 @@ Managed with [chezmoi](https://www.chezmoi.io/). Source repo: `~/ghq/github.com/
 - **NEVER force push** unless rebasing. Always create new commits instead of amending.
 - Never `git add -A` or `git add .` — stage specific paths so unrelated changes don't sneak into a commit.
 - Commit messages and PR titles follow [Conventional Commits](https://www.conventionalcommits.org/): `<type>(<scope>): <description>`.
-- Branch names follow [Conventional Branch](https://conventionalbranch.org/): `<type>/<description>`, lowercase, hyphen-separated, ticket ID first when there is one (e.g. `feature/spex-706-batch-search-results`, `chore/eslintignore-react-component`). Types: `feature/` (`feat/`), `bugfix/` (`fix/`), `hotfix/`, `release/`, `chore/`. No user-name prefix.
+- Branch names follow [Conventional Branch](https://conventionalbranch.org/): `<type>/<description>`, lowercase, hyphen-separated, ticket ID first when there is one (e.g. `feat/spex-706-batch-search-results`, `chore/eslintignore-react-component`). Types: `feat/` (preferred over `feature/`), `fix/` (preferred over `bugfix/`), `hotfix/`, `release/`, `chore/`. No user-name prefix.
 
 @DELEGATION.md
