@@ -71,8 +71,26 @@ const checkFixOptions = (options: unknown, path: string): string[] => {
   ];
 };
 
+const checkGlossaryEntry = (g: unknown, path: string): string[] =>
+  isRecord(g) ? requireStrings(g, ["term", "meaning"], path) : [`${path} must be an object`];
+
+const checkGlossary = (glossary: unknown): string[] => {
+  if (glossary === undefined) return [];
+  if (!Array.isArray(glossary)) return ["glossary must be an array"];
+  const terms = glossary.flatMap((g: unknown) =>
+    isRecord(g) && isNonEmptyString(g.term) ? [g.term.trim().toLowerCase()] : [],
+  );
+  const duplicates = terms.filter((t, i) => terms.indexOf(t) !== i);
+  return [
+    ...glossary.flatMap((g: unknown, i) => checkGlossaryEntry(g, `glossary[${i}]`)),
+    ...(duplicates.length > 0
+      ? [`glossary terms must be unique, case-insensitive (duplicate: ${[...new Set(duplicates)].join(", ")})`]
+      : []),
+  ];
+};
+
 const checkFinding = (f: Json, path: string): string[] => [
-  ...requireStrings(f, ["id", "title", "category", "verdict", "file", "defect", "failureScenario", "fix"], path),
+  ...requireStrings(f, ["id", "title", "category", "verdict", "file", "defect", "failureScenario", "fix", "plain"], path),
   ...(typeof f.severity === "string" && SEVERITIES.includes(f.severity)
     ? []
     : [`${path}.severity must be one of ${SEVERITIES.join("|")}`]),
@@ -94,7 +112,8 @@ const checkExcluded = (item: Json, path: string): string[] => [
 const validate = (data: unknown): string[] =>
   isRecord(data)
     ? [
-        ...requireStrings(data, ["title", "nextAction"], "data"),
+        ...requireStrings(data, ["title", "nextAction", "plainSummary"], "data"),
+        ...checkGlossary(data.glossary),
         ...section(data, "mr", (mr) => requireStrings(mr, ["title", "url", "branch", "target", "sha"], "mr")),
         ...section(data, "pipeline", (p) =>
           requireCounts(p, ["candidates", "afterDedupe", "kept", "rejected", "filteredOut"], "pipeline"),

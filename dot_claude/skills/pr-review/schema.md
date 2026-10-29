@@ -9,6 +9,8 @@ Render: `bun ~/.claude/skills/pr-review/scripts/render.ts <findings.json> <out.h
 | `mr.number` | number, optional | Not displayed |
 | `mr.filesChanged` | string[], optional | Denominator for the "Files affected" KPI squares |
 | `nextAction` | string | Single concrete next step |
+| `plainSummary` | string | Required. 1-3 short sentences: what the change does and the overall risk, in everyday words, no code names. Shown in the "In plain words" panel after the next action; glossary terms get tooltips |
+| `glossary` | `{ term, meaning }[]`, optional | Default empty. `meaning` is one plain sentence with no further jargon. Every jargon word in `plainSummary` or any `plain` needs an entry. The first whole-word, case-insensitive match per text block gets a tooltip; the full list is shown alphabetically in a "Glossary" section at the end, hidden when empty. Terms must be unique, case-insensitive |
 | `pipeline.candidates`, `afterDedupe`, `kept`, `rejected`, `filteredOut` | number | Funnel |
 | `pipeline.sources` | `{ [source]: number }`, optional | Candidate breakdown; `builtinCodeReview` and `logicBugHunt` get friendly names |
 | `stats` | object, optional | Ignored if present. The KPI strip is derived from the data: total = `findings.length`; critical + high = findings with those severities; files affected = distinct `findings[].file`; confirmation = `pipeline.kept` of `kept + rejected` |
@@ -26,6 +28,7 @@ Render: `bun ~/.claude/skills/pr-review/scripts/render.ts <findings.json> <out.h
 | `file` | string | Shown with `line` as `file:line` |
 | `line` | number or string | |
 | `defect`, `failureScenario`, `fix` | string | |
+| `plain` | string | Required for every non-rejected finding. 1-2 short sentences: what goes wrong for a person using the product, in everyday words, no code names. Shown as an "In plain words" line under the title; glossary terms get tooltips |
 | `context` | string, optional | |
 | `foundBy` | string[], optional | |
 | `flow` | step[], optional | Drawn left-to-right when the row fits the frame, otherwise top-to-bottom; re-laid out on resize; 2-8 steps |

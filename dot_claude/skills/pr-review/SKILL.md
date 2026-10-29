@@ -29,11 +29,11 @@ Run steps 1 and 2 in parallel.
 3. **Verify and enrich.** Merge the step-1 and step-2 findings and dedupe them on root cause. Move non-behavior findings to `filteredOut`, each with a reason. Dispatch a _different_ sonnet subagent with every remaining finding. For each finding it:
    - Reproduces the failure scenario by reading the code, and marks it CONFIRMED, PLAUSIBLE or REJECTED. For PLAUSIBLE, it names the external fact that would decide it.
    - Notes whether the behavior already exists on the target branch.
-   - For each finding that is not REJECTED, returns `title`, `flow` and `fixOptions`, in the shapes `schema.md` defines. `flow` labels use only real code names and facts from the scenario. `fixOptions` has 2–4 options, exactly one of them recommended.
+   - For each finding that is not REJECTED, returns `title`, `plain`, `flow` and `fixOptions`, in the shapes `schema.md` defines. `flow` labels use only real code names and facts from the scenario. `fixOptions` has 2–4 options, exactly one of them recommended. `plain` follows the "Plain-words rules" in `~/.claude/skills/explain-simply/SKILL.md`: 1–2 short sentences on what goes wrong for a person using the product, no code names.
 
    REJECTED findings go to `rejected`, each with a reason.
 
-4. **Report.** Write `<scratchpad>/pr-review-<target>/findings.json` following `~/.claude/skills/pr-review/schema.md`. Run `bun ~/.claude/skills/pr-review/scripts/render.ts <findings.json> <report.html>`. If it exits 1, fix the data and run it again. Publish `report.html` with the Artifact tool, using icon `code`. Republish to the same file path when the review is rerun on the same target.
+4. **Report.** Write `plainSummary` and `glossary` yourself, following explain-simply's plain-words rules: short words, short sentences, the effect users see, numbers over adjectives, and a glossary entry for every jargon word used in `plainSummary` or any `plain`. Write `<scratchpad>/pr-review-<target>/findings.json` following `~/.claude/skills/pr-review/schema.md`. Run `bun ~/.claude/skills/pr-review/scripts/render.ts <findings.json> <report.html>`. If it exits 1, fix the data and run it again. Publish `report.html` with the Artifact tool, using icon `code`. Republish to the same file path when the review is rerun on the same target.
 5. **Terminal reply.** Lead with the single next action. Then the artifact link and counts by severity. No findings table in the terminal.
 6. **`--fix` / `--comment`.** Only when they were passed. Apply to CONFIRMED findings only, using each finding's recommended fix option, and delegate the fixes to a sonnet subagent.
 7. **Fix prompt pasted back.** When the user pastes a prompt beginning `Apply this fix plan from the /pr-review review` (the combined prompt, or a single-finding prompt from a finding's "Copy prompt" button), apply each chosen option through a sonnet subagent. Lines with options like "Skip", "Keep as is" or "Ask … first" are not code changes; list them back to the user instead.
@@ -61,7 +61,7 @@ Report each finding as: `file:line`, severity (critical/high/medium/low), catego
 
 `template.html` holds all layout, CSS and JS. `render.ts` validates the data and injects it. `schema.md` defines every field. Never hand-write report HTML or edit the template during a review.
 
-Page order: header → next action → numbers → charts → verification funnel → findings (one block per finding: flow, details, fix plan, with a per-finding "Copy prompt" button) → fix prompt → rejected → filtered out. With zero findings, a "No findings" panel replaces charts and findings.
+Page order: header → next action → "In plain words" panel → numbers → charts → verification funnel → findings (one block per finding: plain-words line, flow, details, fix plan, with a per-finding "Copy prompt" button) → fix prompt → rejected → filtered out → glossary (hidden when empty). With zero findings, a "No findings" panel replaces charts and findings.
 
 To change the design, edit `template.html` and re-run `render.ts` on a saved `findings.json`. The design derives from visual-explainer v0.12.0 (MIT, see `visual-explainer/LICENSE`).
 
@@ -74,3 +74,4 @@ To change the design, edit `template.html` and re-run `render.ts` on a saved `fi
 | Reviewing the diff in isolation                 | Trace callers and callees; most logic bugs live at the boundary           |
 | The verifier is the same agent that found it    | Always use a separate verifier agent                                      |
 | Printing the full findings list in the terminal | Put it in the artifact; the terminal gets the next action and counts only |
+| Code names or jargon in plain text with no glossary entry | Rewrite in everyday words, or add a glossary entry |

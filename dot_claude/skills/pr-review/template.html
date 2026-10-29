@@ -856,6 +856,93 @@
         border-color: var(--accent);
         color: var(--accent);
       }
+      /* plain words */
+      .plain-panel p {
+        font-size: var(--t-lead);
+        line-height: 1.5;
+      }
+      .plain-line {
+        display: grid;
+        gap: var(--s-1);
+        padding: var(--s-2) var(--s-3);
+        border-left: 3px solid var(--accent);
+        background: var(--accent-dim);
+        border-radius: 0 var(--r-1) var(--r-1) 0;
+        max-width: 65ch;
+      }
+      .plain-line .ve-label {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent);
+      }
+      .plain-line p {
+        overflow-wrap: anywhere;
+      }
+      .term {
+        position: relative;
+        display: inline;
+        padding: 0;
+        border: 0;
+        background: none;
+        font: inherit;
+        color: inherit;
+        text-align: inherit;
+        cursor: help;
+        text-decoration: underline dotted;
+        text-decoration-color: var(--accent);
+        text-underline-offset: 0.22em;
+      }
+      .term [role="tooltip"] {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        z-index: 10;
+        width: min(18rem, calc(100vw - 32px));
+        padding: var(--s-2) var(--s-3);
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border-bright);
+        border-radius: var(--r-1);
+        box-shadow: 0 4px 16px var(--lift);
+        font: 400 var(--t-small)/1.45 var(--font-body);
+        text-align: left;
+        text-decoration: none;
+        white-space: normal;
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--fast) var(--ease);
+      }
+      .term:hover [role="tooltip"],
+      .term:focus-visible [role="tooltip"],
+      .term.open [role="tooltip"] {
+        visibility: visible;
+        opacity: 1;
+      }
+      .glossary {
+        columns: 18rem;
+        column-gap: var(--s-6);
+        margin: 0;
+      }
+      .glossary .grow {
+        break-inside: avoid;
+        padding: var(--s-1) 0;
+        overflow-wrap: anywhere;
+      }
+      .glossary dt,
+      .glossary dd {
+        display: inline;
+        margin: 0;
+      }
+      .glossary dt {
+        font-weight: 600;
+      }
+      .glossary dt::after {
+        content: ": ";
+      }
+      .glossary dd {
+        color: var(--text-dim);
+      }
       .err {
         padding: var(--s-5);
         color: var(--risk);
@@ -1025,6 +1112,58 @@
         var title = str(D.title) || "Code review";
         document.title = title;
 
+        /* ---------- glossary terms ---------- */
+        var glossary = arr(D.glossary).filter(isObj).filter(function (g) {
+          return str(g.term).trim() !== "" && str(g.meaning).trim() !== "";
+        });
+        var termN = 0;
+        var escapeRe = function (s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); };
+        function termMatches(text) {
+          var byLength = glossary.slice().sort(function (a, b) { return str(b.term).length - str(a.term).length; });
+          var chosen = byLength.reduce(function (acc, g) {
+            var re = new RegExp("(?<![\\p{L}\\p{N}_])" + escapeRe(str(g.term).trim()) + "(?![\\p{L}\\p{N}_])", "giu");
+            var hit = Array.from(text.matchAll(re))
+              .map(function (m) { return { start: m.index, end: m.index + m[0].length, entry: g }; })
+              .find(function (h) { return !acc.some(function (c) { return h.start < c.end && c.start < h.end; }); });
+            return hit === undefined ? acc : acc.concat(hit);
+          }, []);
+          return chosen.sort(function (a, b) { return a.start - b.start; });
+        }
+        function termButton(text, g) {
+          termN += 1;
+          var id = "g-" + termN;
+          return el("button", { type: "button", class: "term", "aria-describedby": id },
+            text, el("span", { role: "tooltip", id: id }, str(g.meaning)));
+        }
+        function termify(value) {
+          var text = str(value);
+          var matches = termMatches(text);
+          var tail = matches.reduce(function (acc, m) {
+            return {
+              pos: m.end,
+              nodes: acc.nodes.concat(text.slice(acc.pos, m.start), termButton(text.slice(m.start, m.end), m.entry))
+            };
+          }, { pos: 0, nodes: [] });
+          return tail.nodes.concat(text.slice(tail.pos)).filter(function (n) { return n !== ""; });
+        }
+        function placeTip(term) {
+          var tip = term.querySelector('[role="tooltip"]');
+          if (tip === null) return;
+          var r = term.getBoundingClientRect();
+          var w = tip.offsetWidth, h = tip.offsetHeight;
+          var vw = document.documentElement.clientWidth, vh = window.innerHeight;
+          var left = clamp(r.left, 16, Math.max(16, vw - 16 - w));
+          tip.style.left = (left - r.left) + "px";
+          var above = r.bottom + 6 + h > vh && r.top - 6 - h > 0;
+          tip.style.top = above ? "auto" : "calc(100% + 6px)";
+          tip.style.bottom = above ? "calc(100% + 6px)" : "auto";
+        }
+        function closeTerms(except) {
+          document.querySelectorAll(".term.open").forEach(function (t) {
+            if (t !== except) t.classList.remove("open");
+          });
+        }
+
         /* ---------- header ---------- */
         function pageHeader() {
           var url = safeUrl(MR.url);
@@ -1044,6 +1183,29 @@
         function nextAction() {
           return section("next", "Next action", "What to do first",
             el("div", { class: "callout" }, chip("info", "Next action"), el("p", {}, str(D.nextAction))));
+        }
+
+        /* ---------- plain words ---------- */
+        function plainPanel() {
+          return str(D.plainSummary).trim() === "" ? null
+            : section("plain", "In plain words", "The short version",
+                el("div", { class: "callout plain-panel" }, el("p", {}, termify(D.plainSummary))));
+        }
+        function plainLine(f) {
+          return str(f.plain).trim() === "" ? null
+            : el("div", { class: "plain-line" },
+                el("span", { class: "ve-label" }, "In plain words"),
+                el("p", {}, termify(f.plain)));
+        }
+        function glossarySection() {
+          var sorted = glossary.slice().sort(function (a, b) {
+            return str(a.term).toLowerCase().localeCompare(str(b.term).toLowerCase());
+          });
+          return sorted.length === 0 ? null
+            : section("glossary", "Glossary", plural(sorted.length, "term"),
+                el("dl", { class: "glossary" }, sorted.map(function (g) {
+                  return el("div", { class: "grow" }, el("dt", {}, str(g.term)), el("dd", {}, str(g.meaning)));
+                })));
         }
 
         /* ---------- numbers ---------- */
@@ -1604,6 +1766,7 @@
           ].filter(function (r) { return r[1] !== ""; });
           return el("article", { class: "finding", "aria-labelledby": "finding-h-" + idx },
             el("h3", { id: "finding-h-" + idx }, str(f.id) + " · " + str(f.title)),
+            plainLine(f),
             el("div", { class: "chips" },
               chip(SEV_CHIP[sev] || "info", sev.charAt(0).toUpperCase() + sev.slice(1)),
               chip(ver === "CONFIRMED" ? "ok" : ver === "PLAUSIBLE" ? "warn" : "info", ver),
@@ -1661,13 +1824,28 @@
         }
 
         /* ---------- assemble ---------- */
-        var parts = [pageHeader(), nextAction(), numbers()]
+        var parts = [pageHeader(), nextAction(), plainPanel(), numbers()]
           .concat(hasFindings ? [charts()] : [])
-          .concat([funnel(), hasFindings ? findingsSection() : noFindings(), rejectedSection(), filteredSection()]);
+          .concat([funnel(), hasFindings ? findingsSection() : noFindings(), rejectedSection(), filteredSection(), glossarySection()])
+          .filter(function (node) { return node !== null; });
         var main = document.getElementById("cr-main");
         parts.forEach(function (node) { main.appendChild(node); });
 
         /* ---------- behavior ---------- */
+        document.addEventListener("click", function (e) {
+          var term = e.target instanceof Element ? e.target.closest(".term") : null;
+          closeTerms(term);
+          if (term === null) return;
+          placeTip(term);
+          term.classList.toggle("open");
+        });
+        document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeTerms(null); });
+        ["mouseover", "focusin"].forEach(function (type) {
+          document.addEventListener(type, function (e) {
+            var term = e.target instanceof Element ? e.target.closest(".term") : null;
+            if (term !== null) placeTip(term);
+          });
+        });
         flowEntries.forEach(drawFlow);
         if (typeof ResizeObserver === "function") {
           var flowTimer = null;
