@@ -797,6 +797,9 @@
           grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         }
       }
+      .finding-copy {
+        margin-top: var(--s-3);
+      }
       pre.preview,
       pre.prompt {
         font: 400 var(--t-small)/1.5 var(--font-mono);
@@ -1511,6 +1514,44 @@
         var promptBox = null;
         function refreshPrompt() { if (promptBox) promptBox.textContent = promptText(); }
 
+        function findingPromptText(p) {
+          var o = chosenOption(p);
+          return [
+            'Apply this fix plan from the /pr-review review "' + title + '":',
+            str(p.f.id) + " · " + str(p.f.title),
+            str(p.f.file) + ":" + str(p.f.line),
+            str(p.f.defect),
+            str(o.label) + ": " + str(o.description)
+          ].join("\n");
+        }
+        function copyControl(label, getText, selectNode) {
+          var status = el("span", { class: "ve-label", role: "status" });
+          var timer = null;
+          var say = function (msg) {
+            status.textContent = msg;
+            if (timer !== null) clearTimeout(timer);
+            timer = setTimeout(function () { status.textContent = ""; }, 2000);
+          };
+          var btn = el("button", { type: "button", class: "copy" }, label);
+          btn.addEventListener("click", async function () {
+            try {
+              await navigator.clipboard.writeText(getText());
+              say("Copied");
+            } catch (err) {
+              if (!selectNode) { say("Copy failed"); return; }
+              try {
+                var range = document.createRange();
+                range.selectNodeContents(selectNode);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+              } catch (e2) {}
+              say("Press ⌘C");
+            }
+          });
+          return { status: status, btn: btn };
+        }
+
         function fixPlan(p, idx) {
           var f = p.f;
           if (!p.opts.length) {
@@ -1544,6 +1585,12 @@
           return hasPreview ? el("div", { class: "fix-grid" }, fs, box) : el("div", { class: "fix-single" }, fs);
         }
 
+        function findingCopy(p) {
+          if (!p.opts.length) return null;
+          var ctl = copyControl("Copy prompt", function () { return findingPromptText(p); }, null);
+          return el("div", { class: "prompt-actions finding-copy" }, ctl.btn, ctl.status);
+        }
+
         function findingBlock(p, idx) {
           var f = p.f;
           var sev = str(f.severity), ver = str(f.verdict).toUpperCase();
@@ -1566,35 +1613,14 @@
             el("dl", { class: "details" }, rows.map(function (r) {
               return el("div", { class: "drow" }, el("dt", {}, r[0]), el("dd", {}, r[1]));
             })),
-            el("div", { class: "fixplan-wrap" }, fixPlan(p, idx)));
+            el("div", { class: "fixplan-wrap" }, fixPlan(p, idx), findingCopy(p)));
         }
 
         function copyPanel() {
-          var status = el("span", { class: "ve-label", role: "status" });
           promptBox = el("pre", { class: "prompt", tabindex: "0", "aria-label": "Fix prompt" });
           refreshPrompt();
-          var timer = null;
-          var say = function (msg) {
-            status.textContent = msg;
-            if (timer !== null) clearTimeout(timer);
-            timer = setTimeout(function () { status.textContent = ""; }, 2000);
-          };
-          var btn = el("button", { type: "button", class: "copy" }, "Copy");
-          btn.addEventListener("click", async function () {
-            try {
-              await navigator.clipboard.writeText(promptText());
-              say("Copied");
-            } catch (err) {
-              try {
-                var range = document.createRange();
-                range.selectNodeContents(promptBox);
-                var sel = window.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(range);
-              } catch (e2) {}
-              say("Press ⌘C");
-            }
-          });
+          var ctl = copyControl("Copy", promptText, promptBox);
+          var status = ctl.status, btn = ctl.btn;
           return el("div", { class: "prompt-panel" },
             el("div", { class: "prompt-head" }, el("h3", {}, "Fix prompt"), el("div", { class: "prompt-actions" }, status, btn)),
             promptBox);

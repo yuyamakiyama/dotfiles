@@ -44,7 +44,7 @@ Findings are sorted critical to low and rendered one block each in `#findings`: 
 | `recommended` | boolean, optional | At most one per finding. Moved first and suffixed " (Recommended)"; default selection. Without one, the first option is selected |
 | `preview` | string, optional | Multi-line monospace text. If any option of a finding has one, that finding gets a side-by-side preview box (stacks under 700px); options without one show an empty-state line |
 
-The "Fix prompt" panel after the last finding builds one line per finding with options from the current selections. It is omitted when no finding has options.
+The "Fix prompt" panel after the last finding builds one line per finding with options from the current selections. It is omitted when no finding has options. Each finding with options also has a "Copy prompt" button that copies a standalone prompt for that finding from its current selection.
 
 ## flow step
 

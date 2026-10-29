@@ -1,0 +1,21 @@
+{
+  "ticket": "{{TICKET}}",
+  "slug": "{{SLUG}}",
+  "runId": "",
+  "emptyTicks": 0,
+  "config": {
+    "repoId": "{{REPO_ID}}",
+    "repoPath": "{{REPO_PATH}}",
+    "baseBranch": "{{BASE_BRANCH}}",
+    "host": "{{HOST}}",
+    "agent": "claude",
+    "models": { "builder": "sonnet", "reviewer": "sonnet", "heavy": "fable" },
+    "maxRunning": 6,
+    "branchPattern": "{{BRANCH_PATTERN}}",
+    "commitType": "{{COMMIT_TYPE}}",
+    "buildCmd": "{{BUILD_CMD}}",
+    "locCap": 300,
+    "review": "heavy-only"
+  },
+  "slices": []
+}
