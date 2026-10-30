@@ -33,7 +33,13 @@ Run steps 1 and 2 in parallel.
 
    REJECTED findings go to `rejected`, each with a reason.
 
-4. **Report.** Write `plainSummary` and `glossary` yourself, following explain-simply's plain-words rules: short words, short sentences, the effect users see, numbers over adjectives, and a glossary entry for every jargon word used in `plainSummary` or any `plain`. Write `<scratchpad>/pr-review-<target>/findings.json` following `~/.claude/skills/pr-review/schema.md`. Run `bun ~/.claude/skills/pr-review/scripts/render.ts <findings.json> <report.html>`. If it exits 1, fix the data and run it again. Publish `report.html` with the Artifact tool, using icon `code`. Republish to the same file path when the review is rerun on the same target.
+4. **Report.** Write `plainSummary` and `glossary` yourself, following explain-simply's plain-words rules: short words, short sentences, the effect users see, numbers over adjectives, and a glossary entry for every jargon word used in `plainSummary` or any `plain`. Write `<scratchpad>/pr-review-<target>/findings.json` following `~/.claude/skills/pr-review/schema.md`. Run `bun ~/.claude/skills/pr-review/scripts/render.ts <findings.json> <report.html>`. If it exits 1, fix the data and run it again. Then publish `report.html` with the Artifact tool:
+   - **Same session rerun:** republish the same file path; the URL stays.
+   - **Earlier review exists:** compute the review key: the PR/MR URL (resolved as in step 8), or with no PR/MR, `<git remote get-url origin>#<branch>`. Read `~/.local/share/pr-review/artifacts.json` with the Read tool (a JSON object of key → artifact URL; a missing file means no entry). If the key has a URL, `read` it, then publish with `url` set to it and no `icon`, so the existing artifact is updated in place. If the read or publish is refused because the artifact was deleted or is not writable, fall through to a new publish.
+   - **Otherwise:** publish a new artifact with icon `code`.
+
+   After every successful publish, set the key to the published URL in `~/.local/share/pr-review/artifacts.json` with the Write tool, keeping the other entries. Keys hold untrusted PR and branch text, so never pass them through the shell.
+
 5. **Terminal reply.** Lead with the single next action. Then the artifact link and counts by severity. No findings table in the terminal.
 6. **`--fix` / `--comment`.** Only when they were passed. Apply to CONFIRMED findings only, using each finding's recommended fix option, and delegate the fixes to a sonnet subagent.
 7. **Fix prompt pasted back.** When the user pastes a prompt beginning `Apply this fix plan from the /pr-review review` (the combined prompt, or a single-finding prompt from a finding's "Copy prompt" button), apply each chosen option through a sonnet subagent. Lines with options like "Skip", "Keep as is" or "Ask … first" are not code changes; list them back to the user instead.
@@ -74,11 +80,12 @@ To change the design, edit `template.html` and re-run `render.ts` on a saved `fi
 
 ## Common mistakes
 
-| Mistake                                         | Fix                                                                       |
-| ----------------------------------------------- | ------------------------------------------------------------------------- |
-| Style, naming or idiom nits                     | Out of scope; report only behavior-changing bugs                          |
-| A finding with no concrete failure scenario     | Drop it, or verify it until a scenario exists                             |
-| Reviewing the diff in isolation                 | Trace callers and callees; most logic bugs live at the boundary           |
-| The verifier is the same agent that found it    | Always use a separate verifier agent                                      |
-| Printing the full findings list in the terminal | Put it in the artifact; the terminal gets the next action and counts only |
-| Code names or jargon in plain text with no glossary entry | Rewrite in everyday words, or add a glossary entry |
+| Mistake                                                   | Fix                                                                       |
+| --------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Style, naming or idiom nits                               | Out of scope; report only behavior-changing bugs                          |
+| A finding with no concrete failure scenario               | Drop it, or verify it until a scenario exists                             |
+| Reviewing the diff in isolation                           | Trace callers and callees; most logic bugs live at the boundary           |
+| The verifier is the same agent that found it              | Always use a separate verifier agent                                      |
+| A new artifact URL for a PR already reviewed              | Look up `~/.local/share/pr-review/artifacts.json` first (step 4)          |
+| Printing the full findings list in the terminal           | Put it in the artifact; the terminal gets the next action and counts only |
+| Code names or jargon in plain text with no glossary entry | Rewrite in everyday words, or add a glossary entry                        |
