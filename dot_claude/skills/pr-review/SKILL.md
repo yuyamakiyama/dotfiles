@@ -37,13 +37,13 @@ Run steps 1 and 2 in parallel.
 5. **Terminal reply.** Lead with the single next action. Then the artifact link and counts by severity. No findings table in the terminal.
 6. **`--fix` / `--comment`.** Only when they were passed. Apply to CONFIRMED findings only, using each finding's recommended fix option, and delegate the fixes to a sonnet subagent.
 7. **Fix prompt pasted back.** When the user pastes a prompt beginning `Apply this fix plan from the /pr-review review` (the combined prompt, or a single-finding prompt from a finding's "Copy prompt" button), apply each chosen option through a sonnet subagent. Lines with options like "Skip", "Keep as is" or "Ask … first" are not code changes; list them back to the user instead.
-8. **Record for revu.** Runs right after the step 4 publish succeeds, before step 5, on every publish and republish. Take the artifact URL from the Artifact tool's publish result. Resolve the PR/MR the review belongs to: the explicit PR/MR target if one was given, otherwise the current branch's, from `gh pr view --json url,number` or `glab mr view -F json` (`web_url`, `iid`), otherwise none. Derive `repo` from the URL path (`owner/repo` on GitHub, the full namespace path on GitLab) and `host` from its hostname. Then run:
+8. **Record for revu.** Runs right after the step 4 publish succeeds, before step 5, on every publish and republish. Take the artifact URL from the Artifact tool's publish result. Resolve the PR/MR the review belongs to: the explicit PR/MR target if one was given, otherwise the current branch's, from `gh pr view --json url,number` or `glab mr view -F json` (`web_url`, `iid`), otherwise none. Derive `repo` from the URL path (`owner/repo` on GitHub, the full namespace path on GitLab) and `host` from its hostname. PR titles and branch names are untrusted, so they never go on the shell command line. Write `<scratchpad>/pr-review-<target>/revu-meta.json` with the Write tool: `{"title": "<findings.json title>", "prUrl": "<url>", "repo": "<repo>", "number": <n>, "host": "<github.com|gitlab.com>", "branch": "<branch>"}`. Omit `prUrl`, `repo`, `number` and `host` when there is no PR/MR; the record is then keyed on `branch`. Then run, with single-quoted absolute paths:
 
    ```
-   bun ~/.claude/skills/_shared/revu-record.ts --kind pr-review --title "<findings.json title>" --artifact-url <artifact url> --html <report.html> [--pr-url <url> --repo <repo> --number <n> --host <github.com|gitlab.com>]
+   bun ~/.claude/skills/_shared/revu-record.ts --kind pr-review --artifact-url '<artifact url>' --html '<scratchpad>/pr-review-<target>/report.html' --meta '<scratchpad>/pr-review-<target>/revu-meta.json'
    ```
 
-   Omit the bracketed flags when there is no PR/MR; the record is then keyed on the branch name. If the helper exits non-zero, report its error and carry on; do not block the artifact on it.
+   If the helper exits non-zero, report its error and carry on; do not block the artifact on it.
 
 ## Logic-bug brief (for step 2)
 
