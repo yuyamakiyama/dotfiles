@@ -20,6 +20,13 @@ Input: one URL (Jira issue, GitLab issue/MR, GitHub issue/PR). If no URL is give
 5. **Open the artifact in Orca.** Run `orca tab create --url <artifact url> --json` so the artifact opens in a new tab beside the ticket tab. On a republish, switch to the existing artifact tab (`orca tab list --json`, then `orca tab switch --index <n> --json`) and run `orca reload --json` instead of opening another tab.
 6. **Terminal reply.** Lead with the single next action (usually "answer the questions in the artifact and paste the prompt back"). Then the artifact link and the question count. No ticket summary in the terminal.
 7. **Answers pasted back.** When the user pastes a prompt beginning `Answers for the /ticket-kickoff questions on`, treat each line as a decision. Restate the resulting scope in one table, then ask whether to start implementation.
+8. **Record for revu.** Runs right after the step 4 publish succeeds, before step 5, on every publish and republish. Take the artifact URL from the Artifact tool's publish result and run:
+
+   ```
+   bun ~/.claude/skills/_shared/revu-record.ts --kind ticket-kickoff --title "<KEY> <title>" --artifact-url <artifact url> --html <scratchpad>/ticket-<KEY>/index.html [--ticket-key <KEY>] [--pr-url <url>]
+   ```
+
+   Pass `--ticket-key` with the Jira key (or the key in the GitLab/GitHub title or branch name); omit it when there is none. Pass `--pr-url` only when the input URL is a PR/MR. If the helper exits non-zero, report its error and carry on; do not block the artifact on it.
 
 ## Artifact sections
 
