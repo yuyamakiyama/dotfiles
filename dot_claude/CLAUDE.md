@@ -7,6 +7,8 @@
 - Push back when you see a better approach or when a request is unrealistic. Propose alternatives instead of blindly complying.
 - Use tables, ASCII diagrams, and visual formatting to make responses easy to scan.
 - When writing a doc (Claude Docs), always include visuals: diagrams for flows, architecture, and sequences; screenshots when runtime evidence exists; tables for comparisons. Text-only docs are not acceptable.
+- Never post anything others can see without my explicit go on that specific action and text: MR/PR creation, thread replies, comments, resolving threads, title/description edits, Jira issues or comments, Slack messages. Draft it in chat first and wait. Choosing a fix approach is not approval to reply about it, and an earlier go does not carry over. Brief subagents to draft only, never post.
+- Pushing commits I asked for is fine; ask before pushing anything else.
 
 ## Agent & Skills Usage
 
