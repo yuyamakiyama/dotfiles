@@ -108,7 +108,8 @@
     "insecure-defaults@trailofbits": true,
     "variant-analysis@trailofbits": true,
     "static-analysis@trailofbits": true,
-    "differential-review@trailofbits": true
+    "differential-review@trailofbits": true,
+    "cloudflare@cloudflare": true
   },
   "language": "English",
   "skipDangerousModePermissionPrompt": true,
@@ -135,8 +136,22 @@
         "repo": "trailofbits/skills"
       },
       "autoUpdate": true
+    },
+    "cloudflare": {
+      "source": {
+        "source": "github",
+        "repo": "cloudflare/skills"
+      }
+    },
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
     }
   },
   "switchModelsOnFlag": false,
-  "theme": "dark"
+  "theme": "dark",
+  "idleCompaction": false,
+  "autoContinueAtUsageLimit": false
 }
