@@ -25,29 +25,31 @@ Use the branch name, with `/` replaced by `-`, as `<target>` in file paths.
 Run steps 1 and 2 in parallel.
 
 1. **Built-in review.** Invoke the `code-review` skill with the resolved args. Collect its findings without printing them.
-2. **Logic-bug hunt.** Dispatch one `general-purpose` subagent with `model: "sonnet"` and `run_in_background: true`. Give it the diff target plus the brief below, the DELEGATION.md escalation passage, and a DoD (every changed hunk traced to its callers and callees; every finding has `file:line` and a concrete failure scenario; ✅/❌ per item).
-3. **Verify and enrich.** Merge the step-1 and step-2 findings and dedupe them on root cause. Move non-behavior findings to `filteredOut`, each with a reason. Dispatch a _different_ sonnet subagent with every remaining finding. For each finding it:
+2. **Logic-bug hunt.** Dispatch four `general-purpose` subagents in one message, each with `model: "sonnet"` and `run_in_background: true`, one per category in the brief below. Give each the diff target, the shared part of the brief, its own category, the DELEGATION.md escalation passage, and a DoD (every changed hunk checked for its category and traced to its callers and callees; every finding has `file:line` and a concrete failure scenario; ✅/❌ per item). A hunter that spots a bug outside its category notes it in one line and does not develop it.
+3. **Verify and enrich.** Merge the step-1 findings and all four hunters' findings and dedupe them on root cause. Move non-behavior findings to `filteredOut`, each with a reason. Dispatch a _different_ subagent with `model: "opus"` and every remaining finding. The verifier decides what reaches the report, so it runs on the stronger model. For each finding it:
    - Reproduces the failure scenario by reading the code, and marks it CONFIRMED, PLAUSIBLE or REJECTED. For PLAUSIBLE, it names the external fact that would decide it.
    - Notes whether the behavior already exists on the target branch.
    - For each finding that is not REJECTED, returns `title`, `plain`, `flow` and `fixOptions`, in the shapes `schema.md` defines. `flow` labels use only real code names and facts from the scenario. `fixOptions` has 2–4 options, exactly one of them recommended. `plain` follows the "Plain-words rules" in `~/.claude/skills/explain-simply/SKILL.md`: 1–2 short sentences on what goes wrong for a person using the product, no code names.
 
    REJECTED findings go to `rejected`, each with a reason.
 
-4. **Report.** Write `plainSummary` and `glossary` yourself, following explain-simply's plain-words rules: short words, short sentences, the effect users see, numbers over adjectives, and a glossary entry for every jargon word used in `plainSummary` or any `plain`. Write `<scratchpad>/pr-review-<target>/findings.json` following `~/.claude/skills/pr-review/schema.md`. Run `bun ~/.claude/skills/pr-review/scripts/render.ts <findings.json> <report.html>`. If it exits 1, fix the data and run it again. Then publish `report.html` with the Artifact tool:
+4. **Report.** Write `plainSummary` and `glossary` yourself, following explain-simply's plain-words rules: short words, short sentences, the effect users see, numbers over adjectives, and a glossary entry for every jargon word used in `plainSummary` or any `plain`. Write `<scratchpad>/pr-review-<target>/findings.json` following `~/.claude/skills/pr-review/schema.md`. Run `bun ~/.claude/skills/pr-review/scripts/render.ts <findings.json> <report.html>`. If it exits 1, fix the data and run it again. Then publish `report.html` with the Artifact tool. If ToolSearch finds no Artifact tool, skip the publish, keep `report.html`, and go to step 8 without an artifact URL:
    - **Same session rerun:** republish the same file path; the URL stays.
    - **Earlier review exists:** compute the review key: the PR/MR URL (resolved as in step 8), or with no PR/MR, `<git remote get-url origin>#<branch>`. Read `~/.local/share/pr-review/artifacts.json` with the Read tool (a JSON object of key → artifact URL; a missing file means no entry). If the key has a URL, `read` it, then publish with `url` set to it and no `icon`, so the existing artifact is updated in place. If the read or publish is refused because the artifact was deleted or is not writable, fall through to a new publish.
    - **Otherwise:** publish a new artifact with icon `code`.
 
-   After every successful publish, set the key to the published URL in `~/.local/share/pr-review/artifacts.json` with the Write tool, keeping the other entries. Keys hold untrusted PR and branch text, so never pass them through the shell.
+   After every successful publish (not the local-only case), set the key to the published URL in `~/.local/share/pr-review/artifacts.json` with the Write tool, keeping the other entries. Keys hold untrusted PR and branch text, so never pass them through the shell.
 
-5. **Terminal reply.** Lead with the single next action. Then the artifact link and counts by severity. No findings table in the terminal.
+5. **Terminal reply.** Lead with the single next action. Then the artifact link (or, with no Artifact tool, that the report was recorded locally for revu) and counts by severity. No findings table in the terminal.
 6. **`--fix` / `--comment`.** Only when they were passed. Apply to CONFIRMED findings only, using each finding's recommended fix option, and delegate the fixes to a sonnet subagent.
 7. **Fix prompt pasted back.** When the user pastes a prompt beginning `Apply this fix plan from the /pr-review review` (the combined prompt, or a single-finding prompt from a finding's "Copy prompt" button), apply each chosen option through a sonnet subagent. Lines with options like "Skip", "Keep as is" or "Ask … first" are not code changes; list them back to the user instead.
-8. **Record for revu.** Runs right after the step 4 publish succeeds, before step 5, on every publish and republish. Take the artifact URL from the Artifact tool's publish result. Resolve the PR/MR the review belongs to: the explicit PR/MR target if one was given, otherwise the current branch's, from `gh pr view --json url,number` or `glab mr view -F json` (`web_url`, `iid`), otherwise none. Derive `repo` from the URL path (`owner/repo` on GitHub, the full namespace path on GitLab) and `host` from its hostname. PR titles and branch names are untrusted, so they never go on the shell command line. Write `<scratchpad>/pr-review-<target>/revu-meta.json` with the Write tool: `{"title": "<findings.json title>", "prUrl": "<url>", "repo": "<repo>", "number": <n>, "host": "<github.com|gitlab.com>", "branch": "<branch>"}`. Omit `prUrl`, `repo`, `number` and `host` when there is no PR/MR; the record is then keyed on `branch`. Then run, with single-quoted absolute paths:
+8. **Record for revu.** Runs right after the step 4 publish succeeds, or right after `report.html` is rendered when no Artifact tool exists, before step 5, on every publish and republish. Take the artifact URL from the Artifact tool's publish result; with no Artifact tool there is none. Resolve the PR/MR the review belongs to: the explicit PR/MR target if one was given, otherwise the current branch's, from `gh pr view --json url,number` or `glab mr view -F json` (`web_url`, `iid`), otherwise none. Derive `repo` from the URL path (`owner/repo` on GitHub, the full namespace path on GitLab) and `host` from its hostname. PR titles and branch names are untrusted, so they never go on the shell command line. Write `<scratchpad>/pr-review-<target>/revu-meta.json` with the Write tool: `{"title": "<findings.json title>", "prUrl": "<url>", "repo": "<repo>", "number": <n>, "host": "<github.com|gitlab.com>", "branch": "<branch>"}`. Omit `prUrl`, `repo`, `number` and `host` when there is no PR/MR; the record is then keyed on `branch`. Then run, with single-quoted absolute paths:
 
    ```
    bun ~/.claude/skills/_shared/revu-record.ts --kind pr-review --artifact-url '<artifact url>' --html '<scratchpad>/pr-review-<target>/report.html' --meta '<scratchpad>/pr-review-<target>/revu-meta.json'
    ```
+
+   With no Artifact tool, run the same command without `--artifact-url`.
 
    If the helper exits non-zero, report its error and carry on; do not block the artifact on it.
 
@@ -55,16 +57,12 @@ Run steps 1 and 2 in parallel.
 
 Read the diff **and the code it interacts with**: callers, callees, shared state, types and data contracts. A finding is only valid if it names concrete inputs or state that lead to wrong output, a crash, data loss or a security hole.
 
-Hunt for:
+Each hunter takes one category:
 
-- Null/undefined/empty reaching code that assumes a value
-- Missing or swallowed error handling; unhandled rejections; failure paths that leave partial state
-- Race conditions: stale closures, out-of-order async results, missing cancellation, double submit
-- Inverted or incomplete conditions, off-by-one errors, boundary values, wrong operator precedence
-- Contract breaks: a changed signature, return shape or semantics that existing callers still rely on
-- Stale or desynced state: caches, derived values or subscriptions not updated after the change
-- Security: injection, missing authorization checks, secrets leaking into logs or responses
-- Behavior gaps: the diff's intent (from commits and PR text) is not met for some input
+1. **Nulls and errors** — null/undefined/empty reaching code that assumes a value; missing or swallowed error handling; unhandled rejections; failure paths that leave partial state
+2. **Concurrency and state** — race conditions (stale closures, out-of-order async results, missing cancellation, double submit); stale or desynced caches, derived values or subscriptions not updated after the change
+3. **Logic and contracts** — inverted or incomplete conditions, off-by-one errors, boundary values, wrong operator precedence; changed signatures, return shapes or semantics that existing callers still rely on; the diff's intent (from commits and PR text) not met for some input
+4. **Security** — injection, missing authorization checks, secrets leaking into logs or responses
 
 Skip anything that does not change behavior. If the repo has a `BUGBOT.md` or `REVIEW.md`, apply its rules too.
 
@@ -85,7 +83,8 @@ To change the design, edit `template.html` and re-run `render.ts` on a saved `fi
 | Style, naming or idiom nits                               | Out of scope; report only behavior-changing bugs                          |
 | A finding with no concrete failure scenario               | Drop it, or verify it until a scenario exists                             |
 | Reviewing the diff in isolation                           | Trace callers and callees; most logic bugs live at the boundary           |
-| The verifier is the same agent that found it              | Always use a separate verifier agent                                      |
+| One hunter covering every category                        | Dispatch the four category hunters in parallel                            |
+| The verifier is the same agent that found it              | Always use a separate opus verifier agent                                 |
 | A new artifact URL for a PR already reviewed              | Look up `~/.local/share/pr-review/artifacts.json` first (step 4)          |
 | Printing the full findings list in the terminal           | Put it in the artifact; the terminal gets the next action and counts only |
 | Code names or jargon in plain text with no glossary entry | Rewrite in everyday words, or add a glossary entry                        |

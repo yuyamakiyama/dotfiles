@@ -10,7 +10,7 @@ type ArtifactRecord = {
   readonly id: string;
   readonly kind: Kind;
   readonly title: string;
-  readonly artifactUrl: string;
+  readonly artifactUrl?: string;
   readonly ticketKey?: string;
   readonly prUrl?: string;
   readonly repo?: string;
@@ -34,7 +34,7 @@ const FLAGS = ["kind", "artifact-url", "html", "meta"];
 const HOST_SHORT: Readonly<Record<Host, string>> = { "github.com": "gh", "gitlab.com": "gl" };
 
 const usage =
-  "usage: bun revu-record.ts --kind <ticket-kickoff|pr-review> --artifact-url <url> --html <path> --meta <path.json>\nmeta fields: title, ticketKey?, prUrl?, repo?, number?, host?, branch?";
+  "usage: bun revu-record.ts --kind <ticket-kickoff|pr-review> [--artifact-url <url>] --html <path> --meta <path.json>\nmeta fields: title, ticketKey?, prUrl?, repo?, number?, host?, branch?";
 
 const fail = (message: string): never => {
   process.stderr.write(`revu-record: ${message}\n${usage}\n`);
@@ -140,7 +140,7 @@ const problems = (record: ArtifactRecord): readonly string[] =>
   [
     ID_PATTERN.test(record.id) ? null : `id "${record.id}" does not match ${ID_PATTERN}`,
     record.title.trim() === "" ? "title is empty" : null,
-    isPlainHttps(record.artifactUrl) && parseUrl(record.artifactUrl)?.hostname === "claude.ai"
+    record.artifactUrl === undefined || (isPlainHttps(record.artifactUrl) && parseUrl(record.artifactUrl)?.hostname === "claude.ai")
       ? null
       : "artifactUrl must be an https URL on claude.ai without credentials",
     record.prUrl === undefined || isPlainHttps(record.prUrl) ? null : "prUrl must be an https URL without credentials",
@@ -154,7 +154,7 @@ const main = async (argv: readonly string[]): Promise<void> => {
   const flags = parseFlags(argv);
   const kindFlag = flags["kind"] ?? "";
   const kind = isKind(kindFlag) ? kindFlag : fail("--kind must be ticket-kickoff or pr-review");
-  const artifactUrl = flags["artifact-url"] ?? fail("--artifact-url is required");
+  const artifactUrl = flags["artifact-url"];
   const htmlPath = flags["html"] ?? fail("--html is required");
   const metaPath = flags["meta"] ?? fail("--meta is required");
 
@@ -170,7 +170,7 @@ const main = async (argv: readonly string[]): Promise<void> => {
     id: buildId(kind, meta, host, meta.branch ?? currentBranch(), now),
     kind,
     title,
-    artifactUrl,
+    ...(artifactUrl !== undefined ? { artifactUrl } : {}),
     ...(meta.ticketKey !== undefined ? { ticketKey: meta.ticketKey } : {}),
     ...(meta.prUrl !== undefined ? { prUrl: meta.prUrl } : {}),
     ...(meta.repo !== undefined ? { repo: meta.repo } : {}),
