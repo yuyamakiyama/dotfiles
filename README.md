@@ -62,7 +62,7 @@ settings.base.json ──► merge script (jq: live * base) ──► ~/.claude/
 
 Gotcha: the merge never deletes keys from live (only adds and overwrites with base values), so removing a key from the base alone leaves it in the live file. Editing live alone gets reverted on the next base change.
 
-Enabled plugins: `typescript-lsp`, `clangd-lsp`, `frontend-design`, `skill-creator`, `codex`, `i-have-adhd`, `agent-teams`. `superpowers` is set to `false`; four of its skills are vendored instead (below).
+Enabled plugins: `typescript-lsp`, `clangd-lsp`, `frontend-design`, `skill-creator`, `codex`, `i-have-adhd`. The `superpowers` plugin is uninstalled; four of its skills are vendored instead (below).
 
 ## Vendored Skills
 
