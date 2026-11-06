@@ -32,8 +32,6 @@ Shared hooks and skills are canonical under `~/.claude`. The matching `~/.codex`
 - `hooks/block-japanese-commit.ts`
 - `hooks/flag-redundant-comments.ts`
 - `skills/chezmoi/`
-- `skills/cmux/`
-- `skills/difit/`
 - `skills/nvim/`
 - `skills/pr-status/`
 - `skills/stop-slop/`
@@ -46,6 +44,38 @@ Machine-specific trusted project paths are not in the repo either — they rende
 [data]
     codexTrustedProjects = ["/path/to/repo"]
 ```
+
+## Claude Code Settings
+
+`~/.claude/settings.json` is not managed directly. `dot_claude/settings.base.json` is merged into it by `run_onchange_after_claude-settings-merge.sh.tmpl` whenever the base changes:
+
+```
+settings.base.json ──► merge script (jq: live * base) ──► ~/.claude/settings.json
+  (chezmoi source)       base wins on conflict             (live; Claude Code and Orca also write here)
+```
+
+| Want to...                      | Do this                                                                            |
+| ------------------------------- | ---------------------------------------------------------------------------------- |
+| Enable/disable a plugin         | Edit `enabledPlugins` in `settings.base.json`, then `chezmoi apply`                |
+| Remove a plugin or setting key  | Delete it from `settings.base.json` **and** from the live `~/.claude/settings.json` |
+| Change a value only in live     | Don't — the next base change reverts it                                            |
+
+Gotcha: the merge never deletes keys from live (only adds and overwrites with base values), so removing a key from the base alone leaves it in the live file. Editing live alone gets reverted on the next base change.
+
+Enabled plugins: `typescript-lsp`, `clangd-lsp`, `frontend-design`, `skill-creator`, `codex`, `i-have-adhd`, `agent-teams`. `superpowers` is set to `false`; four of its skills are vendored instead (below).
+
+## Vendored Skills
+
+Copied from the [superpowers](https://github.com/obra/superpowers) plugin (MIT, Jesse Vincent) into `dot_claude/skills/`, each with its own `LICENSE-superpowers.md`:
+
+| Skill                          | Differences from upstream                                                     |
+| ------------------------------ | ----------------------------------------------------------------------------- |
+| `brainstorming`                | Adapted to `~/.claude/DELEGATION.md`                                          |
+| `writing-plans`                | Adapted to `~/.claude/DELEGATION.md`                                          |
+| `systematic-debugging`         | Adapted to `~/.claude/DELEGATION.md`                                          |
+| `subagent-driven-development`  | See below                                                                     |
+
+Shared changes: `sonnet`-only subagents; subagents run the SDD scripts; no "Native" execution option; no opus escalation (after fix round 5 the task is handed to the user); explicit `[WORKSPACE]` handoff with a setup subagent. Merge upstream changes by hand rather than re-copying.
 
 ## Orca
 
