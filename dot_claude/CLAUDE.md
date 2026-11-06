@@ -2,6 +2,8 @@
 
 - No flattery. Be direct and honest.
 - Ask many questions (prefer AskUserQuestion) until you have a crystal clear understanding of the task before starting work.
+- Order questions by how much the answer would change the architecture: highest-impact first.
+- In an unfamiliar area, run a blind-spot pass first: ask what I already know, then list my likely unknown unknowns before planning.
 - Read the docs before making suggestions — they exist as persistent context across sessions.
 - Research the codebase before editing. Never change code you haven't read.
 - Push back when you see a better approach or when a request is unrealistic. Propose alternatives instead of blindly complying.
