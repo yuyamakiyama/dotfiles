@@ -41,7 +41,7 @@
   "terminalThemeLight": "Builtin Tango Light",
   "terminalCustomThemes": [],
   "terminalDividerColorLight": "#d4d4d8",
-  "terminalInactivePaneOpacity": 0.35,
+  "terminalInactivePaneOpacity": 0.5,
   "terminalActivePaneOpacity": 1,
   "terminalPaneOpacityTransitionMs": 140,
   "terminalDividerThicknessPx": 3,
