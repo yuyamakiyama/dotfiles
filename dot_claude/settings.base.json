@@ -38,6 +38,15 @@
             "timeout": 30
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun ~/.claude/hooks/quiz-gate.ts"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -67,6 +76,14 @@
           {
             "type": "command",
             "command": "echo 'POST-COMPACT REMINDER: (1) Package manager: use the one the lockfile implies (package-lock.json = npm, yarn.lock = yarn, pnpm-lock.yaml = pnpm); bun only for new projects. (2) TypeScript: declarative code (no let, for, push, forEach or mutable accumulators); no type assertions (as, !). (3) Branch naming: Conventional Branch, type/description, lowercase and hyphenated, ticket ID first when there is one; types feat/ (preferred over feature/), fix/ (preferred over bugfix/), hotfix/, release/, chore/; no user-name prefix. (4) Git: Conventional Commits; stage specific paths, never git add -A or git add .; never force push unless rebasing; make new commits, never amend.'"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun ~/.claude/hooks/load-ticket-notes.ts"
           }
         ]
       }
