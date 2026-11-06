@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { homedir } from "node:os";
-import { basename, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 
 const TICKET_KEY = /([a-z][a-z0-9]+-\d+)/i;
 
@@ -13,12 +13,24 @@ const git = (cwd: string, args: readonly string[]): string | undefined => {
   return result.exitCode === 0 && out !== "" ? out : undefined;
 };
 
+const mainRepoName = (cwd: string): string | undefined => {
+  const common = git(cwd, [
+    "rev-parse",
+    "--path-format=absolute",
+    "--git-common-dir",
+  ]);
+  if (common === undefined) return undefined;
+  return basename(common) === ".git"
+    ? basename(dirname(common))
+    : basename(common).replace(/\.git$/, "");
+};
+
 export const notesPath = (cwd: string): string | undefined => {
-  const root = git(cwd, ["rev-parse", "--show-toplevel"]);
+  const repo = mainRepoName(cwd);
   const branch = git(cwd, ["symbolic-ref", "--short", "-q", "HEAD"]);
-  if (root === undefined || branch === undefined) return undefined;
+  if (repo === undefined || branch === undefined) return undefined;
   const key = TICKET_KEY.exec(branch)?.[1]?.toUpperCase();
-  const name = key ?? `${basename(root)}__${branch.replaceAll("/", "-")}`;
+  const name = key ?? `${repo}__${branch.replaceAll("/", "-")}`;
   return join(homedir(), ".local", "share", "revu", "notes", `${name}.md`);
 };
 
