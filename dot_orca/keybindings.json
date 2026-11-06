@@ -10,9 +10,6 @@
         "Ctrl+ArrowDown"
       ],
       "tab.nextSameType": [],
-      "sidebar.left.toggle": [
-        "Mod+S"
-      ],
       "workspace.rename": [
         "Mod+Shift+B"
       ],
@@ -32,6 +29,12 @@
       ],
       "tab.newBrowser": [
         "Mod+B"
+      ],
+      "sidebar.left.toggle": [
+        "Mod+S"
+      ],
+      "app.settings": [
+        "Mod+Comma"
       ]
     },
     "linux": {},
