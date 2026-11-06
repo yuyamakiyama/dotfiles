@@ -38,8 +38,10 @@ Agent (subagent_type: general-purpose):
 
     ## Task Description
 
-    Read your task brief first: [BRIEF_FILE]
-    It contains the full task text from the plan.
+    Generate and read your task brief first. From the repo root, run:
+    `bash ~/.claude/skills/subagent-driven-development/scripts/task-brief [PLAN_FILE] [N]`
+    It writes the task's full text to `<workspace>/task-N-brief.md` and
+    prints the path; read that file. It contains the full task text from the plan.
 
     ## Context
 
@@ -112,8 +114,9 @@ Agent (subagent_type: general-purpose):
 
     **How to escalate:** Report back with status BLOCKED or NEEDS_CONTEXT. Describe
     specifically what you're stuck on, what you've tried, and what kind of help you need.
-    The controller can provide more context, re-dispatch with a more capable model,
-    or break the task into smaller pieces.
+    The controller can provide more context or break the task into smaller
+    pieces. Work stays on sonnet; if the task is still stuck after fix round 5,
+    the controller stops and hands it to the user.
 
     ## Before Reporting Back: Self-Review
 

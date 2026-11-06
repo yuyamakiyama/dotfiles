@@ -144,8 +144,10 @@ controllers that lost their place have re-dispatched entire completed task
 sequences — the single most expensive failure observed. Track progress in
 a ledger file, not only in todos.
 
-- Each plan owns a workspace: at skill start, run this skill's
-  `bash scripts/sdd-workspace PLAN_FILE` — it prints the plan's git-ignored
+- Each plan owns a workspace: at skill start, dispatch a tiny `sonnet` setup
+  subagent (background, delegation contract included) to run
+  `bash ~/.claude/skills/subagent-driven-development/scripts/sdd-workspace PLAN_FILE`
+  from the repo root and return its output verbatim — the plan's git-ignored
   directory (under `<repo-root>/.superpowers/sdd/`), home to
   every artifact for THIS plan: ledger, briefs, reports, review packages.
   Another plan's directory is never yours to read or write.
@@ -226,9 +228,12 @@ child is noticed within minutes, not at the end of the session.
 Record BASE (`git rev-parse HEAD`) before dispatching — the review package
 and fix-round diffs need it.
 
-- **Task brief:** before dispatching an implementer, run this skill's
-  `bash scripts/task-brief PLAN_FILE N` — it extracts the task's full text to a
-  uniquely named file and prints the path. Compose the dispatch so the
+- **Task brief:** the implementer generates its own brief as the first step
+  of its task: the template has it run
+  `bash ~/.claude/skills/subagent-driven-development/scripts/task-brief PLAN_FILE N`
+  from the repo root — it extracts the task's full text to
+  `<workspace>/task-N-brief.md` and prints the path. You never run it yourself;
+  pass the implementer PLAN_FILE and N. Compose the dispatch so the
   brief stays the single source of
   requirements. Your dispatch should contain: (1) one line on where this
   task fits in the project; (2) the brief path, introduced as "read this
@@ -265,7 +270,7 @@ Template: [implementer-prompt.md](implementer-prompt.md)
 
 Implementer subagents report one of four statuses. Handle each appropriately:
 
-**DONE:** Generate the review package (`bash scripts/review-package PLAN_FILE BASE HEAD`, from this skill's directory — it prints the unique file path it wrote; BASE is the commit you recorded before dispatching the implementer — never `HEAD~1`, which silently drops all but the last commit of a multi-commit task), then dispatch the task reviewer with the printed path.
+**DONE:** Dispatch the task reviewer with PLAN_FILE, BASE and HEAD; the reviewer generates the review package itself (`bash ~/.claude/skills/subagent-driven-development/scripts/review-package PLAN_FILE BASE HEAD`, run from the repo root — it prints the unique file path it wrote). BASE is the commit you recorded before dispatching the implementer — never `HEAD~1`, which silently drops all but the last commit of a multi-commit task.
 
 **DONE_WITH_CONCERNS:** The implementer completed the work but flagged doubts. Read the concerns before proceeding. If the concerns are about correctness or scope, address them before review. If they're observations (e.g., "this file is getting large"), note them and proceed to review.
 
@@ -291,18 +296,17 @@ report missing either verdict — spec compliance AND task quality are both
 required. Implementer self-review never replaces the task review; both are
 needed.
 
-- Hand the reviewer its diff as a file: run this skill's
-  `bash scripts/review-package PLAN_FILE BASE HEAD` and pass the reviewer the file path
-  it prints (or, without bash: `git log --oneline`, `git diff --stat`,
-  and `git diff -U10` for the range, redirected to one uniquely named
-  file). The output never enters your own context, and the reviewer sees
+- The reviewer gets its diff as a file it generates itself: pass it
+  PLAN_FILE, BASE and HEAD, and its template has it run
+  `bash ~/.claude/skills/subagent-driven-development/scripts/review-package PLAN_FILE BASE HEAD`
+  and read the path it prints. The output never enters your own context, and the reviewer sees
   the commit list, stat summary, and full diff with context in one Read
   call. Use the BASE you recorded before dispatching the implementer —
   never `HEAD~1`, which silently truncates multi-commit tasks. Never
   dispatch a task reviewer without a diff file.
-- **Reviewer inputs:** the task reviewer gets three paths — the same brief
-  file, the report file, and the review package — plus the global
-  constraints that bind the task.
+- **Reviewer inputs:** the task reviewer gets PLAN_FILE, the task number N,
+  the report-file path, BASE and HEAD (it derives the brief path and builds
+  the review package itself), plus the global constraints that bind the task.
 - The global-constraints block you hand the reviewer is its attention
   lens. Copy the binding requirements verbatim from the plan's Global
   Constraints section or the spec: exact values, exact formats, and the
@@ -361,7 +365,7 @@ Model Selection), with the brief path, the report-file path, the open
 findings, and this framing: "A prior implementer attempted this task
 [N] times; you own it now. Read the report file for what was tried." A loop
 that survives three resumes usually means the implementer cannot see its
-own problem — fresh eyes and a capability bump in one move.
+own problem — fresh eyes on the same `sonnet` model; there is no model escalation. If fix round 5 still leaves open Critical/Important findings, stop and hand the task to the user.
 
 **Every round, either way:** the implementer fixes, re-runs the tests
 covering the amended code, appends its fix report to the same report file,
@@ -371,10 +375,11 @@ output; dispatch the re-review once all three are present. Name the
 covering test files in the fix message — a one-line fix does not need the
 whole suite.
 
-**The re-review is scoped.** Run `bash scripts/review-package PLAN_FILE FIX_BASE HEAD`
-where FIX_BASE is the head the previous review saw, and dispatch
-[re-review-prompt.md](re-review-prompt.md) with the findings list, the
-brief, the report file, and the printed diff path. The re-reviewer verdicts
+**The re-review is scoped.** Dispatch [re-review-prompt.md](re-review-prompt.md)
+with the findings list, PLAN_FILE, N, the report file, FIX_BASE (the head the
+previous review saw) and HEAD; the re-reviewer runs
+`bash ~/.claude/skills/subagent-driven-development/scripts/review-package PLAN_FILE FIX_BASE HEAD`
+itself. The re-reviewer verdicts
 each finding ADDRESSED or NOT ADDRESSED and flags new breakage in the fix
 diff only. New Critical/Important breakage in the fix diff joins the open
 findings list. Out-of-scope observations go to the ledger as deferred
@@ -422,11 +427,12 @@ parked-with-ruling at the cap.
 
 ## Final Review
 
-The final whole-branch review gets a package too: run
-`bash scripts/review-package PLAN_FILE MERGE_BASE HEAD` (MERGE_BASE = the commit the
-branch started from, e.g. `git merge-base main HEAD`) and include the
-printed path in the final review dispatch, so the final reviewer reads
-one file instead of re-deriving the branch diff with git commands. Dispatch
+The final whole-branch review gets a package too: pass
+PLAN_FILE, MERGE_BASE and HEAD (MERGE_BASE = the commit the branch started
+from, e.g. `git merge-base main HEAD`) in the final review dispatch; the
+reviewer runs
+`bash ~/.claude/skills/subagent-driven-development/scripts/review-package PLAN_FILE MERGE_BASE HEAD`
+itself and reads one file instead of re-deriving the branch diff with git commands. Dispatch
 a fresh reviewer (`sonnet`, see Model Selection) using
 [task-reviewer-prompt.md](./task-reviewer-prompt.md), with the package as the diff
 file and the whole plan as the brief. Point it at
@@ -438,7 +444,7 @@ with the complete findings list — not one fixer per finding.
 Per-finding fixers each rebuild context and re-run suites; a real
 session's final-review fix wave cost more than all its tasks combined.
 Then run exactly one scoped re-review of the fix wave
-(`bash scripts/review-package PLAN_FILE FIX_BASE HEAD` over the fix range,
+(over the fix range FIX_BASE..HEAD, the re-reviewer running `review-package PLAN_FILE FIX_BASE HEAD` as above,
 [re-review-prompt.md](re-review-prompt.md)).
 Adjudicate any residual findings as in the task loop's breaker: park with
 rulings, or rule on the load-bearing ones and ledger what you decided. Only
@@ -458,7 +464,7 @@ whatever you got wrong. A ruling that dies with the workspace was a decision
 made in secret.
 
 When the final whole-branch review is clean and its fixes are merged,
-delete this plan's workspace (`rm -rf <workspace>`) — the git history is
+have the setup subagent delete this plan's workspace (`rm -rf <workspace>`) — the git history is
 the record now. Sibling directories belong to other plans; leave them
 alone.
 
@@ -485,12 +491,12 @@ You: I'm using Subagent-Driven Development to execute this plan.
 
 [Setup: worktree verified]
 [Read plan file once: docs/superpowers/plans/feature-plan.md]
-[Resolve workspace: bash scripts/sdd-workspace docs/superpowers/plans/feature-plan.md — no ledger inside, fresh start]
+[Setup subagent (sonnet) runs sdd-workspace docs/superpowers/plans/feature-plan.md and returns the workspace path — no ledger inside, fresh start]
 [Create todos for all tasks]
 
 Task 1: Hook installation script
 
-[Run task-brief for Task 1; dispatch implementer with brief + report paths + context]
+[Dispatch implementer with PLAN_FILE + N=1 + report path + context; it runs task-brief itself]
 
 Implementer: "Before I begin - should the hook be installed at user or system level?"
 
@@ -510,7 +516,7 @@ Task reviewer: Spec ✅ - all requirements met, nothing extra.
 
 Task 2: Recovery modes
 
-[Run task-brief for Task 2; dispatch implementer with brief + report paths + context]
+[Dispatch implementer with PLAN_FILE + N=2 + report path + context; it runs task-brief itself]
 
 Implementer: [No questions]
   - Added verify/repair modes

@@ -45,7 +45,9 @@ Agent (subagent_type: general-purpose):
 
     ## The Task
 
-    Read the task brief: [BRIEF_FILE]
+    Read the task brief. From the repo root, run
+    `bash ~/.claude/skills/subagent-driven-development/scripts/task-brief [PLAN_FILE] [N]`
+    (same output file the implementer worked from) and read the path it prints.
 
     ## The Findings Under Verification
 
@@ -58,7 +60,9 @@ Agent (subagent_type: general-purpose):
 
     **Fix base:** [FIX_BASE_SHA] (the head the previous review saw)
     **Head:** [HEAD_SHA]
-    **Diff file:** [DIFF_FILE]
+    **Diff file:** from the repo root, run
+    `bash ~/.claude/skills/subagent-driven-development/scripts/review-package [PLAN_FILE] [FIX_BASE_SHA] [HEAD_SHA]`
+    and use the path it prints.
 
     Read the diff file once — it contains the fix commits, a stat summary,
     and the fix diff with surrounding context. Do not re-run git commands.
@@ -129,13 +133,15 @@ Agent (subagent_type: general-purpose):
 
 **Placeholders:**
 - `[TICKET_AND_BRIEF]`, `[NOTES_FILE]`, `[ESCALATION_PASSAGE]`, `[DOD]` — the delegation contract slots (see SKILL.md, DELEGATION.md Overrides)
-- `[BRIEF_FILE]` — the task brief file (same file the implementer worked from)
+- `[PLAN_FILE]`, `[N]` — the plan path and task number; the re-reviewer runs
+  `task-brief PLAN_FILE N` to get the brief (same file the implementer worked from)
 - `[FINDINGS]` — the Critical/Important findings and spec gaps from the
   previous review, copied verbatim, one per bullet
 - `[REPORT_FILE]` — the implementer's report file (fix reports appended)
 - `[FIX_BASE_SHA]` — the head the previous review saw
 - `[HEAD_SHA]` — current commit
-- `[DIFF_FILE]` — the path `bash scripts/review-package PLAN_FILE FIX_BASE HEAD` printed
+- the diff file is produced by the re-reviewer itself:
+  `review-package PLAN_FILE FIX_BASE HEAD`
 
 **Re-reviewer returns:** per-finding verdicts (ADDRESSED / NOT ADDRESSED),
 new breakage in the fix diff, out-of-scope observations, and a round verdict.

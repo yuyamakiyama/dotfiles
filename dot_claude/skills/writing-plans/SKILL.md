@@ -179,26 +179,11 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 ## Execution Handoff
 
 After saving and self-reviewing the plan, link it for your human partner
-to read. If they have already explicitly supplied an execution method, ask
-them to review the plan and confirm it captures what they want; wait for that
-review before implementation, then use the preserved method. Otherwise, ask
-them to review the plan and choose an execution method before implementation.
+to read and ask them to review it and confirm it captures what they want. Wait for that
+review before implementation. Execution is always subagent-driven, per
+~/.claude/DELEGATION.md: the main thread orchestrates and sonnet subagents implement and review.
 
-**When no execution method has already been supplied:**
+**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Please review the plan. Does it capture what you want? Once confirmed, I will execute it with subagent-driven development (a fresh sonnet subagent implements each task, a fresh sonnet reviewer checks it before the next one starts, then a whole-branch review at the end)."**
 
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Please review the plan. Which execution approach would you prefer?**
-
-- **Subagent-driven** - A fresh subagent implements each task and a fresh reviewer checks it before the next one starts, then a whole-branch review at the end. Most thorough; costs a fresh context per task and per review.
-- **Native** - I implement every task myself in this session, the way this harness runs work, then one fresh reviewer on the most capable model checks the whole branch. Cheapest and fastest; no independent review until the end. Runs well with a mid-tier session model, since the plan carries the design.
-
-**For this plan I recommend <one of the two>, because <one sentence from the plan: how much the tasks depend on each other's interfaces, how many there are, what a shipped mistake would cost>. Does the plan capture what you want, and which approach should we use?"**
-
-**When an execution method has already been supplied:**
-
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Please review the plan. Does it capture what you want?"**
-
-**If Subagent-driven chosen:**
+**After confirmation:**
 - **REQUIRED SUB-SKILL:** Use subagent-driven-development
-
-**If Native chosen:**
-- Work through the plan task by task in this session, checking off each step.

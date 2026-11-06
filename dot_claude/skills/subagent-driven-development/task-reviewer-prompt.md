@@ -46,7 +46,9 @@ Agent (subagent_type: general-purpose):
 
     ## What Was Requested
 
-    Read the task brief: [BRIEF_FILE]
+    Read the task brief. From the repo root, run
+    `bash ~/.claude/skills/subagent-driven-development/scripts/task-brief [PLAN_FILE] [N]`
+    (same output file the implementer worked from) and read the path it prints.
 
     Global constraints from the spec/design that bind this task:
     [GLOBAL_CONSTRAINTS]
@@ -59,7 +61,9 @@ Agent (subagent_type: general-purpose):
 
     **Base:** [BASE_SHA]
     **Head:** [HEAD_SHA]
-    **Diff file:** [DIFF_FILE]
+    **Diff file:** from the repo root, run
+    `bash ~/.claude/skills/subagent-driven-development/scripts/review-package [PLAN_FILE] [BASE_SHA] [HEAD_SHA]`
+    and use the path it prints.
 
     Read the diff file once — it contains the commit list, a stat summary,
     and the full diff with surrounding context, and it is your view of the
@@ -216,8 +220,8 @@ Agent (subagent_type: general-purpose):
 
 **Placeholders:**
 - `[TICKET_AND_BRIEF]`, `[NOTES_FILE]`, `[ESCALATION_PASSAGE]`, `[DOD]` — the delegation contract slots (see SKILL.md, DELEGATION.md Overrides)
-- `[BRIEF_FILE]` — REQUIRED: the task brief file (`bash scripts/task-brief PLAN N`
-  prints the path; same file the implementer worked from)
+- `[PLAN_FILE]`, `[N]` — REQUIRED: the plan path and task number; the reviewer
+  runs `task-brief PLAN_FILE N` to get the brief (same file the implementer worked from)
 - `[GLOBAL_CONSTRAINTS]` — the binding requirements copied verbatim from
   the plan's Global Constraints section or the spec: exact values, formats,
   and stated relationships between components (not process rules — those
@@ -226,9 +230,8 @@ Agent (subagent_type: general-purpose):
   report to
 - `[BASE_SHA]` — commit before this task
 - `[HEAD_SHA]` — current commit
-- `[DIFF_FILE]` — REQUIRED: the path the controller wrote the review
-  package to (`bash scripts/review-package PLAN_FILE BASE HEAD` prints the unique
-  path it wrote; the package never enters the controller's context)
+- `[BASE_SHA]`, `[HEAD_SHA]` — used with `[PLAN_FILE]` for `review-package PLAN_FILE BASE HEAD`,
+  which the reviewer runs itself; the package never enters the controller's context
 
 **Reviewer returns:** Spec Compliance verdict (✅/❌/⚠️), Strengths, Issues
 (Critical/Important/Minor), Task quality verdict
