@@ -38,9 +38,9 @@ Agent (subagent_type: general-purpose):
 
     ## Task Description
 
-    Generate and read your task brief first. From the repo root, run:
+    Your workspace is [WORKSPACE]. Generate and read your task brief first. From the repo root, run:
     `bash ~/.claude/skills/subagent-driven-development/scripts/task-brief [PLAN_FILE] [N]`
-    It writes the task's full text to `<workspace>/task-N-brief.md` and
+    It writes the task's full text to `[WORKSPACE]/task-N-brief.md` and
     prints the path; read that file. It contains the full task text from the plan.
 
     ## Context
@@ -156,7 +156,7 @@ Agent (subagent_type: general-purpose):
 
     ## Report Format
 
-    Write your full report to [REPORT_FILE], using the Required Report Sections
+    Write your full report to [REPORT_FILE] (= `[WORKSPACE]/task-N-report.md`), using the Required Report Sections
     above (Result, DoD check, Decisions and assumptions, Deviations from plan,
     What the checks don't prove) plus:
     - What you implemented (or what you attempted, if blocked)

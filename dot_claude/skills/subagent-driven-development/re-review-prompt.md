@@ -56,7 +56,8 @@ Agent (subagent_type: general-purpose):
     ## The Fix
 
     Read the implementer's report (fix reports are appended at the end):
-    [REPORT_FILE]
+    [REPORT_FILE] (= [WORKSPACE]/task-N-report.md)
+    Workspace: [WORKSPACE]
 
     **Fix base:** [FIX_BASE_SHA] (the head the previous review saw)
     **Head:** [HEAD_SHA]
@@ -137,7 +138,9 @@ Agent (subagent_type: general-purpose):
   `task-brief PLAN_FILE N` to get the brief (same file the implementer worked from)
 - `[FINDINGS]` — the Critical/Important findings and spec gaps from the
   previous review, copied verbatim, one per bullet
-- `[REPORT_FILE]` — the implementer's report file (fix reports appended)
+- `[WORKSPACE]` — the plan workspace path the setup subagent returned,
+  recorded by the controller
+- `[REPORT_FILE]` — `[WORKSPACE]/task-N-report.md`, the implementer's report file (fix reports appended)
 - `[FIX_BASE_SHA]` — the head the previous review saw
 - `[HEAD_SHA]` — current commit
 - the diff file is produced by the re-reviewer itself:

@@ -80,7 +80,7 @@ digraph process {
         "Implementer asks questions?" [shape=diamond];
         "Answer questions, provide context" [shape=box];
         "Implementer implements, tests, commits, self-reviews" [shape=box];
-        "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)" [shape=box];
+        "Dispatch task reviewer with PLAN_FILE, BASE, HEAD, WORKSPACE (./task-reviewer-prompt.md)" [shape=box];
         "Spec ✅ and quality approved?" [shape=diamond];
         "Finding conflicts with plan text?" [shape=diamond];
         "Rule on the conflict, ledger the ruling" [shape=box];
@@ -107,8 +107,8 @@ digraph process {
     "Implementer asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Implementer implements, tests, commits, self-reviews";
     "Implementer asks questions?" -> "Implementer implements, tests, commits, self-reviews" [label="no"];
-    "Implementer implements, tests, commits, self-reviews" -> "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)";
-    "Generate review package, dispatch task reviewer (./task-reviewer-prompt.md)" -> "Spec ✅ and quality approved?";
+    "Implementer implements, tests, commits, self-reviews" -> "Dispatch task reviewer with PLAN_FILE, BASE, HEAD, WORKSPACE (./task-reviewer-prompt.md)";
+    "Dispatch task reviewer with PLAN_FILE, BASE, HEAD, WORKSPACE (./task-reviewer-prompt.md)" -> "Spec ✅ and quality approved?";
     "Spec ✅ and quality approved?" -> "Append completion to ledger, mark todo complete" [label="yes"];
     "Spec ✅ and quality approved?" -> "Finding conflicts with plan text?" [label="no"];
     "Finding conflicts with plan text?" -> "Rule on the conflict, ledger the ruling" [label="yes"];
@@ -151,6 +151,11 @@ a ledger file, not only in todos.
   directory (under `<repo-root>/.superpowers/sdd/`), home to
   every artifact for THIS plan: ledger, briefs, reports, review packages.
   Another plan's directory is never yours to read or write.
+- The setup subagent returns the workspace path. Record it as `[WORKSPACE]` at
+  the top of your ledger/notes, and pass it as an explicit `[WORKSPACE]` value
+  in every implementer, task-reviewer and re-reviewer dispatch and in the final
+  cleanup dispatch. Each template defines `[REPORT_FILE]` as
+  `[WORKSPACE]/task-N-report.md`.
 - Check for this plan's ledger at `<workspace>/progress.md`. If its first
   line names your plan file, tasks with a `Task <N>: complete` line are DONE
   — do not re-dispatch them; resume at the first task without one. A task
@@ -196,7 +201,17 @@ implementation.
 
 ## Model Selection
 
-Per DELEGATION.md, every execution subagent (implementer, task reviewer, re-reviewer, final reviewer, fix rounds) uses `model: "sonnet"`, stated explicitly on every dispatch. An omitted model inherits the controller's model and is a defect. Rounds 4-5 of the fix loop dispatch a fresh implementer, still on `sonnet`, with the full report-file history; if that also fails, stop and ask the user rather than escalating to a larger model.
+Per DELEGATION.md, every execution subagent (implementer, task reviewer, re-reviewer, final reviewer, fix rounds) uses `model: "sonnet"`, stated explicitly on every dispatch. The setup subagent is also `sonnet` (`model: "sonnet"`, `run_in_background: true`). An omitted model inherits the controller's model and is a defect. Rounds 4-5 of the fix loop dispatch a fresh implementer, still on `sonnet`, with the full report-file history; if that also fails, stop and ask the user rather than escalating to a larger model.
+
+**Setup subagent dispatch prompt:** run
+`bash ~/.claude/skills/subagent-driven-development/scripts/sdd-workspace PLAN_FILE`
+from the repo root and return the printed workspace path verbatim. Include the
+delegation contract and a DoD whose report carries the five DELEGATION.md
+sections (Result, DoD check, Decisions and assumptions, Deviations from plan,
+What the checks don't prove). For the final cleanup dispatch, pass the exact
+`[WORKSPACE]` path: the subagent runs `rm -rf` on that path only, and first
+confirms the path is inside the repo's `.superpowers/sdd/`; if not, it deletes
+nothing and escalates.
 
 ## The Task Loop
 
@@ -214,7 +229,7 @@ and is re-read on every later turn. Hand artifacts over as files.
 
 **Waiting on dispatched subagents:** never poll a wait interface with
 short timeouts, and never sit in one silent, open-ended wait either.
-While you have local work — ledger updates, packaging the next review,
+While you have local work — ledger updates, recording status,
 reading reports — keep working; child results arrive on their own.
 When you are genuinely idle, wait in bounded stretches (five to ten
 minutes, where your platform allows), and between stretches post one
@@ -270,7 +285,7 @@ Template: [implementer-prompt.md](implementer-prompt.md)
 
 Implementer subagents report one of four statuses. Handle each appropriately:
 
-**DONE:** Dispatch the task reviewer with PLAN_FILE, BASE and HEAD; the reviewer generates the review package itself (`bash ~/.claude/skills/subagent-driven-development/scripts/review-package PLAN_FILE BASE HEAD`, run from the repo root — it prints the unique file path it wrote). BASE is the commit you recorded before dispatching the implementer — never `HEAD~1`, which silently drops all but the last commit of a multi-commit task.
+**DONE:** Dispatch the task reviewer with PLAN_FILE, BASE, HEAD and `[WORKSPACE]`; the reviewer generates the review package itself (`bash ~/.claude/skills/subagent-driven-development/scripts/review-package PLAN_FILE BASE HEAD`, run from the repo root — it prints the unique file path it wrote). BASE is the commit you recorded before dispatching the implementer — never `HEAD~1`, which silently drops all but the last commit of a multi-commit task.
 
 **DONE_WITH_CONCERNS:** The implementer completed the work but flagged doubts. Read the concerns before proceeding. If the concerns are about correctness or scope, address them before review. If they're observations (e.g., "this file is getting large"), note them and proceed to review.
 
@@ -361,7 +376,7 @@ dispatch a fresh implementer carrying the brief path, the report-file path,
 and the findings — the report file is the persistent memory either way.
 
 **Rounds 4-5 — dispatch a fresh implementer** (`sonnet`, per
-Model Selection), with the brief path, the report-file path, the open
+Model Selection), with the brief path, `[WORKSPACE]`, the report-file path, the open
 findings, and this framing: "A prior implementer attempted this task
 [N] times; you own it now. Read the report file for what was tried." A loop
 that survives three resumes usually means the implementer cannot see its
@@ -429,7 +444,7 @@ parked-with-ruling at the cap.
 
 The final whole-branch review gets a package too: pass
 PLAN_FILE, MERGE_BASE and HEAD (MERGE_BASE = the commit the branch started
-from, e.g. `git merge-base main HEAD`) in the final review dispatch; the
+from, e.g. `git merge-base main HEAD`) in the final review dispatch, along with `[WORKSPACE]`; the
 reviewer runs
 `bash ~/.claude/skills/subagent-driven-development/scripts/review-package PLAN_FILE MERGE_BASE HEAD`
 itself and reads one file instead of re-deriving the branch diff with git commands. Dispatch
@@ -464,7 +479,7 @@ whatever you got wrong. A ruling that dies with the workspace was a decision
 made in secret.
 
 When the final whole-branch review is clean and its fixes are merged,
-have the setup subagent delete this plan's workspace (`rm -rf <workspace>`) — the git history is
+have the setup subagent delete this plan's workspace (`rm -rf [WORKSPACE]`, exactly the returned path, after confirming it is inside `.superpowers/sdd/`) — the git history is
 the record now. Sibling directories belong to other plans; leave them
 alone.
 
@@ -496,7 +511,7 @@ You: I'm using Subagent-Driven Development to execute this plan.
 
 Task 1: Hook installation script
 
-[Dispatch implementer with PLAN_FILE + N=1 + report path + context; it runs task-brief itself]
+[Dispatch implementer with PLAN_FILE + N=1 + WORKSPACE + context; it runs task-brief itself]
 
 Implementer: "Before I begin - should the hook be installed at user or system level?"
 
@@ -508,7 +523,7 @@ Implementer: [Later]
   - Self-review: Found I missed --force flag, added it
   - Committed
 
-[Run review-package PLAN_FILE BASE HEAD; dispatch task reviewer with the printed path]
+[Dispatch task reviewer with PLAN_FILE, BASE, HEAD, WORKSPACE; it runs review-package itself]
 Task reviewer: Spec ✅ - all requirements met, nothing extra.
   Strengths: Good test coverage, clean. Issues: None. Task quality: Approved.
 
@@ -516,14 +531,14 @@ Task reviewer: Spec ✅ - all requirements met, nothing extra.
 
 Task 2: Recovery modes
 
-[Dispatch implementer with PLAN_FILE + N=2 + report path + context; it runs task-brief itself]
+[Dispatch implementer with PLAN_FILE + N=2 + WORKSPACE + context; it runs task-brief itself]
 
 Implementer: [No questions]
   - Added verify/repair modes
   - 8/8 tests passing
   - Committed
 
-[Run review-package PLAN_FILE BASE HEAD; dispatch task reviewer with the printed path]
+[Dispatch task reviewer with PLAN_FILE, BASE, HEAD, WORKSPACE; it runs review-package itself]
 Task reviewer: Spec ❌:
   - Missing: Progress reporting (spec says "report every 100 items")
   Issues (Important): Magic number (100)
@@ -532,7 +547,7 @@ Task reviewer: Spec ❌:
 Implementer: Added progress reporting, extracted PROGRESS_INTERVAL constant.
   Re-ran test/recovery.test.js — 10/10 passing. Fix report appended.
 
-[Run review-package PLAN_FILE FIX_BASE HEAD; dispatch scoped re-review]
+[Dispatch scoped re-review with PLAN_FILE, FIX_BASE, HEAD, WORKSPACE]
 Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
   Magic number — ADDRESSED (src/recovery.js:7). New breakage: none.
   Verdict: all findings addressed.
@@ -543,7 +558,7 @@ Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
 ...
 
 [After all tasks]
-[Run review-package PLAN_FILE MERGE_BASE HEAD; dispatch final whole-branch reviewer, sonnet]
+[Dispatch final whole-branch reviewer, sonnet, with PLAN_FILE, MERGE_BASE, HEAD, WORKSPACE]
 Final reviewer: All requirements met. Deferred minors triaged: none block merge.
 
 [Delete this plan's workspace — the record now lives in git]

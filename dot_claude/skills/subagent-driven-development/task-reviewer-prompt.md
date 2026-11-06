@@ -55,7 +55,8 @@ Agent (subagent_type: general-purpose):
 
     ## What the Implementer Claims They Built
 
-    Read the implementer's report: [REPORT_FILE]
+    Workspace: [WORKSPACE]
+    Read the implementer's report: [REPORT_FILE] (= [WORKSPACE]/task-N-report.md)
 
     ## Diff Under Review
 
@@ -226,7 +227,9 @@ Agent (subagent_type: general-purpose):
   the plan's Global Constraints section or the spec: exact values, formats,
   and stated relationships between components (not process rules — those
   are already in this template)
-- `[REPORT_FILE]` — REQUIRED: the file the implementer wrote its detailed
+- `[WORKSPACE]` — REQUIRED: the plan workspace path the setup subagent returned,
+  recorded by the controller
+- `[REPORT_FILE]` — REQUIRED: `[WORKSPACE]/task-N-report.md`, the file the implementer wrote its detailed
   report to
 - `[BASE_SHA]` — commit before this task
 - `[HEAD_SHA]` — current commit
