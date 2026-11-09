@@ -10,12 +10,17 @@ Input: one URL (Jira issue, GitLab issue/MR, GitHub issue/PR). If no URL is give
 ## Steps
 
 1. **Open in Orca.** Load the `orca-cli` skill, then run `orca goto --url <url> --json` in the current worktree. On `browser_no_tab`, run `orca tab create --url <url> --json`. The tab is for the user to read along; do not scrape it for ticket content.
-2. **Brief first.** Right after the tab opens, before any explanation or grounding, ask the user in chat to type a 3-line brief in their own words:
-   - `Hypothesis:` what they think the answer is.
-   - `Done =` the evidence that proves it (test, screenshot, log).
-   - `Out of scope:` what this ticket must not touch.
+2. **Brief first.** Right after the tab opens, before any explanation or grounding, send this message in chat, verbatim:
+
+   ```
+   Before I dig in, type a 3-line brief in your own words:
+   Hypothesis: your best guess at the cause or the fix (e.g. "the icon request never times out")
+   Done: how you'll know it's finished (e.g. a passing test, a screenshot, a log line)
+   Out of scope: what this ticket should leave alone (e.g. other screens, the public API)
+   ```
 
    Wait for the answer. It is free text, so ask in plain chat, not AskUserQuestion. Do not offer Claude's own framing first, and do not fetch, explain or ground anything before the answer arrives.
+
 3. **Fetch the ticket.** Read it through an API, not the browser:
    - Jira: Atlassian MCP `getJiraIssue` (description, acceptance criteria, comments, linked issues, attachments list).
    - GitLab: `glab issue view <n> --comments` or `glab mr view <n> --comments` in the matching repo.
@@ -29,7 +34,7 @@ Input: one URL (Jira issue, GitLab issue/MR, GitHub issue/PR). If no URL is give
 
    ## Brief
    Hypothesis: …
-   Done = …
+   Done: …
    Out of scope: …
 
    ## Decisions and assumptions
@@ -50,6 +55,7 @@ Input: one URL (Jira issue, GitLab issue/MR, GitHub issue/PR). If no URL is give
    ```
 
    If the helper exits non-zero, report its error and carry on; do not block the artifact on it.
+
 8. **Open the artifact in Orca.** Run `orca tab create --url <artifact url> --json` so the artifact opens in a new tab beside the ticket tab. On a republish, switch to the existing artifact tab (`orca tab list --json`, then `orca tab switch --index <n> --json`) and run `orca reload --json` instead of opening another tab.
 9. **Terminal reply.** Lead with the single next action (usually "answer the questions in the artifact and paste the prompt back"). Then the artifact link and the question count. No ticket summary in the terminal.
 10. **Answers pasted back.** When the user pastes a prompt beginning `Answers for the /ticket-kickoff questions on`, treat each line as a decision. Restate the resulting scope in one table, then ask whether to start implementation.
