@@ -36,6 +36,11 @@ The point is that the user understands what they are about to ship. The answers 
    Each question names its `path:line`.
 3. **Ask one at a time.** Print one question, then stop and wait for the user's typed reply. Do not show the next question or any expected answer until the reply arrives. Do not use AskUserQuestion; the answers are free text.
 4. **Grade each answer.** After each reply, mark PASS or FAIL with a one-line reason citing `path:line`. Grade against what the code and notes actually say. A vague or partial answer is FAIL.
+   For every FAIL, after the verdict add:
+   1. **What was wrong**: 2-5 plain sentences naming the specific wrong claim or missing point versus the code, citing `path:line` where useful and explaining any class or method names in plain words.
+   2. **Example answer**: a short model answer (2-4 sentences) that would pass, written in the first person as the PR author would say it in review.
+
+   A PASS needs neither. Give these only after that question is graded, never before the user answers.
 5. **Record.** Append to the notes file's `## Quiz` section with the Edit or Write tool (never through the shell), keeping everything else intact. The line must start exactly as follows, with today's date as `YYYY-MM-DD`:
    - All 3 passed: `Quiz: passed (YYYY-MM-DD)`
    - Otherwise: `Quiz: failed (YYYY-MM-DD) — <topics missed>`
