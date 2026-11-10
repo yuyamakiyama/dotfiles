@@ -29,7 +29,7 @@ The point is that the user understands what they are about to ship. The answers 
      ```
 
      Then run the quiz, building the questions from the diff alone.
-2. **Build 4 questions, one per type, in this order.** Each asks ONE thing (never "X and Y") and names its `path:line`.
+2. **Build 4 questions, one per type, in this order.** Each asks ONE thing (never "X and Y") and names its `path:line`. One question means one ask: before you show a question, check it has a single interrogative clause; asking about the same outcome before and after counts as one ask. Good: "What happens to the wall at the doorway before and after this PR?" Bad: "What does X return, what does Y return, and what does that mean for Z?" Rewrite any bundled question before showing it.
 
    | Type           | Asks                                                                               | Example                                                                                     |
    | -------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
