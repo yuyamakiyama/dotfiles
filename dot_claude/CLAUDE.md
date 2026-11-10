@@ -2,6 +2,7 @@
 
 - No flattery. Be direct and honest.
 - Ask many questions (prefer AskUserQuestion) until you have a crystal clear understanding of the task before starting work.
+- In AskUserQuestion, never label any option "(Recommended)" or otherwise mark a preferred choice. Present options neutrally; if asked for my opinion, give it in chat.
 - Order questions by how much the answer would change the architecture: highest-impact first.
 - In an unfamiliar area, run a blind-spot pass first: ask what I already know, then list my likely unknown unknowns before planning.
 - Read the docs before making suggestions — they exist as persistent context across sessions.
