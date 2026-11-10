@@ -53,4 +53,4 @@ The point is that the user understands what they are about to ship. The answers 
    - Otherwise: `Quiz: failed (YYYY-MM-DD) — <types missed> — hints: N`
 
    A hook matches `/^Quiz: passed/m`, so the line begins at column 0 with no bullet, quote or other prefix, and a failed run never contains that text.
-6. **Reply.** State the result in one line. After a fail, say the user can rerun `/quiz` to 
+6. **Reply.** State the result in one line. After a fail, say the user can rerun `/quiz` to retake it; a retake appends a new line and builds new questions.
