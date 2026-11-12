@@ -1,5 +1,8 @@
 #!/usr/bin/env bun
 
+import { existsSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+
 type HookInput = {
   tool_name?: string;
   tool_input?: {
@@ -46,6 +49,16 @@ const DIRECTIVE =
   /eslint-(disable|enable)|@ts-(expect-error|ignore|nocheck)|ts-nocheck|biome-ignore|prettier-ignore|@jsxImportSource|istanbul ignore|c8 ignore|v8 ignore|noinspection|#region|#endregion|coding[:=]|@preserve|@license|webpackChunkName|type-coverage:ignore/i;
 
 const extOf = (p: string): string => p.split(".").pop()?.toLowerCase() ?? "";
+
+const ancestorsOf = (p: string): readonly string[] =>
+  dirname(p) === p ? [p] : [p, ...ancestorsOf(dirname(p))];
+
+const docCommentsAllowed = (filePath: string): boolean =>
+  ancestorsOf(dirname(resolve(filePath))).some((d) =>
+    existsSync(join(d, ".allow-doc-comments")),
+  );
+
+const isDocComment = (c: string): boolean => c.startsWith("///");
 
 const fullLineCFamily = (line: string): string | null => {
   const t = line.trim();
@@ -112,6 +125,7 @@ const main = async (): Promise<number> => {
   const ext = extOf(filePath);
   if (!C_FAMILY.has(ext) && !HASH.has(ext) && !DASH.has(ext)) return 0;
 
+  const allowDocs = docCommentsAllowed(filePath);
   const added = ((): readonly string[] => {
     const { old_string, new_string, content } = input.tool_input ?? {};
     if (typeof new_string === "string") {
@@ -120,7 +134,7 @@ const main = async (): Promise<number> => {
     }
     if (typeof content === "string") return commentsIn(content, ext);
     return [];
-  })();
+  })().filter((c) => !(allowDocs && isDocComment(c)));
 
   if (added.length === 0) return 0;
 
