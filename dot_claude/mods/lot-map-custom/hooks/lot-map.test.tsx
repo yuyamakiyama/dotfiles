@@ -974,6 +974,8 @@ test('the band above the prompt shows the map\'s rows with no command, and sessi
     expect((await ui.find({ type: 'Text', text: /b\/content\.py/ }))?.text).toContain('Файлы')
     const root = await ui.find({ type: 'Box' })
     expect(root?.props.width).toBe(80)
+    expect(root?.props.borderStyle).toBe('round')
+    expect(root?.props.paddingX).toBe(1)
     await ui.unmount()
   }
 })

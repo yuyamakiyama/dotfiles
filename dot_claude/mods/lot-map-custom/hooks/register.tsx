@@ -410,7 +410,7 @@ export const register: Register = (on, options) => {
     const { current, feed, tally } = await sections($, e, setup, column)
     const { Box, Text } = $.ui.resolve(e)
     return (
-      <Box flexDirection="column" width={e.props.bodyColumns}>
+      <Box flexDirection="column" width={e.props.bodyColumns} borderStyle="round" borderDimColor paddingX={1}>
         {current}
         <Text dimColor wrap="truncate-end">
           {tally === '' ? t.noCounts : tally}

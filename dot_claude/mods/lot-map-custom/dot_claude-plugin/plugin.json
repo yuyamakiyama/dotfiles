@@ -1,6 +1,6 @@
 {
   "name": "lot-map-custom",
-  "version": "0.6.0-custom.2",
+  "version": "0.6.0-custom.3",
   "description": "Personal fork of lot-map (MIT, by Aleksei Volodin): the live map opens beside the chat at session start, with no classic hooks. A live map beside the chat: memory, files, shell, web, model, agents, skills and hooks light up as they are used",
   "author": {
     "name": "Aleksei Volodin (original lot-map); customized by yuyamakiyama",
