@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
 import type { Board, Entry, StationId, Status } from '../types'
-import { STATIONS, classify, clean, describeNow, drawMap, foldRows, formatMs, nowParts, setupFrom, shortModel, taskNotice, taskOf } from './map'
+import { STATIONS, bandRows, classify, clean, describeNow, drawMap, foldRows, formatMs, nowParts, setupFrom, shortModel, taskNotice, taskOf } from './map'
 import type { Setup } from './map'
 import { drawPicture, terminalPicture } from './terminal'
 
@@ -14,6 +14,7 @@ const LONG_LABEL = 28
 /** The least the time takes at the end of a row, so that short times line up: `107 ms`. A longer one widens its own row. */
 const TIME_COLUMN = 6
 const CREW = 12
+const CURRENT_ROWS = 1
 
 // Change the tag when a field of Entry or Board changes: it declines what an earlier version stored.
 const board = atom({ plugin: 'lot-map-custom', key: 'board' } as const, { entries: [], counts: {} } as Board, { shape: 'board-3' })
@@ -415,7 +416,7 @@ export const register: Register = (on, options) => {
         <Text dimColor wrap="truncate-end">
           {tally === '' ? t.noCounts : tally}
         </Text>
-        {feed}
+        {bandRows(feed, e.props.maxRows, CURRENT_ROWS)}
       </Box>
     )
   })

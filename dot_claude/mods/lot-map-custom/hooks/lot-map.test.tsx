@@ -2,7 +2,7 @@ import { expect, test } from 'claude-code/testing'
 
 import type { Board } from '../types'
 import type { Entry } from '../types'
-import { COLOR_NAMES, TRAIL_FADE_MS, TRAIL_HOLD_MS, classify, clean, describeNow, drawMap, firstLine, foldRows, formatMs, memoryIds, nowParts, routeOf, setupFrom, shortModel, taskNotice, taskOf } from './map'
+import { COLOR_NAMES, bandRows, TRAIL_FADE_MS, TRAIL_HOLD_MS, classify, clean, describeNow, drawMap, firstLine, foldRows, formatMs, memoryIds, nowParts, routeOf, setupFrom, shortModel, taskNotice, taskOf } from './map'
 import { hasGlyph } from './raster'
 import { stringsFor } from './text'
 
@@ -988,4 +988,50 @@ test('the band yields to a survey', { options: OWN }, async ($, on) => {
   const survey = await $.ui.mount({ ...BAND, surface: 'terminal', props: { ...BAND.props, hasSurvey: true } })
   expect(await survey.find({ type: 'Text', text: /content\.py/ })).toBeUndefined()
   await survey.unmount()
+})
+
+const callOrder = async (ui: { findAll: (q: { type: string; text: RegExp }) => Promise<readonly { text?: string }[]> }) =>
+  (await ui.findAll({ type: 'Text', text: /call-\d/ })).map(row => /call-(\d)/.exec(row.text ?? '')?.[1])
+
+const fiveCalls = async ($: Parameters<Parameters<typeof test>[1]>[0], on: Parameters<Parameters<typeof test>[1]>[1]) => {
+  on('clock.now', () => ({ value: 1_000_000 }))
+  on('tool.call', () => ({ result: {} }))
+  await $.tool.call({ tool: 'Bash', command: 'make', description: 'call-1' })
+  await $.tool.call({ tool: 'Read', file_path: '/a/call-2.py' })
+  await $.tool.call({ tool: 'Bash', command: 'make', description: 'call-3' })
+  await $.tool.call({ tool: 'Read', file_path: '/a/call-4.py' })
+  await $.tool.call({ tool: 'Bash', command: 'make', description: 'call-5' })
+}
+
+test('the band streams its rows oldest first, newest last, and the pane keeps the newest first', { options: OWN }, async ($, on) => {
+  await fiveCalls($, on)
+
+  const band = await $.ui.mount({ ...BAND, surface: 'terminal' })
+  expect(await callOrder(band)).toEqual(['1', '2', '3', '4', '5'])
+  await band.unmount()
+
+  const pane = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await callOrder(pane)).toEqual(['5', '4', '3', '2', '1'])
+  await pane.unmount()
+})
+
+test('the band keeps the newest rows that fit under its border, line of now and tally', { options: OWN }, async ($, on) => {
+  await fiveCalls($, on)
+
+  const fits = await $.ui.mount({ ...BAND, surface: 'terminal', props: { ...BAND.props, maxRows: 7 } })
+  expect(await callOrder(fits)).toEqual(['3', '4', '5'])
+  await fits.unmount()
+
+  const none = await $.ui.mount({ ...BAND, surface: 'terminal', props: { ...BAND.props, maxRows: 2 } })
+  expect(await callOrder(none)).toEqual([])
+  await none.unmount()
+})
+
+test('the band cap is the newest rows in order and never goes below nothing', () => {
+  const rows = ['e', 'd', 'c', 'b', 'a']
+  expect(bandRows(rows, 12, 1)).toEqual(['a', 'b', 'c', 'd', 'e'])
+  expect(bandRows(rows, 7, 1)).toEqual(['c', 'd', 'e'])
+  expect(bandRows(rows, 4, 1)).toEqual([])
+  expect(bandRows(rows, 0, 1)).toEqual([])
+  expect(bandRows(rows, -5, 3)).toEqual([])
 })

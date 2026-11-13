@@ -28,6 +28,12 @@ export function foldRows(entries: readonly Entry[], max = 16): Row[] {
   return rows
 }
 
+const BORDER_ROWS = 2
+const TALLY_ROWS = 1
+
+export const bandRows = <T>(newestFirst: readonly T[], maxRows: number, headerRows: number): T[] =>
+  newestFirst.slice(0, Math.max(0, maxRows - BORDER_ROWS - headerRows - TALLY_ROWS)).reverse()
+
 /**
  * The id of the background task a tool's answer started, if it started one: a shell command sent to the
  * background, a subagent or workflow launched to run on, a monitor.
