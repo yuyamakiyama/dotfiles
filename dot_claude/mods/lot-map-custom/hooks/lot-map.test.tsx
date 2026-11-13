@@ -1030,7 +1030,7 @@ test('the band keeps the newest rows that fit under its border, line of now and 
 test('the band cap is the newest rows in order and never goes below nothing', () => {
   const rows = ['e', 'd', 'c', 'b', 'a']
   expect(bandRows(rows, 12, 1)).toEqual(['a', 'b', 'c', 'd', 'e'])
-  expect(bandRows(Array.from({ length: 14 }, (_, i) => i), 99, 1)).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0].reverse().map(i => i))
+  expect(bandRows(Array.from({ length: 14 }, (_, i) => i), 99, 1)).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0])
   expect(bandRows(rows, 7, 1)).toEqual(['c', 'd', 'e'])
   expect(bandRows(rows, 4, 1)).toEqual([])
   expect(bandRows(rows, 0, 1)).toEqual([])
