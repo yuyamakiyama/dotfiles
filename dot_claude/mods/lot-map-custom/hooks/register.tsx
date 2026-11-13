@@ -7,6 +7,7 @@ import type { Setup } from './map'
 import { drawPicture, terminalPicture } from './terminal'
 
 const PANE = 'lot-map-custom'
+type Surface = Parameters<EngineInterface['ui']['resolve']>[0]
 const KEEP = 80
 /** A label longer than this may not fit a docked pane, so its row gets a control that opens it. */
 const LONG_LABEL = 28
@@ -127,6 +128,94 @@ async function contextOf($: EngineInterface): Promise<Pick<Board, 'context'>> {
   return typeof percent === 'number' ? { context: percent } : {}
 }
 
+async function sections($: EngineInterface, e: Surface, setup: Setup, column: number) {
+  const { t } = setup
+  const state = await read($, board)
+  const now = await $.clock.now()
+  const { Box, Text, Button } = $.ui.resolve(e)
+  const size = setup.textSize
+
+  // How long each answer took, from the person's message to it: the one time a row of the moment has to show.
+  const turnMs = new Map<string, number>()
+  let askedAt: number | undefined
+  for (const x of state.entries) {
+    if (x.station === 'you' && x.from === 'inbound' && x.mark === undefined) askedAt = x.startedAt
+    if (x.mark === 'done' && askedAt !== undefined) {
+      turnMs.set(x.id, x.startedAt - askedAt)
+      askedAt = undefined
+    }
+  }
+
+  const rows = foldRows(state.entries).map(({ entry, times, tookMs }) => {
+    const isSwitch = entry.mark === 'switch'
+    const mark = isSwitch ? '◆' : entry.status === 'run' ? '●' : entry.status === 'ok' ? '·' : '✕'
+    const whole = turnMs.get(entry.id)
+    // A row of one moment (a message, what a hook added) took no time: its place in the column holds a dash.
+    const took = entry.endedAt === undefined ? t.running : whole !== undefined && whole > 0 ? formatMs(whole, t) : tookMs > 0 ? formatMs(tookMs, t) : '—'
+    const isMoment = took === '—'
+    // Theme keys, so the rows read on a light theme as well as on a dark one.
+    const color = isSwitch || entry.status === 'run' ? 'claude' : entry.status === 'ok' ? undefined : 'error'
+    const line = `${mark} ${t.stations[entry.station].padEnd(column)} ${entry.label}${times > 1 ? `  +${times - 1}` : ''}`
+    const isDim = entry.status === 'ok' && !isSwitch
+    // One row of the pane a row of the feed: the words are cut at the edge, the time keeps a column of its own at the
+    // right, so a long label neither wraps nor pushes the time about. A long one can be opened, one at a time.
+    const isLong = entry.label.length > LONG_LABEL
+    const isOpen = isLong && state.open === entry.id
+    return (
+      <Box flexDirection="row" gap={1} alignItems="flex-start">
+        <Box flexGrow={1} flexShrink={1} minWidth={0}>
+          <Text mono size={size} color={color} dimColor={isDim} wrap={isOpen ? 'wrap' : 'truncate-end'}>
+            {line}
+          </Text>
+        </Box>
+        {isLong
+          ? [
+              <Button
+                key={`open-${entry.id}`}
+                plain
+                dimColor
+                label={isOpen ? '▾' : '▸'}
+                onPress={() => void quietly(() => update($, board, b => ({ ...b, open: isOpen ? undefined : entry.id })))}
+              />,
+            ]
+          : []}
+        <Box flexShrink={0} minWidth={TIME_COLUMN} justifyContent="flex-end">
+          <Text mono tabular size={size} color={isMoment ? undefined : color} dimColor={isDim || isMoment} wrap="truncate-end">
+            {took}
+          </Text>
+        </Box>
+      </Box>
+    )
+  })
+  const feed = rows.length > 0 ? rows : [<Text dimColor>{t.nothingYet}</Text>]
+  // What runs now at the left, cut if it must be. Where there is no drawing to say them, the context and the model
+  // stand at the right, whole; beside the drawing they would be said a second time.
+  const now2 = nowParts(state, t)
+  const what = now2.what
+  const meter = e.surface === 'terminal' ? now2.meter : ''
+  const current = (
+    <Box flexDirection="row" gap={1} alignItems="flex-start">
+      <Box flexGrow={1} flexShrink={1} minWidth={0}>
+        <Text mono size={size} wrap="truncate-end">
+          {what}
+        </Text>
+      </Box>
+      {meter === ''
+        ? []
+        : [
+            <Box flexShrink={0}>
+              <Text mono tabular size={size} dimColor>
+                {meter}
+              </Text>
+            </Box>,
+          ]}
+    </Box>
+  )
+
+  const tally = STATIONS.filter(s => (state.counts[s.id] ?? 0) > 0).map(s => `${t.stations[s.id]} ${state.counts[s.id]}`).join(' · ')
+  return { state, now, current, feed, tally }
+}
+
 export const register: Register = (on, options) => {
   const setup = setupFrom(options)
   const { t } = setup
@@ -147,7 +236,6 @@ export const register: Register = (on, options) => {
 
   on('session.start', async ($, e, next) => {
     await quietly(() => $.command.register({ name: 'lot-map-custom', description: t.command }))
-    void quietly(() => $.ui.open({ id: PANE, title: t.title }))
     await quietly(async () => {
       modelKey = `model:${e.cwd}`
       const kept = await $.store.get(modelKey)
@@ -292,90 +380,10 @@ export const register: Register = (on, options) => {
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
-    const state = await read($, board)
-    const now = await $.clock.now()
-    const { Box, Text, Button } = $.ui.resolve(e)
-    const size = setup.textSize
-
-    // How long each answer took, from the person's message to it: the one time a row of the moment has to show.
-    const turnMs = new Map<string, number>()
-    let askedAt: number | undefined
-    for (const x of state.entries) {
-      if (x.station === 'you' && x.from === 'inbound' && x.mark === undefined) askedAt = x.startedAt
-      if (x.mark === 'done' && askedAt !== undefined) {
-        turnMs.set(x.id, x.startedAt - askedAt)
-        askedAt = undefined
-      }
-    }
-
-    const rows = foldRows(state.entries).map(({ entry, times, tookMs }) => {
-      const isSwitch = entry.mark === 'switch'
-      const mark = isSwitch ? '◆' : entry.status === 'run' ? '●' : entry.status === 'ok' ? '·' : '✕'
-      const whole = turnMs.get(entry.id)
-      // A row of one moment (a message, what a hook added) took no time: its place in the column holds a dash.
-      const took = entry.endedAt === undefined ? t.running : whole !== undefined && whole > 0 ? formatMs(whole, t) : tookMs > 0 ? formatMs(tookMs, t) : '—'
-      const isMoment = took === '—'
-      // Theme keys, so the rows read on a light theme as well as on a dark one.
-      const color = isSwitch || entry.status === 'run' ? 'claude' : entry.status === 'ok' ? undefined : 'error'
-      const line = `${mark} ${t.stations[entry.station].padEnd(column)} ${entry.label}${times > 1 ? `  +${times - 1}` : ''}`
-      const isDim = entry.status === 'ok' && !isSwitch
-      // One row of the pane a row of the feed: the words are cut at the edge, the time keeps a column of its own at the
-      // right, so a long label neither wraps nor pushes the time about. A long one can be opened, one at a time.
-      const isLong = entry.label.length > LONG_LABEL
-      const isOpen = isLong && state.open === entry.id
-      return (
-        <Box flexDirection="row" gap={1} alignItems="flex-start">
-          <Box flexGrow={1} flexShrink={1} minWidth={0}>
-            <Text mono size={size} color={color} dimColor={isDim} wrap={isOpen ? 'wrap' : 'truncate-end'}>
-              {line}
-            </Text>
-          </Box>
-          {isLong
-            ? [
-                <Button
-                  key={`open-${entry.id}`}
-                  plain
-                  dimColor
-                  label={isOpen ? '▾' : '▸'}
-                  onPress={() => void quietly(() => update($, board, b => ({ ...b, open: isOpen ? undefined : entry.id })))}
-                />,
-              ]
-            : []}
-          <Box flexShrink={0} minWidth={TIME_COLUMN} justifyContent="flex-end">
-            <Text mono tabular size={size} color={isMoment ? undefined : color} dimColor={isDim || isMoment} wrap="truncate-end">
-              {took}
-            </Text>
-          </Box>
-        </Box>
-      )
-    })
-    const feed = rows.length > 0 ? rows : [<Text dimColor>{t.nothingYet}</Text>]
-    // What runs now at the left, cut if it must be. Where there is no drawing to say them, the context and the model
-    // stand at the right, whole; beside the drawing they would be said a second time.
-    const now2 = nowParts(state, t)
-    const what = now2.what
-    const meter = e.surface === 'terminal' ? now2.meter : ''
-    const current = (
-      <Box flexDirection="row" gap={1} alignItems="flex-start">
-        <Box flexGrow={1} flexShrink={1} minWidth={0}>
-          <Text mono size={size} wrap="truncate-end">
-            {what}
-          </Text>
-        </Box>
-        {meter === ''
-          ? []
-          : [
-              <Box flexShrink={0}>
-                <Text mono tabular size={size} dimColor>
-                  {meter}
-                </Text>
-              </Box>,
-            ]}
-      </Box>
-    )
+    const { state, now, current, feed, tally } = await sections($, e, setup, column)
+    const { Box, Text } = $.ui.resolve(e)
 
     if (e.surface === 'terminal') {
-      const tally = STATIONS.filter(s => (state.counts[s.id] ?? 0) > 0).map(s => `${t.stations[s.id]} ${state.counts[s.id]}`).join(' · ')
       const map = picture === undefined ? undefined : await quietly(() => drawPicture($, e, state, now, picture))
       return (
         <Box flexDirection="column">
@@ -392,6 +400,21 @@ export const register: Register = (on, options) => {
       <Box flexDirection="column">
         <Svg source={drawMap(state, now, setup)} alt={`${t.title}. ${describeNow(state, t)}`} />
         {current}
+        {feed}
+      </Box>
+    )
+  })
+
+  on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+    if (e.plugin !== PANE || e.props.hasSurvey) return next(e)
+    const { current, feed, tally } = await sections($, e, setup, column)
+    const { Box, Text } = $.ui.resolve(e)
+    return (
+      <Box flexDirection="column" width={e.props.bodyColumns}>
+        {current}
+        <Text dimColor wrap="truncate-end">
+          {tally === '' ? t.noCounts : tally}
+        </Text>
         {feed}
       </Box>
     )

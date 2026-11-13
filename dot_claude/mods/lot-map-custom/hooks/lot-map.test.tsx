@@ -947,3 +947,43 @@ test('the line of now names the model once: not at its right while a model step 
   expect(nowParts({ ...board, entries: [step, call] }, t).meter).toBe('8% · opus 5.5')
   expect(stringsFor('ru').idle).toBe('Ожидание')
 })
+
+const BAND = {
+  plugin: 'lot-map-custom',
+  component: 'AbovePrompt',
+  props: { hasSurvey: false, isCollapsed: false, isWorking: false, maxRows: 12, bodyColumns: 80, scroll: { offset: 0, bodyRows: 11 }, view: {} },
+} as const
+
+test('the band above the prompt shows the map\'s rows with no command, and session start opens no pane', { options: OWN }, async ($, on) => {
+  const opened: unknown[] = []
+  on('clock.now', () => ({ value: 1_000_000 }))
+  on('command.register', () => ({ value: { command: 'lot-map-custom' } }))
+  on('ui.open', (_, e) => {
+    opened.push(e)
+    return { value: { isPlaced: true } }
+  })
+  on('session.start', (_, e) => ({ cwd: e.cwd }))
+  on('tool.call', () => ({ result: {} }))
+
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await $.tool.call({ tool: 'Read', file_path: '/a/b/content.py' })
+  expect(opened.length).toBe(0)
+
+  for (const surface of ['terminal', 'desktop', 'mobile'] as const) {
+    const ui = await $.ui.mount({ ...BAND, surface })
+    expect((await ui.find({ type: 'Text', text: /b\/content\.py/ }))?.text).toContain('Файлы')
+    const root = await ui.find({ type: 'Box' })
+    expect(root?.props.width).toBe(80)
+    await ui.unmount()
+  }
+})
+
+test('the band yields to a survey', { options: OWN }, async ($, on) => {
+  on('clock.now', () => ({ value: 1_000_000 }))
+  on('tool.call', () => ({ result: {} }))
+  await $.tool.call({ tool: 'Read', file_path: '/a/b/content.py' })
+
+  const survey = await $.ui.mount({ ...BAND, surface: 'terminal', props: { ...BAND.props, hasSurvey: true } })
+  expect(await survey.find({ type: 'Text', text: /content\.py/ })).toBeUndefined()
+  await survey.unmount()
+})
