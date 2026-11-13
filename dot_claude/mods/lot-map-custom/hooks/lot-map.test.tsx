@@ -1030,8 +1030,25 @@ test('the band keeps the newest rows that fit under its border, line of now and 
 test('the band cap is the newest rows in order and never goes below nothing', () => {
   const rows = ['e', 'd', 'c', 'b', 'a']
   expect(bandRows(rows, 12, 1)).toEqual(['a', 'b', 'c', 'd', 'e'])
+  expect(bandRows(Array.from({ length: 14 }, (_, i) => i), 99, 1)).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0].reverse().map(i => i))
   expect(bandRows(rows, 7, 1)).toEqual(['c', 'd', 'e'])
   expect(bandRows(rows, 4, 1)).toEqual([])
   expect(bandRows(rows, 0, 1)).toEqual([])
   expect(bandRows(rows, -5, 3)).toEqual([])
+})
+
+test('the band shows at most the newest ten rows, oldest to newest, however much room it has', { options: OWN }, async ($, on) => {
+  on('clock.now', () => ({ value: 1_000_000 }))
+  on('tool.call', () => ({ result: {} }))
+  await Array.from({ length: 12 }, (_, i) => i + 1).reduce(
+    (done, n) =>
+      done.then(async () => {
+        await ($.tool.call as (c: object) => Promise<unknown>)(n % 2 === 0 ? { tool: 'Read', file_path: `/a/call-${n % 10}.py` } : { tool: 'Bash', command: 'make', description: `call-${n % 10}` })
+      }),
+    Promise.resolve(),
+  )
+
+  const ui = await $.ui.mount({ ...BAND, surface: 'terminal', props: { ...BAND.props, maxRows: 40 } })
+  expect(await callOrder(ui)).toEqual(['3', '4', '5', '6', '7', '8', '9', '0', '1', '2'])
+  await ui.unmount()
 })
