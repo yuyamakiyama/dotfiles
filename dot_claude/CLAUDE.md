@@ -45,7 +45,7 @@ Managed with [chezmoi](https://www.chezmoi.io/). Source repo: `~/ghq/github.com/
 - Never write comments that paraphrase the diff ("autoFocus so the keyboard opens", "use Platform.OS to gate Android-only"). If a reader can derive it from the line below, delete the comment.
 - The only acceptable comment is a _load-bearing why_ — a hidden invariant, a subtle race, a workaround for a specific upstream bug, or a non-obvious constraint that would surprise a future reader. Even then, one short line.
 - Do not narrate prior bugs, prior PRs, or "without this, X happens" in code comments — that belongs in the commit message / PR description.
-- **Exception — doc comments:** if a file named `.allow-doc-comments` exists in the repo or any ancestor directory, write API doc comments (e.g. C# `///` XML docs) on public types, members, and endpoints. Describe contract and behaviour, not implementation. The rules above still apply to every other comment.
+- **Exception — doc comments:** write API doc comments (e.g. C# `///` XML docs) on public types, members, and endpoints. Describe contract and behaviour, not implementation. The rules above still apply to every other comment.
 
 ## Git Rules
 
