@@ -5,9 +5,7 @@
     {
       "context": "Chat",
       "bindings": {
-        "ctrl+alt+g": "command:orca-agent-view",
-        "ctrl+x ctrl+a": null,
-        "ctrl+a": "abovePrompt:toggle"
+        "ctrl+alt+g": "command:orca-agent-view"
       }
     }
   ]
