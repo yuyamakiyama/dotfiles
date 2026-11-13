@@ -4,13 +4,13 @@
 
 - **Main thread = the session's top-tier model (Opus / Fable etc.) — orchestrator, and owner of the understanding**
 - **Execution subagents = `sonnet` — the default for research, implementation, fixes, and review**
-- Exception: only the Plan agent for large-scale design may omit `model` and inherit the main thread's model
+- Use `fable` for exactly these four steps: (1) the Plan agent for large-scale design, (2) the independent verifier of core diffs, (3) debugging after a sonnet subagent has failed twice on the same problem, (4) the deep-reasoning pass of the `/pr-review` skill. Everything else stays on sonnet.
 
-Never write pinned version names (e.g. "Sonnet 4.6") — they go stale across generations. Use the `sonnet` alias (always the current Sonnet-family latest) or "inherits main".
+Never write pinned version names (e.g. "Sonnet 4.6") — they go stale across generations. Use the `sonnet` or `fable` alias (always the current latest of that family).
 
 - The main thread designs, decides, delegates, and reports. It delegates all research, implementation, tests, and builds.
 - 🔴 **The main thread owns the understanding.** It reads the plan's key decisions, the raw evidence (test output, screenshots, logs), and the diff of the 1–3 core files itself, and shows these to the user before any summary.
-- **Always state `model: "sonnet"` explicitly** when launching a subagent, so the main thread's top-tier model is never inherited by accident. Plan is the only agent allowed to omit it.
+- **Always state `model` explicitly** on every subagent: `sonnet` by default and `fable` only for the four steps above, so the main thread's model is never inherited by accident. No agent may omit it.
 - Subagents execute clearly specified work only. Design decisions, spec interpretation, and trade-off choices are forbidden to them.
 - **When something Blocking is unclear, a subagent must never guess — it escalates to the main thread.** Reversible, local choices are made conservatively and logged. (See below; the Blocking tier is the single most important rule.)
 
@@ -58,7 +58,7 @@ Never write pinned version names (e.g. "Sonnet 4.6") — they go stale across ge
 ## Delegation Rules (MUST)
 
 1. Launch every subagent with `run_in_background: true`
-2. State `model: "sonnet"` explicitly on every subagent (Plan alone may omit it and inherit main)
+2. State `model` explicitly on every subagent: `sonnet`, or `fable` for the four Fable steps
 3. Dispatch independent tasks in the background, up to 6 in parallel
 4. Report a summary once a completion notification arrives
 5. **Include a DoD in the delegation prompt — 3–5 verifiable completion conditions — and require the report to check each one against measured reality (✅ / ❌ / unverified).** Reject and send back any "done" report that lacks this check.
@@ -121,7 +121,9 @@ Every subagent launch prompt **must contain the following passage**:
 | Broad research, many files       | general-purpose     | sonnet                | background |
 | Implementation, fixes, refactors | general-purpose     | sonnet                | background |
 | Code review                      | code-reviewer, etc. | sonnet                | background |
-| Planning (large-scale design)    | Plan                | (omit = inherit main) | background |
+| Planning (large-scale design)    | Plan                | fable                 | background |
+| Verifying core diffs (independent verifier) | code-reviewer / general-purpose | fable | background |
+| Debugging after 2 failed sonnet attempts | general-purpose | fable | background |
 
 When in doubt, use sonnet. **The one who builds and the one who verifies must always be different agents** — self-review does not count as verification. The verifier also receives the user's brief and checks the result against the user's hypothesis, not only against the builder's claims.
 
