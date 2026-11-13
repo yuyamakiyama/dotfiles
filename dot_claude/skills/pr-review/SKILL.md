@@ -26,7 +26,7 @@ Run steps 1 and 2 in parallel.
 
 1. **Built-in review.** Invoke the `code-review` skill with the resolved args. Collect its findings without printing them.
 2. **Logic-bug hunt.** Dispatch four `general-purpose` subagents in one message, each with `model: "sonnet"` and `run_in_background: true`, one per category in the brief below. Give each the diff target, the shared part of the brief, its own category, the DELEGATION.md escalation passage, and a DoD (every changed hunk checked for its category and traced to its callers and callees; every finding has `file:line` and a concrete failure scenario; ✅/❌ per item). A hunter that spots a bug outside its category notes it in one line and does not develop it.
-3. **Verify and enrich.** Merge the step-1 findings and all four hunters' findings and dedupe them on root cause. Move non-behavior findings to `filteredOut`, each with a reason. Dispatch a _different_ subagent with `model: "opus"` and every remaining finding. The verifier decides what reaches the report, so it runs on the stronger model. For each finding it:
+3. **Verify and enrich.** Merge the step-1 findings and all four hunters' findings and dedupe them on root cause. Move non-behavior findings to `filteredOut`, each with a reason. Dispatch a _different_ subagent with `model: "fable"` and every remaining finding. The verifier decides what reaches the report, so it runs on the stronger model. For each finding it:
    - Reproduces the failure scenario by reading the code, and marks it CONFIRMED, PLAUSIBLE or REJECTED. For PLAUSIBLE, it names the external fact that would decide it.
    - Notes whether the behavior already exists on the target branch.
    - For each finding that is not REJECTED, returns `title`, `plain`, `flow` and `fixOptions`, in the shapes `schema.md` defines. `flow` labels use only real code names and facts from the scenario. `fixOptions` has 2–4 options, exactly one of them recommended. `plain` follows the "Plain-words rules" in `~/.claude/skills/explain-simply/SKILL.md`: 1–2 short sentences on what goes wrong for a person using the product, no code names.
@@ -84,7 +84,7 @@ To change the design, edit `template.html` and re-run `render.ts` on a saved `fi
 | A finding with no concrete failure scenario               | Drop it, or verify it until a scenario exists                             |
 | Reviewing the diff in isolation                           | Trace callers and callees; most logic bugs live at the boundary           |
 | One hunter covering every category                        | Dispatch the four category hunters in parallel                            |
-| The verifier is the same agent that found it              | Always use a separate opus verifier agent                                 |
+| The verifier is the same agent that found it              | Always use a separate fable verifier agent                                 |
 | A new artifact URL for a PR already reviewed              | Look up `~/.local/share/pr-review/artifacts.json` first (step 4)          |
 | Printing the full findings list in the terminal           | Put it in the artifact; the terminal gets the next action and counts only |
 | Code names or jargon in plain text with no glossary entry | Rewrite in everyday words, or add a glossary entry                        |
