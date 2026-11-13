@@ -1,0 +1,13 @@
+{
+  "name": "local-mods",
+  "owner": {
+    "name": "yuyamakiyama"
+  },
+  "plugins": [
+    {
+      "name": "lot-map-custom",
+      "source": "./lot-map-custom",
+      "description": "Fork of alexeyw/lot-map (MIT)"
+    }
+  ]
+}
