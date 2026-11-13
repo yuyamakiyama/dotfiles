@@ -34,7 +34,7 @@ Shared hooks and skills are canonical under `~/.claude`. The matching `~/.codex`
 - `skills/chezmoi/`
 - `skills/nvim/`
 - `skills/pr-status/`
-- `skills/stop-slop/`
+- `skills/humanizer/`
 
 `~/.codex/config.toml` comes from a `modify_` script (source: `dot_codex/modify_private_config.toml.tmpl`) rather than a plain template. Codex recomputes the `[hooks.state]` hook-trust hashes per machine and rewrites them on launch, so tracking them would make each machine overwrite the other's values on every `chezmoi apply`. The script emits the managed config, then passes the live file's Codex-owned tail (`[hooks.state]` onward, including the `[tui.*]` counters) through untouched.
 
@@ -54,11 +54,11 @@ settings.base.json ──► merge script (jq: live * base) ──► ~/.claude/
   (chezmoi source)       base wins on conflict             (live; Claude Code and Orca also write here)
 ```
 
-| Want to...                      | Do this                                                                            |
-| ------------------------------- | ---------------------------------------------------------------------------------- |
-| Enable/disable a plugin         | Edit `enabledPlugins` in `settings.base.json`, then `chezmoi apply`                |
-| Remove a plugin or setting key  | Delete it from `settings.base.json` **and** from the live `~/.claude/settings.json` |
-| Change a value only in live     | Don't — the next base change reverts it                                            |
+| Want to...                     | Do this                                                                             |
+| ------------------------------ | ----------------------------------------------------------------------------------- |
+| Enable/disable a plugin        | Edit `enabledPlugins` in `settings.base.json`, then `chezmoi apply`                 |
+| Remove a plugin or setting key | Delete it from `settings.base.json` **and** from the live `~/.claude/settings.json` |
+| Change a value only in live    | Don't — the next base change reverts it                                             |
 
 Gotcha: the merge never deletes keys from live (only adds and overwrites with base values), so removing a key from the base alone leaves it in the live file. Editing live alone gets reverted on the next base change.
 
@@ -68,12 +68,12 @@ Enabled plugins: `typescript-lsp`, `clangd-lsp`, `frontend-design`, `skill-creat
 
 Copied from the [superpowers](https://github.com/obra/superpowers) plugin (MIT, Jesse Vincent) into `dot_claude/skills/`, each with its own `LICENSE-superpowers.md`:
 
-| Skill                          | Differences from upstream                                                     |
-| ------------------------------ | ----------------------------------------------------------------------------- |
-| `brainstorming`                | Adapted to `~/.claude/DELEGATION.md`                                          |
-| `writing-plans`                | Adapted to `~/.claude/DELEGATION.md`                                          |
-| `systematic-debugging`         | Adapted to `~/.claude/DELEGATION.md`                                          |
-| `subagent-driven-development`  | See below                                                                     |
+| Skill                         | Differences from upstream            |
+| ----------------------------- | ------------------------------------ |
+| `brainstorming`               | Adapted to `~/.claude/DELEGATION.md` |
+| `writing-plans`               | Adapted to `~/.claude/DELEGATION.md` |
+| `systematic-debugging`        | Adapted to `~/.claude/DELEGATION.md` |
+| `subagent-driven-development` | See below                            |
 
 Shared changes: `sonnet`-only subagents; subagents run the SDD scripts; no "Native" execution option; no opus escalation (after fix round 5 the task is handed to the user); explicit `[WORKSPACE]` handoff with a setup subagent. Merge upstream changes by hand rather than re-copying.
 
