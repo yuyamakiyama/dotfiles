@@ -9,7 +9,7 @@ Input: one URL (Jira issue, GitLab issue/MR, GitHub issue/PR). If no URL is give
 
 ## Steps
 
-1. **Open in Orca.** Load the `orca-cli` skill, then run `orca goto --url <url> --json` in the current worktree. On `browser_no_tab`, run `orca tab create --url <url> --json`. The tab is for the user to read along; do not scrape it for ticket content.
+1. **Open in Orca.** Load the `orca-cli` skill, then run `orca tab create --url <url> --split right --json` in the current worktree so the ticket opens in a split beside the terminal. The tab is for the user to read along; do not scrape it for ticket content.
 2. **Brief first.** Right after the tab opens, before any explanation or grounding, send this message in chat, verbatim:
 
    ```
