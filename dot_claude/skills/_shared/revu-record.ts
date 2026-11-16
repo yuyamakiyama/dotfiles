@@ -96,6 +96,11 @@ const currentBranch = (): string => {
 
 const stamp = (now: Date): string => now.toISOString().replace(/[-:]/g, "").replace("T", "-").slice(0, 15);
 
+const normaliseSha = (value: string | undefined): string | undefined => {
+  const candidate = value?.trim().toLowerCase();
+  return candidate !== undefined && /^[0-9a-f]{40}$/.test(candidate) ? candidate : undefined;
+};
+
 const parseMeta = (raw: unknown): Meta => {
   const object = isObject(raw) ? raw : fail("meta file must contain a JSON object");
   const optionalString = (key: string): string | undefined => {
@@ -117,7 +122,7 @@ const parseMeta = (raw: unknown): Meta => {
     repo: optionalString("repo"),
     number: parsedNumber,
     host: host === undefined || host === null ? undefined : isHost(host) ? host : fail("meta.host must be github.com or gitlab.com"),
-    headSha: optionalString("headSha"),
+    headSha: normaliseSha(optionalString("headSha")),
     branch: optionalString("branch"),
   };
 };
@@ -150,7 +155,6 @@ const problems = (record: ArtifactRecord): readonly string[] =>
     record.number === undefined || (Number.isSafeInteger(record.number) && record.number > 0) ? null : "number must be a positive integer",
     record.ticketKey === undefined || record.ticketKey.trim() !== "" ? null : "ticketKey is empty",
     record.repo === undefined || record.repo.trim() !== "" ? null : "repo is empty",
-    record.headSha === undefined || /^[0-9a-f]{40}$/.test(record.headSha) ? null : "headSha must be a 40-character lowercase hex SHA",
     Number.isNaN(Date.parse(record.publishedAt)) ? "publishedAt is not ISO 8601" : null,
   ].filter((entry): entry is string => entry !== null);
 
