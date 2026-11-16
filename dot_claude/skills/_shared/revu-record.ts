@@ -16,6 +16,7 @@ type ArtifactRecord = {
   readonly repo?: string;
   readonly number?: number;
   readonly host?: Host;
+  readonly headSha?: string;
   readonly publishedAt: string;
 };
 
@@ -26,6 +27,7 @@ type Meta = {
   readonly repo?: string;
   readonly number?: number;
   readonly host?: Host;
+  readonly headSha?: string;
   readonly branch?: string;
 };
 
@@ -34,7 +36,7 @@ const FLAGS = ["kind", "artifact-url", "html", "meta"];
 const HOST_SHORT: Readonly<Record<Host, string>> = { "github.com": "gh", "gitlab.com": "gl" };
 
 const usage =
-  "usage: bun revu-record.ts --kind <ticket-kickoff|pr-review> [--artifact-url <url>] --html <path> --meta <path.json>\nmeta fields: title, ticketKey?, prUrl?, repo?, number?, host?, branch?";
+  "usage: bun revu-record.ts --kind <ticket-kickoff|pr-review> [--artifact-url <url>] --html <path> --meta <path.json>\nmeta fields: title, ticketKey?, prUrl?, repo?, number?, host?, headSha?, branch?";
 
 const fail = (message: string): never => {
   process.stderr.write(`revu-record: ${message}\n${usage}\n`);
@@ -115,6 +117,7 @@ const parseMeta = (raw: unknown): Meta => {
     repo: optionalString("repo"),
     number: parsedNumber,
     host: host === undefined || host === null ? undefined : isHost(host) ? host : fail("meta.host must be github.com or gitlab.com"),
+    headSha: optionalString("headSha"),
     branch: optionalString("branch"),
   };
 };
@@ -147,6 +150,7 @@ const problems = (record: ArtifactRecord): readonly string[] =>
     record.number === undefined || (Number.isSafeInteger(record.number) && record.number > 0) ? null : "number must be a positive integer",
     record.ticketKey === undefined || record.ticketKey.trim() !== "" ? null : "ticketKey is empty",
     record.repo === undefined || record.repo.trim() !== "" ? null : "repo is empty",
+    record.headSha === undefined || /^[0-9a-f]{40}$/.test(record.headSha) ? null : "headSha must be a 40-character lowercase hex SHA",
     Number.isNaN(Date.parse(record.publishedAt)) ? "publishedAt is not ISO 8601" : null,
   ].filter((entry): entry is string => entry !== null);
 
@@ -176,6 +180,7 @@ const main = async (argv: readonly string[]): Promise<void> => {
     ...(meta.repo !== undefined ? { repo: meta.repo } : {}),
     ...(meta.number !== undefined ? { number: meta.number } : {}),
     ...(host !== undefined ? { host } : {}),
+    ...(meta.headSha !== undefined ? { headSha: meta.headSha } : {}),
     publishedAt: now.toISOString(),
   };
 
