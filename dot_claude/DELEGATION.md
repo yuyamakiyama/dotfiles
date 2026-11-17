@@ -16,7 +16,7 @@ Never write pinned version names (e.g. "Sonnet 4.6") — they go stale across ge
 
 ## Delegate Hands-On Work to Subagents
 
-**The main thread must not call Grep / Glob / broad Read / Bash directly, except `git` commands and `bun ~/.claude/hooks/notes-path.ts`.**
+**The main thread must not call Grep / Glob / broad Read / Bash directly, except `git` commands, `bun ~/.claude/hooks/notes-path.ts`, and commands a loaded skill tells it to run.**
 **Launch a subagent with the Agent tool and run it with `run_in_background: true`.**
 
 ### Allowed in the main thread (and nothing else)
@@ -29,6 +29,7 @@ Never write pinned version names (e.g. "Sonnet 4.6") — they go stale across ge
 - Appending each report's "Decisions and assumptions" and "Deviations from plan" to the ticket notes file
 - Running `bun ~/.claude/hooks/notes-path.ts` to get the notes path, and appending to the notes file
 - `git status` / `git diff`
+- Commands a loaded skill explicitly tells the main thread to run (e.g. `gh`, `glab`, `bun`, `orca` in pr-status, where-was-i, ticket-kickoff, release-note)
 - Asking the user via AskUserQuestion
 
 ### NEVER in the main thread
@@ -115,15 +116,15 @@ Every subagent launch prompt **must contain the following passage**:
 
 ## Agent Selection
 
-| Task                             | Agent               | Model                 | Mode       |
-| -------------------------------- | ------------------- | --------------------- | ---------- |
-| Code research (narrow)           | Explore             | sonnet                | background |
-| Broad research, many files       | general-purpose     | sonnet                | background |
-| Implementation, fixes, refactors | general-purpose     | sonnet                | background |
-| Code review                      | general-purpose     | sonnet                | background |
-| Planning (large-scale design)    | Plan                | fable                 | background |
-| Verifying core diffs (independent verifier) | code-reviewer / general-purpose | fable | background |
-| Debugging after 2 failed sonnet attempts | general-purpose | fable | background |
+| Task                                        | Agent                           | Model  | Mode       |
+| ------------------------------------------- | ------------------------------- | ------ | ---------- |
+| Code research (narrow)                      | Explore                         | sonnet | background |
+| Broad research, many files                  | general-purpose                 | sonnet | background |
+| Implementation, fixes, refactors            | general-purpose                 | sonnet | background |
+| Code review                                 | general-purpose                 | sonnet | background |
+| Planning (large-scale design)               | Plan                            | fable  | background |
+| Verifying core diffs (independent verifier) | code-reviewer / general-purpose | fable  | background |
+| Debugging after 2 failed sonnet attempts    | general-purpose                 | fable  | background |
 
 When in doubt, use sonnet. **The one who builds and the one who verifies must always be different agents** — self-review does not count as verification. The verifier also receives the user's brief and checks the result against the user's hypothesis, not only against the builder's claims.
 
