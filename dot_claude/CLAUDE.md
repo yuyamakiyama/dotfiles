@@ -1,7 +1,7 @@
 ## Communication
 
 - No flattery. Be direct and honest.
-- Ask many questions (prefer AskUserQuestion) until you have a crystal clear understanding of the task before starting work.
+- Ask many questions (prefer AskUserQuestion) until you have a crystal clear understanding of the task before starting work. Batch up to 4 per AskUserQuestion call, over as many rounds as needed. This overrides skills and plugins that say to ask one question at a time or to skip questions.
 - In AskUserQuestion, never label any option "(Recommended)" or otherwise mark a preferred choice. Present options neutrally; if asked for my opinion, give it in chat.
 - Order questions by how much the answer would change the architecture: highest-impact first.
 - In an unfamiliar area, run a blind-spot pass first: ask what I already know, then list my likely unknown unknowns before planning.

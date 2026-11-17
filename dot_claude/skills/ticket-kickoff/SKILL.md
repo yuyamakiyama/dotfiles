@@ -103,7 +103,7 @@ Mirror the `/pr-review` fix-plan UI (`~/.claude/skills/pr-review/template.html`,
 
 - `Q1`, `Q2`, … with a short header chip (≤12 chars) and a full question ending in `?`.
 - 2–4 mutually exclusive options as radio buttons. Each has a bold label (1–5 words) and a dim description stating the trade-off.
-- At most one option is recommended: placed first, suffixed " (Recommended)", selected by default. Without one, the first option is selected.
+- Options are presented neutrally: no option is marked, labelled or ordered as preferred. The first option is selected by default.
 - A free-text "Other" option on every question; selecting it reveals a `<textarea class="opt-other-text">` (full width of the option, ~3 lines tall, vertically resizable) styled by the template's `.opt-other-text` rule. Never a bare `<input>`: the template sizes `.opt` radios/checkboxes to 1.1rem, and an unstyled text field there renders as a tiny box.
 - Optional `preview` (multi-line monospace) per option for code, config or ASCII mockups. If any option of a question has one, show the side-by-side preview box (stacks under 700px).
 - Multi-select questions use checkboxes instead of radios; mark them "(select all that apply)".

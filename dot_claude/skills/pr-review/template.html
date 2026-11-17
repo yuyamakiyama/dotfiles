@@ -1672,9 +1672,7 @@
         /* ---------- findings ---------- */
         function optionsOf(f) {
           var list = arr(f.fixOptions).filter(isObj).filter(function (o) { return str(o.id) !== ""; });
-          var rec = list.filter(function (o) { return o.recommended === true; }).slice(0, 1);
-          var rest = list.filter(function (o) { return rec.indexOf(o) < 0; });
-          return rec.concat(rest).map(function (o) { return { o: o, rec: rec.indexOf(o) >= 0 }; });
+          return list.map(function (o) { return { o: o }; });
         }
         var plans = findings.map(function (f) {
           var opts = optionsOf(f);
@@ -1756,7 +1754,7 @@
             input.addEventListener("blur", function () { var c = chosenOption(p); if (c) showPreview(c); });
             return el("label", { class: "opt" }, input,
               el("span", { class: "opt-body" },
-                el("b", { class: "opt-label" }, str(o.label) + (x.rec ? " (Recommended)" : "")),
+                el("b", { class: "opt-label" }, str(o.label)),
                 el("span", { class: "opt-desc" }, str(o.description))));
           });
           showPreview(chosenOption(p));

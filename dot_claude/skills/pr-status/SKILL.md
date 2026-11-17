@@ -9,8 +9,8 @@ description: >-
   "check my PRs", "PR status", "how are my PRs doing", "which of my PRs are ready
   to merge", "do any of my PRs have failing CI", "any of my PRs have conflicts",
   "my open PRs", "my draft PRs", or before I sit down to clear my PR queue. This
-  is a read-only multi-PR overview — NOT the same as watch-pr (which monitors one
-  specific PR and fixes it), and NOT create-pr. Prefer this skill any time the
+  is a read-only multi-PR overview — NOT a monitor-and-fix tool for one
+  specific PR. Prefer this skill any time the
   request is about the status of more than one of my PRs.
 ---
 
@@ -97,8 +97,7 @@ The user may ask a deeper question after seeing the table ("why is #123 blocked?
 rather than guessing.
 
 To actually _do_ something about a PR (fix CI, reply to reviews, monitor it),
-that's a different tool: `watch-pr` monitors and fixes a single PR autonomously.
-Point the user there rather than acting from this skill.
+that's outside this skill. Tell the user so rather than acting from this skill.
 
 ## Notes
 

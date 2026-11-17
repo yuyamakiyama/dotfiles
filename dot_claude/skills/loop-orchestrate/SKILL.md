@@ -40,13 +40,13 @@ Scaffolds `$LOOP_DIR` from `template/` and runs it via `loop`. Default `$LOOP_DI
 
 | Work | Model |
 | --- | --- |
-| Mechanical single-module edits with a clear spec | sonnet |
-| Cross-cutting or new-code slices, many modules, ambiguous rows | heavy (fable/opus) |
-| Review of a sonnet slice | sonnet |
-| Review of a heavy slice | heavy |
+| Build / implementation of every slice, whatever its size | sonnet |
+| Re-dispatch of a slice after a sonnet builder failed twice on the same problem (debugging) | heavy (fable) |
+| Review of a slice | sonnet |
+| Independent verification of a core diff (`reviewModel: heavy`) | heavy (fable) |
 | Follow-up `-fuN` slices | same as parent |
 
-Reviewer is heavy when the resolved builder model equals `models.heavy`. Resolved models are written to `resolvedModel` / `resolvedReviewModel`.
+Reviewer is heavy when `reviewModel` resolves to `models.heavy` or the resolved builder model equals `models.heavy`. Resolved models are written to `resolvedModel` / `resolvedReviewModel`.
 
 ## Review
 

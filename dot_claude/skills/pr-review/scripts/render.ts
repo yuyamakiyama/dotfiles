@@ -45,9 +45,6 @@ const checkFixOption = (o: unknown, path: string): string[] =>
   isRecord(o)
     ? [
         ...requireStrings(o, ["id", "label", "description"], path),
-        ...(o.recommended === undefined || typeof o.recommended === "boolean"
-          ? []
-          : [`${path}.recommended must be a boolean`]),
         ...(o.preview === undefined || typeof o.preview === "string"
           ? []
           : [`${path}.preview must be a string`]),
@@ -61,13 +58,11 @@ const checkFixOptions = (options: unknown, path: string): string[] => {
   }
   const ids = options.flatMap((o: unknown) => (isRecord(o) && isNonEmptyString(o.id) ? [o.id] : []));
   const duplicates = ids.filter((id, i) => ids.indexOf(id) !== i);
-  const recommended = options.filter((o: unknown) => isRecord(o) && o.recommended === true);
   return [
     ...options.flatMap((o: unknown, i) => checkFixOption(o, `${path}[${i}]`)),
     ...(duplicates.length > 0
       ? [`${path} ids must be unique (duplicate: ${[...new Set(duplicates)].join(", ")})`]
       : []),
-    ...(recommended.length > 1 ? [`${path} may have at most one recommended:true option`] : []),
   ];
 };
 
