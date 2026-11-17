@@ -16,10 +16,9 @@ Never write pinned version names (e.g. "Sonnet 4.6") — they go stale across ge
 
 ## Delegate Hands-On Work to Subagents
 
-**The main thread must not call Grep / Glob / broad Read / Bash directly, except `git` commands, `bun ~/.claude/hooks/notes-path.ts`, and commands a loaded skill tells it to run.**
-**Launch a subagent with the Agent tool and run it with `run_in_background: true`.**
+The line is drawn by size, not by tool. The main thread does small work directly; anything bigger goes to a subagent launched with the Agent tool and `run_in_background: true`.
 
-### Allowed in the main thread (and nothing else)
+### Allowed in the main thread
 
 - Discussing direction and making decisions with the user
 - Decomposing tasks and writing delegation instructions (including parallelization design)
@@ -28,16 +27,18 @@ Never write pinned version names (e.g. "Sonnet 4.6") — they go stale across ge
 - Reading the plan's key decisions, the raw evidence (test output, screenshots, logs), and the diff of the 1–3 core files, and showing them to the user before any summary
 - Appending each report's "Decisions and assumptions" and "Deviations from plan" to the ticket notes file
 - Running `bun ~/.claude/hooks/notes-path.ts` to get the notes path, and appending to the notes file
-- `git status` / `git diff`
+- `git` commands
 - Commands a loaded skill explicitly tells the main thread to run (e.g. `gh`, `glab`, `bun`, `orca` in pr-status, where-was-i, ticket-kickoff, release-note)
+- A handful of quick commands (a targeted grep, `ls`, a dry run, `chezmoi apply`) whose output is short
+- Small edits of a few lines in 1–2 files, such as config, docs or prompt text; not feature code
 - Asking the user via AskUserQuestion
 
-### NEVER in the main thread
+### Delegate to a subagent
 
 - Investigation spanning 3 or more files (the understanding reads above are exempt from this limit)
-- Implementation or code fixes (a one-line typo fix excepted)
+- Implementation or code fixes beyond a few lines
 - Running tests or builds
-- Broad codebase exploration (calling Grep / Glob directly)
+- Broad codebase exploration
 - Hoarding work that a single subagent could handle
 
 ## Parallel Execution Policy
