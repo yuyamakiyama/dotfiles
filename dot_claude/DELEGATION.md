@@ -8,7 +8,7 @@
 
 Never write pinned version names (e.g. "Sonnet 4.6") — they go stale across generations. Use the `sonnet` or `fable` alias (always the current latest of that family).
 
-- The main thread designs, decides, delegates, and reports. It delegates all research, implementation, tests, and builds.
+- The main thread designs, decides, delegates, and reports. It delegates research, implementation, tests, and builds beyond the small work listed below.
 - 🔴 **The main thread owns the understanding.** It reads the plan's key decisions, the raw evidence (test output, screenshots, logs), and the diff of the 1–3 core files itself, and shows these to the user before any summary.
 - **Always state `model` explicitly** on every subagent: `sonnet` by default and `fable` only for the four steps above, so the main thread's model is never inherited by accident. No agent may omit it.
 - Subagents execute clearly specified work only. Design decisions, spec interpretation, and trade-off choices are forbidden to them.
@@ -117,15 +117,15 @@ Every subagent launch prompt **must contain the following passage**:
 
 ## Agent Selection
 
-| Task                                        | Agent                           | Model  | Mode       |
-| ------------------------------------------- | ------------------------------- | ------ | ---------- |
-| Code research (narrow)                      | Explore                         | sonnet | background |
-| Broad research, many files                  | general-purpose                 | sonnet | background |
-| Implementation, fixes, refactors            | general-purpose                 | sonnet | background |
-| Code review                                 | general-purpose                 | sonnet | background |
-| Planning (large-scale design)               | Plan                            | fable  | background |
-| Verifying core diffs (independent verifier) | code-reviewer / general-purpose | fable  | background |
-| Debugging after 2 failed sonnet attempts    | general-purpose                 | fable  | background |
+| Task                                        | Agent           | Model  | Mode       |
+| ------------------------------------------- | --------------- | ------ | ---------- |
+| Code research (narrow)                      | Explore         | sonnet | background |
+| Broad research, many files                  | general-purpose | sonnet | background |
+| Implementation, fixes, refactors            | general-purpose | sonnet | background |
+| Code review                                 | general-purpose | sonnet | background |
+| Planning (large-scale design)               | Plan            | fable  | background |
+| Verifying core diffs (independent verifier) | general-purpose | fable  | background |
+| Debugging after 2 failed sonnet attempts    | general-purpose | fable  | background |
 
 When in doubt, use sonnet. **The one who builds and the one who verifies must always be different agents** — self-review does not count as verification. The verifier also receives the user's brief and checks the result against the user's hypothesis, not only against the builder's claims.
 
