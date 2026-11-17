@@ -9,9 +9,9 @@ description: "Neovim shortcut cheat sheet. Use when the user asks how to do some
 
 ## User's Setup
 
-- **LazyVim** (stock config, no custom keymaps)
+- **LazyVim** (default keymaps plus a few custom ones in `~/.config/nvim/lua/config/keymaps.lua`)
 - Leader key: `<Space>`
-- Plugins: flash.nvim, telescope, which-key, mini.ai, mini.pairs, gitsigns, trouble, snacks, grug-far, bufferline, noice, conform, nvim-lint, persistence, todo-comments, ts-comments, nvim-treesitter-textobjects, nvim-ts-autotag
+- Plugins: flash.nvim, which-key, mini.ai, mini.pairs, gitsigns, trouble, snacks, grug-far, bufferline, noice, conform, nvim-lint, persistence, todo-comments, ts-comments, nvim-treesitter-textobjects, nvim-ts-autotag
 
 ## Response Format
 
@@ -19,9 +19,9 @@ description: "Neovim shortcut cheat sheet. Use when the user asks how to do some
 2. **Breakdown**: Below the keystrokes, show what each key stands for in a compact `key` = meaning format.
 3. **Optional tip** (only if genuinely useful): Add 1-2 short lines prefixed with "Tip:" after a blank line.
 
-**IMPORTANT**: Always prefer LazyVim-specific keybindings over vanilla Vim equivalents when both exist. For example, suggest `H`/`L` for buffer navigation instead of `[b`/`]b`, and `<leader>bd` instead of `:bd`. LazyVim remaps should be the primary suggestion, with vanilla Vim as alternatives.
+Prefer LazyVim keybindings over vanilla Vim equivalents when both exist. For example, suggest `H`/`L` for buffer navigation instead of `[b`/`]b`, and `<leader>bd` instead of `:bd`. LazyVim remaps should be the primary suggestion, with vanilla Vim as alternatives.
 
-Do NOT write long explanations, tutorials, or vim philosophy. Be terse.
+Keep answers terse: keystrokes, breakdown, optional tip.
 
 ## Examples
 
@@ -44,7 +44,7 @@ Response:
 `L` (next) | `H` (prev)
 `L` = next buffer, `H` = prev buffer (LazyVim remaps)
 
-Tip: `<leader>fb` opens Telescope buffer picker to jump to any buffer. `<leader>bd` to close current buffer.
+Tip: `<leader>fb` opens the buffer picker to jump to any buffer. `<leader>bd` to close current buffer.
 
 User: "find and replace foo with bar in the whole file"
 Response:
@@ -73,7 +73,7 @@ Keep these in mind when answering:
 
 ### Leader (`<Space>`) Groups
 
-- `<leader>f` — Find (Telescope): `ff` files, `fg` grep, `fb` buffers, `fr` recent
+- `<leader>f` — Find (snacks picker): `ff` files, `fg` grep, `fb` buffers, `fr` recent
 - `<leader>s` — Search: `sg` grep, `ss` symbols, `sr` replace (grug-far)
 - `<leader>c` — Code: `ca` action, `cr` rename, `cf` format
 - `<leader>g` — Git: `gg` lazygit, `gb` blame, `gd` diff
@@ -96,7 +96,6 @@ Keep these in mind when answering:
 ### Editing
 
 - `gcc` toggle line comment, `gc{motion}` toggle comment
-- `sa{motion}{char}` add surround, `sd{char}` delete surround, `sr{old}{new}` replace surround (mini.surround if enabled, otherwise use LazyVim defaults)
 - `vi{char}` select inside, `va{char}` select around (enhanced by mini.ai)
 
 ### Flash.nvim
@@ -106,9 +105,4 @@ Keep these in mind when answering:
 - `r` — remote flash (in operator-pending mode)
 - `<C-s>` — toggle flash in telescope
 
-## Steps
-
-1. Read `$ARGUMENTS`
-2. Determine the best keystroke sequence for the user's LazyVim setup
-3. Respond in the format above — keystrokes first, then key breakdown, then optional tip
-4. If the question is ambiguous, give the most common interpretation first, then mention alternatives
+If the question is ambiguous, give the most common interpretation first, then mention alternatives.

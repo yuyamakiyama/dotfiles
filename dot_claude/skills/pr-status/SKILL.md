@@ -78,9 +78,8 @@ Column meanings:
 - **Merge**: `✅ clean` · `🟠 behind` (rebase needed) · `🔴 conflict` · `🚧 blocked` (a required check/review is blocking) · `⚠️ unstable` (mergeable but a non-required check is red) · `· ?` (GitHub hasn't computed it yet — re-run to resolve).
 - **Age**: time since last update; `⏰` marks PRs stale >7 days.
 
-Rows are still ranked most-actionable-first (ready to merge → broken → behind →
-waiting → draft); that ordering drives the sort and the one-line summary even
-though the per-row action text is no longer shown as a column.
+Rows are ranked most-actionable-first (ready to merge → broken → behind →
+waiting → draft); that ordering drives the sort and the one-line summary.
 
 ### Dependency graph
 

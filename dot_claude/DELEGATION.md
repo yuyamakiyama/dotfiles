@@ -1,6 +1,6 @@
-# Delegation Strategy — Main Thread Is the Conductor, Subagents Do the Work 🔴
+# Delegation Strategy — Main Thread Is the Conductor, Subagents Do the Work
 
-## Model Split (Highest Priority)
+## Model Split
 
 - **Main thread = the session's top-tier model (Opus / Fable etc.) — orchestrator, and owner of the understanding**
 - **Execution subagents = `sonnet` — the default for research, implementation, fixes, and review**
@@ -12,9 +12,9 @@ Never write pinned version names (e.g. "Sonnet 4.6") — they go stale across ge
 - 🔴 **The main thread owns the understanding.** It reads the plan's key decisions, the raw evidence (test output, screenshots, logs), and the diff of the 1–3 core files itself, and shows these to the user before any summary.
 - **Always state `model` explicitly** on every subagent: `sonnet` by default and `fable` only for the four steps above, so the main thread's model is never inherited by accident. No agent may omit it.
 - Subagents execute clearly specified work only. Design decisions, spec interpretation, and trade-off choices are forbidden to them.
-- **When something Blocking is unclear, a subagent must never guess — it escalates to the main thread.** Reversible, local choices are made conservatively and logged. (See below; the Blocking tier is the single most important rule.)
+- **When something Blocking is unclear, a subagent must never guess — it escalates to the main thread.** Reversible, local choices are made conservatively and logged. (See Subagent Escalation Duty below.)
 
-## MUST: Delegate All Hands-On Work to Subagents
+## Delegate Hands-On Work to Subagents
 
 **The main thread must not call Grep / Glob / broad Read / Bash directly, except `git` commands and `bun ~/.claude/hooks/notes-path.ts`.**
 **Launch a subagent with the Agent tool and run it with `run_in_background: true`.**
@@ -39,7 +39,7 @@ Never write pinned version names (e.g. "Sonnet 4.6") — they go stale across ge
 - Broad codebase exploration (calling Grep / Glob directly)
 - Hoarding work that a single subagent could handle
 
-## Parallel Execution Policy (MUST)
+## Parallel Execution Policy
 
 **Run up to 6 subagents concurrently. Independent tasks must be parallelized.**
 
@@ -55,7 +55,7 @@ Never write pinned version names (e.g. "Sonnet 4.6") — they go stale across ge
 3. Can research and implementation run at the same time? → If yes, launch together
 4. Go sequential only where a real dependency exists. Everything else is parallel.
 
-## Delegation Rules (MUST)
+## Delegation Rules
 
 1. Launch every subagent with `run_in_background: true`
 2. State `model` explicitly on every subagent: `sonnet`, or `fable` for the four Fable steps
@@ -66,9 +66,9 @@ Never write pinned version names (e.g. "Sonnet 4.6") — they go stale across ge
 7. **Context passing:** every subagent prompt includes the original ticket link or text and the user's brief, when they exist, and always the notes file path when one exists — never only a previous agent's summary.
 8. **Notes file:** the main thread appends each report's "Decisions and assumptions" and "Deviations from plan" to the ticket notes file as dated bullets under the matching `##` heading. Get the path by running `bun ~/.claude/hooks/notes-path.ts` in the repo. Notes live at `~/.local/share/revu/notes/<TICKET-KEY>.md`, or `<dir>__<branch>.md` when the branch has no ticket key.
 
-## 🔴 Subagent Escalation Duty (Most Important)
+## Subagent Escalation Duty
 
-**Implementing on a guess while a Blocking matter is unclear is absolutely forbidden.** This rule outranks quality. Escalation has two tiers:
+Never implement on a guess while a Blocking matter is unclear: unwinding it later costs far more than asking. Escalation has two tiers:
 
 | Tier                 | Covers                                                                                                                                                            | Action                                                                                             |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
@@ -120,7 +120,7 @@ Every subagent launch prompt **must contain the following passage**:
 | Code research (narrow)           | Explore             | sonnet                | background |
 | Broad research, many files       | general-purpose     | sonnet                | background |
 | Implementation, fixes, refactors | general-purpose     | sonnet                | background |
-| Code review                      | code-reviewer, etc. | sonnet                | background |
+| Code review                      | general-purpose     | sonnet                | background |
 | Planning (large-scale design)    | Plan                | fable                 | background |
 | Verifying core diffs (independent verifier) | code-reviewer / general-purpose | fable | background |
 | Debugging after 2 failed sonnet attempts | general-purpose | fable | background |

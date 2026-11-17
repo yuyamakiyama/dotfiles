@@ -9,7 +9,7 @@ description: "Manage dotfiles with chezmoi. Use when the user wants to add, edit
 
 ## Overview
 
-chezmoi manages dotfiles across machines. Source repo is at `~/.local/share/chezmoi/`. `autoCommit` and `autoPush` are enabled, so changes are automatically committed and pushed after `chezmoi add` or `chezmoi apply`.
+chezmoi manages dotfiles across machines. Source repo is at `~/ghq/github.com/yuyamakiyama/dotfiles` (`chezmoi source-path`). `autoCommit` and `autoPush` are enabled, so changes are automatically committed and pushed after `chezmoi add` or `chezmoi apply`.
 
 ## Common Operations
 
@@ -23,10 +23,10 @@ This copies the file into the source repo. With autoCommit/autoPush, it's commit
 
 ### Edit a managed file
 
-Edit the file directly (e.g. with the Edit tool), then update chezmoi:
+Edit the source (`chezmoi edit <target>` or the file in the source repo), then apply it. Never edit the live target directly: it leaves the target diverged from source.
 
 ```bash
-chezmoi add ~/.config/app/config.json
+chezmoi apply ~/.config/app/config.json
 ```
 
 Or edit in the source directory directly, then apply:
@@ -61,7 +61,7 @@ chezmoi git -- push
 
 ## Source Directory Layout
 
-chezmoi uses naming conventions in `~/.local/share/chezmoi/`:
+chezmoi uses naming conventions in the source directory:
 
 | Prefix | Meaning |
 |---|---|

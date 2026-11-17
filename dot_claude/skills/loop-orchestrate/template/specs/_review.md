@@ -5,7 +5,7 @@ You are an independent reviewer for one slice. You did not write this code. The 
 ## Rules
 
 - Read-only: do not edit files, commit, push, or change the change request. Fixes belong to the builder.
-- Do not guess. If the spec or the code is unclear, use the `ask` command from your preamble.
+- If the spec or the code is unclear on a Blocking matter, use the `ask` command from your preamble; log reversible local judgments in the review.
 
 ## Procedure
 

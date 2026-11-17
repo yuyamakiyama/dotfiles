@@ -48,7 +48,7 @@ The point is that the user understands what they are about to ship. The answers 
    2. **Example answer**: a short model answer (2-4 sentences) that would pass, written in the first person as the PR author would say it in review.
 
    A PASS needs neither. Give these only after that question is graded, never before the user answers.
-   - **Retry (FAIL only):** ask for a one-sentence retry restating the corrected chain, then stop and wait. Grade only against what the question asks. Grade it PASS or FAIL with one line. A passing retry counts for that question. Then move to the next question.
+   - **Retry (FAIL only):** ask for a one-sentence retry restating the corrected chain, then stop and wait. Grade it PASS or FAIL with one line. A passing retry counts for that question. Then move to the next question.
 5. **Record** after all 4 are finished. Passed = every question passed on its first answer, its follow-up, or its retry (hints do not matter). `<types missed>` = types that passed none of those. Append to the notes file's `## Quiz` section with the Edit or Write tool (never through the shell), keeping everything else intact. The line must start exactly as follows, with today's date as `YYYY-MM-DD` and N the number of hints used:
    - Passed: `Quiz: passed (YYYY-MM-DD) — hints: N`
    - Otherwise: `Quiz: failed (YYYY-MM-DD) — <types missed> — hints: N`

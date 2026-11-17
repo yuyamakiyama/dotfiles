@@ -64,4 +64,4 @@ Reject a reviewer `worker_done` that lacks a `VERDICT:` line, or lacks findings 
 
 ## Escalation handling
 
-Workers are execution-only; they ask instead of guessing. Decide, then `reply`. If a decision needs the user, ask with AskUserQuestion and reply afterwards.
+Workers escalate Blocking matters and log reversible local choices under Deviations from plan. Decide, then `reply`. If a decision needs the user, ask with AskUserQuestion and reply afterwards.
