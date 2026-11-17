@@ -62,20 +62,7 @@ settings.base.json ──► merge script (jq: live * base) ──► ~/.claude/
 
 Gotcha: the merge never deletes keys from live (only adds and overwrites with base values), so removing a key from the base alone leaves it in the live file. Editing live alone gets reverted on the next base change.
 
-Enabled plugins: `typescript-lsp`, `clangd-lsp`, `frontend-design`, `skill-creator`, `codex`, `i-have-adhd`. The `superpowers` plugin is uninstalled; four of its skills are vendored instead (below).
-
-## Vendored Skills
-
-Copied from the [superpowers](https://github.com/obra/superpowers) plugin (MIT, Jesse Vincent) into `dot_claude/skills/`, each with its own `LICENSE-superpowers.md`:
-
-| Skill                         | Differences from upstream            |
-| ----------------------------- | ------------------------------------ |
-| `brainstorming`               | Adapted to `~/.claude/DELEGATION.md` |
-| `writing-plans`               | Adapted to `~/.claude/DELEGATION.md` |
-| `systematic-debugging`        | Adapted to `~/.claude/DELEGATION.md` |
-| `subagent-driven-development` | See below                            |
-
-Shared changes: `sonnet`-only subagents; subagents run the SDD scripts; no "Native" execution option; no opus escalation (after fix round 5 the task is handed to the user); explicit `[WORKSPACE]` handoff with a setup subagent. Merge upstream changes by hand rather than re-copying.
+Enabled plugins: `typescript-lsp`, `clangd-lsp`, `frontend-design`, `skill-creator`, `codex`, `i-have-adhd`, `superpowers` (official plugin from the `superpowers-marketplace` marketplace).
 
 ## Orca
 
