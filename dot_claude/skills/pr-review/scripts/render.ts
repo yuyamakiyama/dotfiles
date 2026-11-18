@@ -119,6 +119,30 @@ const validate = (data: unknown): string[] =>
       ]
     : ["root must be an object"];
 
+const PREFERENCE_MARKER = /\s*[(\[]\s*recommended\s*[)\]]|\s*[\u2014\u2013-]+\s*recommended\b/gi;
+
+const stripPreferenceMarker = (value: unknown): unknown =>
+  typeof value === "string" ? value.replace(PREFERENCE_MARKER, "").trim() : value;
+
+const normalizeFixOption = (option: unknown): unknown =>
+  isRecord(option)
+    ? {
+        ...option,
+        label: stripPreferenceMarker(option.label),
+        description: stripPreferenceMarker(option.description),
+      }
+    : option;
+
+const normalizeFinding = (finding: unknown): unknown =>
+  isRecord(finding) && Array.isArray(finding.fixOptions)
+    ? { ...finding, fixOptions: finding.fixOptions.map(normalizeFixOption) }
+    : finding;
+
+const normalizeFixOptions = (data: unknown): unknown =>
+  isRecord(data) && Array.isArray(data.findings)
+    ? { ...data, findings: data.findings.map(normalizeFinding) }
+    : data;
+
 const escapeForScript = (json: string): string =>
   json
     .replaceAll("</", "<\\/")
@@ -166,7 +190,7 @@ const main = async (args: string[]): Promise<void> => {
   if (problems.length > 0) {
     return fail(problems);
   }
-  const data = parsed.value;
+  const data = normalizeFixOptions(parsed.value);
   const title = isRecord(data) && isNonEmptyString(data.title) ? data.title : "Code Review";
   const template = await Bun.file(join(import.meta.dir, "..", "template.html")).text();
   const withData = injectOnce(template, FINDINGS_PLACEHOLDER, escapeForScript(JSON.stringify(data)));
