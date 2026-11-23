@@ -105,6 +105,11 @@
             "type": "command",
             "command": "bun ~/.claude/hooks/jira-kickoff.ts",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bun ~/.claude/hooks/stale-plugin-hooks.ts",
+            "timeout": 10
           }
         ]
       }
