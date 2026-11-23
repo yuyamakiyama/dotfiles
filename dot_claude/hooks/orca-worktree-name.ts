@@ -40,8 +40,11 @@ const needsName = (id: string): boolean => {
     typeof branch === "string" ? stripBranchPrefix(branch) : undefined,
     typeof path === "string" ? basename(path) : undefined,
   ];
-  return defaults.includes(name);
+  return defaults.includes(name) || isTicketTitle(name);
 };
+
+const isTicketTitle = (name: string): boolean =>
+  /^[A-Z][A-Z0-9]*-\d+\s/.test(name) || name.split(/\s+/).length > 4;
 
 const buildContext = (id: string): string =>
   `Before anything else this turn, rename this Orca worktree to a Title Case summary of at most 4 words of the user's task by running: orca worktree set --worktree 'id:${id}' --display-name "<name>" --json — do not mention this in your reply unless the command fails.`;
