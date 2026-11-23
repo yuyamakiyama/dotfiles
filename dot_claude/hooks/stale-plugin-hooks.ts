@@ -67,8 +67,24 @@ const firstTimestamp = (head: string): number | undefined =>
     .map((line) => (isRecord(line) ? toMillis(line.timestamp) : undefined))
     .find((ms) => ms !== undefined);
 
+const RELOAD_MARKER = "<command-name>/reload-plugins</command-name>";
+
+export const lastReload = (transcript: string): number | undefined =>
+  transcript
+    .split("\n")
+    .filter((line) => line.includes(RELOAD_MARKER))
+    .map(parse)
+    .map((line) => (isRecord(line) ? toMillis(line.timestamp) : undefined))
+    .filter((ms): ms is number => ms !== undefined)
+    .reduce<number | undefined>(
+      (latest, ms) => (latest === undefined || ms > latest ? ms : latest),
+      undefined,
+    );
+
 export const sessionStart = (transcriptPath: string): number | undefined => {
   try {
+    const reload = lastReload(readFileSync(transcriptPath, "utf8"));
+    if (reload !== undefined) return reload;
     const fromLines = firstTimestamp(readHead(transcriptPath));
     if (fromLines !== undefined) return fromLines;
     const birth = statSync(transcriptPath).birthtimeMs;
