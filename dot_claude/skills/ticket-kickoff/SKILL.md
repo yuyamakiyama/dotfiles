@@ -58,7 +58,8 @@ Input: one URL (Jira issue, GitLab issue/MR, GitHub issue/PR). If no URL is give
 
 8. **Open the artifact in Orca.** Run `orca tab create --url <artifact url> --json` so the artifact opens in a new tab beside the ticket tab. On a republish, switch to the existing artifact tab (`orca tab list --json`, then `orca tab switch --index <n> --json`) and run `orca reload --json` instead of opening another tab.
 9. **Terminal reply.** Lead with the single next action (usually "answer the questions in the artifact and paste the prompt back"). Then the artifact link and the question count. No ticket summary in the terminal.
-10. **Answers pasted back.** When the user pastes a prompt beginning `Answers for the /ticket-kickoff questions on`, treat each line as a decision. Restate the resulting scope in one table, then ask whether to start implementation.
+10. **Answers pasted back.** When the user pastes a prompt beginning `Answers for the /ticket-kickoff questions on`, treat each line as a decision. Restate the resulting scope in one table, then ask whether to start implementation. Add a last row to that table: "Before push: run the repo's ship-check skill", when a skill whose name ends in `ship-check` is loaded.
+11. **Before the push.** When the implementation is done and verified, and before any `git push` or MR, invoke the loaded skill whose name ends in `ship-check`, if there is one. If none is loaded, say so in one line and continue.
 
 ## Artifact sections
 
